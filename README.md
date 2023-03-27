@@ -14,8 +14,8 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
     length = 10;		<- Zmienna typu integer
     diagonal = 100.75;	<- Zmienna typu double
     v_null = null;		<- Zmienna typu null
-    truth = True;		<- Stała typu boolean
-    text = "Text";		<- Stała typu string
+    truth = True;		<- Zmienna typu boolean
+    text = "Text";		<- Zmienna typu string
 
 ### Operatory arytmetyczne
 
@@ -138,12 +138,20 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
 
     # To jest komentarz...
     a = 5; 		# To również jest komentarz
+
+### Obiekty
+
+    obj.method()		<- wywołanie metody obiektu
+    data = obj.attr		<- dostęp do atrybutu obiektu
+    obj.attr = data		<- przypisanie wartości atrybutu
   
+## Funkcje i obiekty wbudowane
+
 ### Funkcje wbudowane
 
     print(message)		<- Funkcja służąca do wypisywania w konsoli wiadomości lub danych
     input(message) 		<- Funkcja przyjmująca dane wejściowe od użytkownika, wypisuje wiadomość i czeka na input
-#### Przykłady
+#### Przykłady:
 
     print("Wiadomość do użytkownika");
     print(100);
@@ -163,15 +171,51 @@ Atrybuty:
  - *pen* - obiekt typu ***Pen***
  - *position* - obiekt typu ***Position***
 
+Konstruktory:
+
+    fun init(pen_, position_){
+		pen = pen_;
+		position = position_;
+    }
+     
+    fun init(){
+		pen = Pen(True, Color(100, 0, 0, 0));
+		position = Position(0, 0);
+    }
+
 ***Pen*** - obiekt długopisu, umożliwia modyfikowanie cech linii rysowanych przez żółwia.
 Atrybuty:
  - *enabled* - wartość boolowska, reprezentuje informację czy długopis może obecnie rysować.
  - *color* - obiekt typu ***Color***
 
+Konstruktory:
+
+    fun init(enabled_, color_){
+		enabled = enabled_;
+		color = color_;
+    }
+     
+    fun init(){
+		enabled = True;
+		color = Color(100, 0, 0, 0);
+    }
+
 ***Position*** - obiekt reprezentujący pozycję żółwia.
 Atrybuty:
  - *x* - współrzędna x żółwia
  - *y* - współrzędna y żółwia
+
+Konstruktory:
+
+    fun init(x_, y_){
+		x = x_;
+		y = y_;
+    }
+     
+    fun init(){
+		x = 0;
+		y = 0;
+    }
 
 ***Color*** - obiekt reprezentujący kolor długopisu żółwia.
 Atrybuty:
@@ -180,29 +224,99 @@ Atrybuty:
  - *g* - składowa zielona
  - *b* - składowa niebieska
 
-Konstruktor:
-Color(a, r, g, b)
+Konstruktory:
 
+    fun init(a_, r_, g_, b_){
+		a = a_;
+		r = r_;
+		g = g_;
+		b = b_;
+    }
+     
+    fun init(){
+		a = 100;
+		r = 0;
+		g = 0;
+		b = 0;
+    }
+    
+    
+### Przykłady
 
-### Obiekty
+#### Rysowanie kwadratu:
 
-    obj.method()		<- wywołanie metody obiektu
-    data = obj.attr		<- dostęp do atrybutu obiektu
-    obj.attr = data		<- przypisanie wartości atrybutu
+    rysuj_kwadrat(zolw, bok) { 
+	    for(i=0; i<=3; i++) { 
+			zolw.forward(bok);  
+			zolw.right();  
+		}  
+	}
+	
+	zolw = Turtle();
+	rysuj_kwadrat(zolw, 10);
 
-#### Przykłady:
+#### Rysowanie kolorowej linii
 
     zolw = Turtle();
-	zolw.pen.color = Color(23,123,43,234);
-	zolw.pen.color.r = 43;
-	zolw.forward(10)  ;
+	zolw.pen.color = Color(100,0,255,0);
+	zolw.forward(10);
+	
+	zolw.pen.enabled = False;
+	zolw.pen.color.r = 255;
+	zolw.forward(10);
+	
+	zolw.pen.enabled = True;
+	zolw.pen.color.g = 0;
+	zolw.forward(10);
+	
+	zolw.pen.color.b = 255;
+	zolw.forward(10);
 
-	kolor = zolw.pen.color;  
-	kolor.g = 234; 
+#### Definiowanie kilku żółwi
+
+    zolw = Turtle();  
+	zolw.pen.color = Color(100,0,255,0); 
+	  
+	kolor = zolw.pen.color 
+	kolor.r = 255; 
 	
 	zolw2 = Turtle();  
 	zolw2.pen.color = kolor;  
-	zolw2.position = zolw1.position ;
-	zolw2.right();
+	zolw2.position = zolw.position
+
+
+## Formalna specyfikacja i składnia EBNF
 
 ## Obsługa błędów
+### Syntax Error
+SyntaxError: invalid syntax!
+line 1, col 1:  "%^abc = 5;"
+
+SyntaxError: unexpected EOF!
+ line 1, col 9:  "abc = (5"
+
+### Name Error
+NameError: name is not defined!
+line 1, col 1:  "abc == 5;"
+
+### TypeError
+TypeError: unsupported operand type
+line 1, col 12:  "abc = True + "abc";"
+
+### ZeroDivisionError
+
+
+
+## Sposób uruchomienia, wej./wyj.
+
+## Wymagania funkcjonalne
+
+## Sposób realizacji
+
+
+## Testowanie
+Poprawne działanie **leksera** sprawdzanie będzie przy użyciu testów jednostkowych weryfikujących wykrywanie pojedynczych tokenów (zarówno poprawnych jak i niepoprawnych). Testy niepoprawne będą przeprowadzane między innymi korzystając z typowych błędów, które mogą przydarzyć się podczas pisaniu kodu, np. literówka, lub brak domknięcia cudzysłowia.
+
+Dla każdej produkcji **parsera** powstanie test jednostkowy sprawdzający jej poprawność.  Dodatkowo przeprowadzone zostaną testy dla scenariuszy nieprawidłowych sekwencji tokenów. 
+
+**Interpreter** będzie sprawdzany będzie poprzez testowanie pełnego potoku przetwarzania na podstawie łańcucha znaków lub pliku wejściowego.
