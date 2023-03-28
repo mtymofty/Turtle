@@ -288,22 +288,50 @@ Konstruktory:
 ## Formalna specyfikacja i składnia EBNF
 
 ## Obsługa błędów
-### Syntax Error
-SyntaxError: invalid syntax!
-line 1, col 1:  "%^abc = 5;"
 
-SyntaxError: unexpected EOF!
- line 1, col 9:  "abc = (5"
+### Błędy leksykalne
 
-### Name Error
-NameError: name is not defined!
-line 1, col 1:  "abc == 5;"
+**LexerError**: unrecognized token!  
+"~abc = 5;" - line 1, col 1
 
-### TypeError
-TypeError: unsupported operand type
-line 1, col 12:  "abc = True + "abc";"
+**LexerError**: exceeding length of an identifier!  
+"abcdefg(...) = 5;" - line 1, col 101
 
-### ZeroDivisionError
+**LexerError**: exceeding value of a numeric constant (int)!  
+"abc = 2147483648;" - line 1, col 16
+
+### Błędy składniowe
+**SyntaxError**: invalid syntax, missing closing bracket!  
+line 1, col 9:  "abc = (5;"
+
+**SyntaxError**: invalid syntax, missing semicolon!  
+line 1, col 8:  "abc = 5"
+
+**SyntaxError**: invalid syntax!  
+line 1, col 7:  "abc = while(True);"
+
+**SyntaxError**: invalid syntax, missing opening bracket!  
+line 1, col 5:  "for i=0; i<5; i++) {"
+
+### Błędy semantyczne
+
+**TypeError**: unsupported operand type!  
+line 1, col 12:  "abc = True + "str";"
+
+**TypeError**: unsupported operand type!  
+line 1, col 11:  "abc = "str" ** 2;"
+
+**TypeError**: invalid number of arguments for a function!  
+line 10, col 22:  "two_arg_fun(first_arg);"
+
+**NameError**: variable name is not defined!  
+line 1, col 7:  "abc = undef_var;"
+
+**NameError**: function name is not defined!  
+line 1, col 1:  "undef_fun();"
+
+**ZeroDivisionError**: cannot divide by zero!  
+line 1, col 9:  "abc = 5/0;"
 
 
 
@@ -312,7 +340,64 @@ line 1, col 12:  "abc = True + "abc";"
 ## Wymagania funkcjonalne
 
 ## Sposób realizacji
+<img title="Graf" alt="Graf modułów" src="https://i.imgur.com/4mSGu26.png">  
 
+Do **leksera** trafiają szeregowo znaki z kodu źródłowego, które są analizowane leksykalnie i tokenizowane.   
+Wyprodukowane tokeny trafiają następnie do **parsera**, który dokonuje analizy składniowej i buduje na ich podstawie drzewo składniowe AST.
+Ostatecznie **interpreter** wykonuje program sprawdzając przy okazji poprawność semantyczną.
+
+### Lekser 
+
+#### Typy tokenów
+
+ - IDENTIFIER_OR_CONST
+ - NUMBER
+ - KEYWORDS
+	 - FUN_KW
+	 - RET_KW
+	 - FOR_KW
+	 - WHILE_KW
+	 - AND_KW
+	 - OR_KW
+	 - NOT_KW
+	 - TRUE_KW
+	 - FALSE_KW
+	 - IF_KW
+	 - ELSE_KW
+	 - UNLESS_KW
+ - ARITHMETICS
+	 - ASSIGN_OP
+	 - ADD_OP
+	 - ADD_ASSIGN_OP
+	 - SUB_OP
+	 - SUB_ASSIGN_OP
+	 - MULT_OP
+	 - DIV_OP
+	 - DIV_INT_OP
+	 - INC_OP
+	 - DEC_OP
+	 - POW_OP
+	 - MOD_OP
+ - COMPARISON
+	 - EQ_OP
+	 - NEQ_OP
+	 - GRT_OP
+	 - GRT_EQ_OP
+	 - LESS_OP
+	 - LES_EQ_OP
+ - LOGICAL
+	 - AND_OP
+	 - OR_OP
+	 - NOT_OP
+ - DOT_OP
+ - L_BRACE
+ - L_C_BRACE
+ - R_BRACE
+ - R_C_BRACE
+ - COMMA
+ - SEMICOL
+ - UNRECOGNIZED
+	
 
 ## Testowanie
 Poprawne działanie **leksera** sprawdzanie będzie przy użyciu testów jednostkowych weryfikujących wykrywanie pojedynczych tokenów (zarówno poprawnych jak i niepoprawnych). Testy niepoprawne będą przeprowadzane między innymi korzystając z typowych błędów, które mogą przydarzyć się podczas pisaniu kodu, np. literówka, lub brak domknięcia cudzysłowia.
