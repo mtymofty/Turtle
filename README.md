@@ -5,7 +5,7 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
 
 ## Konstrukcje językowe
 
-### Zmienne
+### Operator przypisania
 
     a = b;				<- Inicjalizacja zmiennej
 
@@ -14,7 +14,7 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
     length = 10;		<- Zmienna typu integer
     diagonal = 100.75;	<- Zmienna typu double
     v_null = null;		<- Zmienna typu null
-    truth = True;		<- Zmienna typu boolean
+    truth = true;		<- Zmienna typu boolean
     text = "Text";		<- Zmienna typu string
 
 ### Operatory arytmetyczne
@@ -26,8 +26,6 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
     a ^ b		<- potęgowanie
     a // b		<- dzielenie całkowite
     a % b 		<- modulo
-    a++			<- inkrementacja
-    a--			<- dekrementacja
   
   #### Przykłady:
   
@@ -38,8 +36,6 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
     exp = 10 ^ 5;
     qout_int = 10 // 5;
     modulo = 10 % 5;
-    incr++;
-    decr--;
 
 ### Operatory porównania
 
@@ -52,12 +48,14 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
     
 ### Operatory logiczne
 
-    a and b		<- a oraz b
     a && b		<- a oraz b
-    a or b		<- a lub b
     a || b		<- a lub b
-    not a		<- nie a
+    
+
+### Operatory unarne
+
     !a			<- nie a
+    -a			<- minus a
     
 
 
@@ -86,9 +84,9 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
 #### Przykłady:
 
     if(len < 10) {					<- Jeśli len mniejsze od 10
-	    res = True;
+	    res = true;
 	} else unless(len % 2 == 0) {	<- Jeśli len nie jest podzielne przez 2
-		res = False;
+		res = false;
 	} else {							<- W innym wypadku
 		res = null;
 	}
@@ -102,15 +100,19 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
     while(condition) {			<- pętla wykonywana gdy warunek jest prawdą
     ...
     }
+    
+    break		<- przerwij wykonywanie pętli
+    
+    continue		<- przejdź do kolejnej iteracji
 #### Przykłady:
 
     for(i = 0; i < 5; i++) {
-	    j++;
+	    j = j + 1;
 	}
 
-    while(i<5) {
-	    j++;
-	    i++;
+    while(i < 5) {
+	    j = j + 1;
+	    i = i + 1;
 	}
 
 
@@ -155,7 +157,7 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
 
     print("Wiadomość do użytkownika");
     print(100);
-    print(True);
+    print(true);
     string = input("Proszę napisać wiadomość: ")
     
 ### Obiekty wbudowane
@@ -196,7 +198,7 @@ Konstruktory:
     }
      
     fun init(){
-		enabled = True;
+		enabled = true;
 		color = Color(100, 0, 0, 0);
     }
 
@@ -261,11 +263,11 @@ Konstruktory:
 	zolw.pen.color = Color(100,0,255,0);
 	zolw.forward(10);
 	
-	zolw.pen.enabled = False;
+	zolw.pen.enabled = false;
 	zolw.pen.color.r = 255;
 	zolw.forward(10);
 	
-	zolw.pen.enabled = True;
+	zolw.pen.enabled = true;
 	zolw.pen.color.g = 0;
 	zolw.forward(10);
 	
@@ -287,50 +289,117 @@ Konstruktory:
 
 ## Formalna specyfikacja i składnia EBNF
 
+### Priorytety i łączność operatorów
+| Operatory                                      								| Zapis           			| Łączność     		|
+|-																						|-								|-							|
+| Nawiasowania                                   							|        ()       				|  lewostronna 	|
+| Dostępu do atrybutu i wywołania funkcji/metody 	|       . ()      				|  lewostronna 	|
+| Unarne                                        									|        ! -        			| prawostronna 	|
+| Potęgowania                                    							|        ^        				| prawostronna 	|
+| Multiplikatywne                                							|     * / // %    			|  lewostronna 	|
+| Addytywne                                      							|       + -       			|  lewostronna 	|
+| Relacyjne                                      								| > >= < <= == != 	|  lewostronna 	|
+| Koniunkcji                                     								|        &&       			|  lewostronna 	|
+| Alternatywy                                    								|       \|\|      				|  lewostronna 	|
+| Przypisania                                   								|       =      				| prawostronna 	|
+
+### EBNF
+
+    LEKSYKA:
+    non_zero_digit = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9';
+    digit = '0' | non_zero_digit;
+    integer = '0' | non_zero_digit, {digit};
+    double = integer, '.', integer;
+    
+    boolean = 'true' | 'false';
+    
+    letter = 'A-Z' | 'a-z';
+    escapable = 't' | 'n' | '"' | '\';
+    escaped = '\', escapable;
+    symbol = "~" | "`" | "!" | "@" | "#" | "$" | "%" | "^" | "&" | 
+			  "*" | "(" | ")" | "-" | "_" | "=" | "+" | "[" | "]" | 
+			  "{" | "}" | ";" | ":" | "'" | "|" | "," | "<" | "." |
+			  ">" | "/" | "?";
+	char = letter | escaped | symbol | digit | " ";
+    string = '"', {char}, '"';
+    
+	identifier = letter, {letter | digit | "_"} ;
+    
+    assign_op = '=';
+    and_op = '&&';
+    or_op = '||';
+    rel_op = '>' | '>=' | '<' | '<=' | '==' | '!=';
+    add_op = '+' | '-';
+    mult_op = '*' | '/' | '//' | '%';
+    pow_op = '^';
+    unar_op = '!' | '-';
+    dot_op = '.';
+    
+    terminator = ';'
+    comment_sign = "#";
+    
+    SKLADNIA:
+    constant = int | double | string | boolean | null;
+    assignment = identifier, assign_op, expression;
+
+    expression = bool_additive, {or_op, bool_additive};
+    bool_additive = relational, {and_op, relational};
+    relational = additive, [rel_op, additive];
+    additive = multiplicative, {add_op, multiplicative};
+    multiplicative = powerable, {mult_op, powerable};
+    powerable = unarable, {pow_op, unarable};
+    unarable = [unar_op], objectable;
+    objectable = base_expr, {dot_op, base_expr}; 
+    base_expr = parenth_expression | func_call | constant | identifier;
+    parenth_expression = "(", expression, ")";
+    
+    
+     
+
 ## Obsługa błędów
 
 ### Błędy leksykalne
 
-**LexerError**: unrecognized token!  
+**LexerError**: unrecognized token!
 "~abc = 5;" - line 1, col 1
 
-**LexerError**: exceeding length of an identifier!  
+**LexerError**: exceeding length of an identifier!
 "abcdefg(...) = 5;" - line 1, col 101
 
-**LexerError**: exceeding value of a numeric constant (int)!  
+**LexerError**: exceeding value of a numeric constant (int)!
 "abc = 2147483648;" - line 1, col 16
 
 ### Błędy składniowe
-**SyntaxError**: invalid syntax, missing closing bracket!  
+**SyntaxError**: invalid syntax, missing closing bracket!
 line 1, col 9:  "abc = (5;"
 
-**SyntaxError**: invalid syntax, missing semicolon!  
+**SyntaxError**: invalid syntax, missing semicolon!
 line 1, col 8:  "abc = 5"
 
-**SyntaxError**: invalid syntax!  
+**SyntaxError**: invalid syntax!
 line 1, col 7:  "abc = while(True);"
 
-**SyntaxError**: invalid syntax, missing opening bracket!  
+**SyntaxError**: invalid syntax, missing opening bracket!
 line 1, col 5:  "for i=0; i<5; i++) {"
 
 ### Błędy semantyczne
 
-**TypeError**: unsupported operand type!  
+**TypeError**: unsupported operand type!
 line 1, col 12:  "abc = True + "str";"
 
-**TypeError**: unsupported operand type!  
+**TypeError**: unsupported operand type!
 line 1, col 11:  "abc = "str" ** 2;"
 
-**TypeError**: invalid number of arguments for a function!  
+**TypeError**: invalid number of arguments for a function!
 line 10, col 22:  "two_arg_fun(first_arg);"
 
-**NameError**: variable name is not defined!  
+**NameError**: variable name is not defined!
 line 1, col 7:  "abc = undef_var;"
 
-**NameError**: function name is not defined!  
+**NameError**: function name is not defined!
 line 1, col 1:  "undef_fun();"
 
-**ZeroDivisionError**: cannot divide by zero!  
+**ZeroDivisionError**: cannot divide by zero!
 line 1, col 9:  "abc = 5/0;"
 
 
@@ -350,32 +419,33 @@ Ostatecznie **interpreter** wykonuje program sprawdzając przy okazji poprawnoś
 
 #### Typy tokenów
 
- - IDENTIFIER_OR_CONST
- - NUMBER
+ - IDENTIFIER
+ - INT
+ - DOUBLE
+ - STRING
  - KEYWORDS
 	 - FUN_KW
 	 - RET_KW
 	 - FOR_KW
 	 - WHILE_KW
-	 - AND_KW
-	 - OR_KW
-	 - NOT_KW
 	 - TRUE_KW
 	 - FALSE_KW
 	 - IF_KW
 	 - ELSE_KW
 	 - UNLESS_KW
+	 - BREAK_KW
+	 - CONTINUE_KW
+	 - TURTLE_KW
+	 - PEN_KW
+	 - PISITION_KW
+	 - COLOR_KW
  - ARITHMETICS
 	 - ASSIGN_OP
 	 - ADD_OP
-	 - ADD_ASSIGN_OP
 	 - SUB_OP
-	 - SUB_ASSIGN_OP
 	 - MULT_OP
 	 - DIV_OP
 	 - DIV_INT_OP
-	 - INC_OP
-	 - DEC_OP
 	 - POW_OP
 	 - MOD_OP
  - COMPARISON
@@ -388,7 +458,9 @@ Ostatecznie **interpreter** wykonuje program sprawdzając przy okazji poprawnoś
  - LOGICAL
 	 - AND_OP
 	 - OR_OP
+ - UNARY
 	 - NOT_OP
+	 - MINUS_OP
  - DOT_OP
  - L_BRACE
  - L_C_BRACE
@@ -396,6 +468,8 @@ Ostatecznie **interpreter** wykonuje program sprawdzając przy okazji poprawnoś
  - R_C_BRACE
  - COMMA
  - SEMICOL
+ - EOL
+ - EOF
  - UNRECOGNIZED
 	
 
