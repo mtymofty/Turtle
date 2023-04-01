@@ -276,12 +276,12 @@ Konstruktory:
     zolw = Turtle();  
 	zolw.pen.color = Color(100,0,255,0); 
 	  
-	kolor = zolw.pen.color 
+	kolor = zolw.pen.color; 
 	kolor.r = 255; 
 	
 	zolw2 = Turtle();  
 	zolw2.pen.color = kolor;  
-	zolw2.position = zolw.position
+	zolw2.position = zolw.position;
 
 ## Niedozwolone konstrukcje językowe
 
