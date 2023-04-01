@@ -93,10 +93,6 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
 
 ### Instrukcje pętli
 
-    for(exp1; exp2; exp3) {	<- exp1 wykonywane raz przed pętlą, exp2 to warunek wykonywania pętli, exp3 wykonywane zawsze po każdej iteracji. 
-    ...
-    }
-    
     while(condition) {			<- pętla wykonywana gdy warunek jest prawdą
     ...
     }
@@ -105,10 +101,6 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
     
     continue		<- przejdź do kolejnej iteracji
 #### Przykłady:
-
-    for(i = 0; i < 5; i++) {
-	    j = j + 1;
-	}
 
     while(i < 5) {
 	    j = j + 1;
@@ -248,10 +240,12 @@ Konstruktory:
 #### Rysowanie kwadratu:
 
     rysuj_kwadrat(zolw, bok) { 
-	    for(i=0; i<=3; i++) { 
-			zolw.forward(bok);  
-			zolw.right();  
-		}  
+	    i = 0;
+	    while (i<=3) {
+		    zolw.forward(bok);  
+			zolw.right();
+			i = i + 1; 
+		} 
 	}
 	
 	zolw = Turtle();
@@ -309,7 +303,7 @@ Konstruktory:
     non_zero_digit = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9';
     digit = '0' | non_zero_digit;
     integer = '0' | non_zero_digit, {digit};
-    double = integer, '.', integer;
+    double = integer, '.', digit, {digit};
     
     boolean = 'true' | 'false';
     
@@ -323,7 +317,7 @@ Konstruktory:
 	char = letter | escaped | symbol | digit | " ";
     string = '"', {char}, '"';
     
-	identifier = letter, {letter | digit | "_"} ;
+	identifier = letter, {letter | digit | "_"};
     
     assign_op = '=';
     and_op = '&&';
@@ -339,22 +333,47 @@ Konstruktory:
     comment_sign = "#";
     
     SKLADNIA:
-    constant = int | double | string | boolean | null;
-    assignment = identifier, assign_op, expression;
+    program = {statement};
+    statement = simple_statement, terminator 
+			    | compound_statement
+			    | fun_def;
+    simple_statement = obj_access, [assign_statement]
+					   | return_statement
+					   | 'break'
+					   | 'continue';
+	compound_statement = if_statement
+						 | while_statement
+						 | statement_block;
+	
+	fun_def = 'fun', identifier, '(', [params], ')', statement_block;
 
-    expression = bool_additive, {or_op, bool_additive};
-    bool_additive = relational, {and_op, relational};
-    relational = additive, [rel_op, additive];
-    additive = multiplicative, {add_op, multiplicative};
-    multiplicative = powerable, {mult_op, powerable};
-    powerable = unarable, {pow_op, unarable};
-    unarable = [unar_op], objectable;
-    objectable = base_expr, {dot_op, base_expr}; 
-    base_expr = parenth_expression | func_call | constant | identifier;
+	obj_access = obj_member {'.', obj_member };
+    obj_member = identifier, ['(' [args] ')'];
+	args = expression, {"," expression};
+	
+    assign_statement = assign_op, expression;
+	return_statement = 'return', [expression];
+
+	if_statement = if_kw, '(', expression, ')', statement_block, 
+				   {'else', if_kw, '(', expression, ')', statement_block},
+				   ['else', statement_block];
+	if_kw = 'if' | 'unless';
+	
+	while_statement = 'while', '(', expression, ')', statement_block
+	
+	statement_block = '{', {statement}, '}';
+
+    expression = conjunction, {or_op, conjunction};
+    conjunction = comparison, {and_op, comparison};
+    comparison = sum, [rel_op, sum];
+    sum = term, {add_op, term};
+    term = factor, {mult_op, factor};
+    factor = unary, {pow_op, unary};
+    unary = [unar_op], primary;
+    primary = parenth_expression | constant | obj_access;
     parenth_expression = "(", expression, ")";
+    constant = int | double | string | boolean | null;
     
-    
-     
 
 ## Obsługa błędów
 
@@ -384,13 +403,13 @@ line 1, col 5:  "for i=0; i<5; i++) {"
 
 ### Błędy semantyczne
 
-**TypeError**: unsupported operand type!
+**TypeError**: unsupported operand type
 line 1, col 12:  "abc = True + "str";"
 
-**TypeError**: unsupported operand type!
+**TypeError**: unsupported operand type
 line 1, col 11:  "abc = "str" ** 2;"
 
-**TypeError**: invalid number of arguments for a function!
+**TypeError**: invalid number of arguments for a function
 line 10, col 22:  "two_arg_fun(first_arg);"
 
 **NameError**: variable name is not defined!
@@ -405,8 +424,23 @@ line 1, col 9:  "abc = 5/0;"
 
 
 ## Sposób uruchomienia, wej./wyj.
+Program będzie uruchamiany przez odpowiedni skrypt, otrzymujący plik tekstowy z zapisanym kodem jako parametr.
 
 ## Wymagania funkcjonalne
+1. Program będzie w stanie przeanalizować i wykonać instrukcje w zdefiniowanym języku.
+2. Język będzie umożliwiał rysowanie kształtów w wyświetlanym dla użytkownika oknie.
+3. Możliwa będzie modyfikacja:
+   - koloru linii
+   - długości linii
+   - kierunku (kąta) rysowania
+   - pozycji, z której rozpoczyna się rysowanie
+4. Program będzie informował użytkownika o pomyłkach w kodzie pod postacią komunikatu o błędzie.
+
+## Wymagania niefunkcjonalne
+
+ 1. Zaimplementowane będą mechanizmy zabezpieczające przed błędami,
+    takie jak maksymalna długość tokenu lub graniczne wartości stałych
+    liczbowych.
 
 ## Sposób realizacji
 <img title="Graf" alt="Graf modułów" src="https://i.imgur.com/4mSGu26.png">  
