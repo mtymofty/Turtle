@@ -157,7 +157,8 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
     
 ### Obiekty wbudowane
 
-***Turtle*** - obiekt żółwia, jest używany do rysowania kształtów.
+***Turtle*** - obiekt żółwia, jest używany do rysowania kształtów.  
+
 Metody:
 - *forward(length)* - rysuje prostą linię o długości length
 - *right()* - obraca żółwia o 90 stopni w prawo
@@ -170,74 +171,44 @@ Atrybuty:
 
 Konstruktory:
 
-    fun init(pen_, position_){
-		pen = pen_;
-		position = position_;
-    }
-     
-    fun init(){
-		pen = Pen(True, Color(100, 0, 0, 0));
-		position = Position(0, 0);
-    }
+    Turtle() - tworzy obiekt żółwia z domyślnymi atrybutami (czarnym długopisem i pozycją (x=0, y=0))
+    Turtle(pen, position) - tworzy obiekt żółwia z podanymi przez użytkownika atrybutami
 
-***Pen*** - obiekt długopisu, umożliwia modyfikowanie cech linii rysowanych przez żółwia.
+***Pen*** - obiekt długopisu, umożliwia modyfikowanie cech linii rysowanych przez żółwia.  
+
 Atrybuty:
  - *enabled* - wartość boolowska, reprezentuje informację czy długopis może obecnie rysować.
  - *color* - obiekt typu ***Color***
 
 Konstruktory:
 
-    fun init(enabled_, color_){
-		enabled = enabled_;
-		color = color_;
-    }
-     
-    fun init(){
-		enabled = true;
-		color = Color(100, 0, 0, 0);
-    }
+    Pen() - tworzy obiekt długopisu z domyślnymi atrybutami (piszący i czarny)
+    Pen(enabled, color) - tworzy obiekt długopisu z podanymi przez użytkownika atrybutami
 
-***Position*** - obiekt reprezentujący pozycję żółwia.
+***Position*** - obiekt reprezentujący pozycję żółwia.  
+
 Atrybuty:
  - *x* - współrzędna x żółwia
  - *y* - współrzędna y żółwia
 
 Konstruktory:
 
-    fun init(x_, y_){
-		x = x_;
-		y = y_;
-    }
+    Position() - tworzy obiekt pozycji z domyślnymi atrybutami (x=0, y=0)
+    Position(x, y) - tworzy obiekt pozycji z podanymi przez użytkownika atrybutami
      
-    fun init(){
-		x = 0;
-		y = 0;
-    }
+***Color*** - obiekt reprezentujący kolor długopisu żółwia.  
 
-***Color*** - obiekt reprezentujący kolor długopisu żółwia.
 Atrybuty:
- - *a* - przezroczystość
+ - *a* - przezroczystość (widoczność)
  - *r* - składowa czerwona
  - *g* - składowa zielona
  - *b* - składowa niebieska
 
 Konstruktory:
 
-    fun init(a_, r_, g_, b_){
-		a = a_;
-		r = r_;
-		g = g_;
-		b = b_;
-    }
-     
-    fun init(){
-		a = 100;
-		r = 0;
-		g = 0;
-		b = 0;
-    }
-    
-    
+    Color() - tworzy obiekt koloru z domyślnymi atrybutami (100% widoczności, kolor czarny)
+    Color(a, r, g, b) - tworzy obiekt koloru z podanymi przez użytkownika atrybutami
+
 ### Przykłady
 
 #### Rysowanie kwadratu:
@@ -355,7 +326,7 @@ Konstruktory:
 	                      | fun_def;
 	
 	statement           = simple_statement, terminator 
-						  | compound_statement 
+	                      | compound_statement 
 			    
     simple_statement    = obj_access, [assign_statement]
 	                      | return_statement
