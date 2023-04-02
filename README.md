@@ -88,9 +88,9 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
     if(len < 10) {          <- Jeśli len mniejsze od 10
 	    res = true;
 	} else unless(len % 2 == 0) {   <- Jeśli len nie jest podzielne przez 2
-		res = false;
+	    res = false;
 	} else {                <- W innym wypadku
-		res = null;
+	    res = null;
 	}
 
 ### Instrukcje pętli
@@ -113,8 +113,8 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
 ### Definiowanie funkcji
 
     fun name(arg1, arg2 ...){   <- Funkcja posiada nazwę oraz przymuje ustaloną liczb argumentów.
-    ...
-    return data             <- Funkcja może zwracać dane instrukcją return
+	    ...
+	    return data             <- Funkcja może zwracać dane instrukcją return
     }
    Parametry funkcji przekazywane są przez **wartość**.
 #### Przykłady:
@@ -153,7 +153,7 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
     print("Wiadomość do użytkownika");
     print(100);
     print(true);
-    string = input("Proszę napisać wiadomość: ")
+    string = input("Proszę napisać wiadomość: ");
     
 ### Obiekty wbudowane
 
@@ -216,10 +216,10 @@ Konstruktory:
     rysuj_kwadrat(zolw, bok) { 
 	    i = 0;
 	    while (i<=3) {
-		    zolw.forward(bok);  
-			zolw.right();
-			i = i + 1; 
-		} 
+	    	zolw.forward(bok);  
+	    	zolw.right();
+	    	i = i + 1; 
+	    } 
 	}
 	
 	zolw = Turtle();
@@ -261,10 +261,10 @@ Konstruktory:
     
 	Definiowanie funkcji wewnątrz innej funkcji:
 	fun foo() {
-		...
-		fun foo_too() {
-		...
-		}
+	    ...
+	    fun foo_too() {
+	    	...
+	    }
 	...
 	}
 
@@ -338,10 +338,11 @@ Konstruktory:
 	                      | statement_block;
 	
 	fun_def             = 'fun', identifier, '(', [params], ')', statement_block;
+    params              = identifier, {",", identifier}
 
-	obj_access          = obj_member {'.', obj_member };
-    obj_member          = identifier, ['(' [args] ')'];
-	args                = expression, {"," expression};
+	obj_access          = name {'.', name };
+    name                = identifier, ['(' [args] ')'];
+	args                = expression, {",", expression};
 	
     assign_statement    = assign_op, expression;
 	return_statement    = 'return', [expression];
@@ -441,10 +442,10 @@ Program będzie uruchamiany przez odpowiedni skrypt, otrzymujący plik tekstowy 
 ## Sposób realizacji
 <img title="Graf" alt="Graf modułów" src="https://i.imgur.com/4mSGu26.png">  
 
-Do **leksera** trafiają szeregowo znaki z kodu źródłowego, które są analizowane leksykalnie i tokenizowane.  
-Wyprodukowane tokeny trafiają następnie do **parsera**, który dokonuje analizy składniowej i buduje na ich podstawie drzewo składniowe AST.
-Ostatecznie **interpreter** wykonuje program sprawdzając przy okazji poprawność semantyczną.
-Dodatkowo moduł **obsługi błędów**, komunikujący się z każdym z wymienionych komponentów, będzie odpowiedzialny za informowanie użytkownika o występujących w kodzie błędach.
+Do **leksera** trafiają szeregowo znaki z kodu źródłowego, które są analizowane leksykalnie i tokenizowane.   
+Wyprodukowane tokeny trafiają następnie do **parsera**, który dokonuje analizy składniowej i buduje na ich podstawie drzewo składniowe AST.  
+Ostatecznie **interpreter** wykonuje program sprawdzając przy okazji poprawność semantyczną.  
+Dodatkowo moduł **obsługi błędów**, komunikujący się z każdym z wymienionych komponentów, będzie odpowiedzialny za informowanie użytkownika o występujących w kodzie błędach.  
 
 ### Lekser 
 Lekser pobiera znaki leniwie, pojedynczo znak po znaku. Odpowiednio skonstruowane wedle zasad języka ciągi znaków grupowane są w tokeny. W przypadku, gdy niemożliwe jest zidentyfikowanie tokenu lub łamane jest któreś z istniejących zabezpieczeń (np. na wartość stałej liczbowej) wywoływany jest błąd. Nie przerywa to jednak wykonania programu, aby zapewnić bardziej obszerną analizę.
