@@ -277,8 +277,8 @@ Konstruktory:
 |-														|-					|-				|
 | Nawiasowania                                   		|        ()       	|  lewostronna 	|
 | Dostępu do atrybutu i wywołania funkcji/metody        |       . ()      	|  lewostronna 	|
-| Unarne                                        		|        ! -        | prawostronna 	|
 | Potęgowania                                    		|        ^        	| prawostronna 	|
+| Unarne                                        		|        ! -        | prawostronna 	|
 | Multiplikatywne                                		|     * / // %    	|  lewostronna 	|
 | Addytywne                                      		|       + -       	|  lewostronna 	|
 | Relacyjne                                      		| > >= < <= == != 	|  lewostronna 	|
@@ -359,8 +359,8 @@ Konstruktory:
     comparison          = sum, [rel_op, sum];
     sum                 = term, {add_op, term};
     term                = factor, {mult_op, factor};
-    factor              = unary, {pow_op, unary};
-    unary               = [unar_op], primary;
+    factor              = [unar_op], power;
+    power              = primary, {pow_op, primary};
     primary             = parenth_expression | constant | obj_access;
     parenth_expression  = "(", expression, ")";
     constant            = int | double | string | boolean | null;
