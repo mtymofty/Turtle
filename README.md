@@ -114,7 +114,7 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
 
     fun name(arg1, arg2 ...){   <- Funkcja posiada nazwę oraz przymuje ustaloną liczb argumentów.
 	    ...
-	    return data             <- Funkcja może zwracać dane instrukcją return
+	    return data;            <- Funkcja może zwracać dane instrukcją return
     }
    Parametry funkcji przekazywane są przez **wartość**.
 #### Przykłady:
@@ -138,9 +138,9 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
 
 ### Obiekty
 
-    obj.method()		<- wywołanie metody obiektu
-    data = obj.attr		<- dostęp do atrybutu obiektu
-    obj.attr = data		<- przypisanie wartości atrybutu
+    obj.method();		<- wywołanie metody obiektu
+    data = obj.attr;	<- dostęp do atrybutu obiektu
+    obj.attr = data;	<- przypisanie wartości atrybutu
   
 ## Funkcje i obiekty wbudowane
 
@@ -168,11 +168,12 @@ Metody:
 Atrybuty:
  - *pen* - obiekt typu ***Pen***
  - *position* - obiekt typu ***Position***
+ - *angle* - kąt pod którym ustawiony jest żółw. Wartość z zakresu 0-359. Kąt zmienia się wedle wskazówek zegara.
 
 Konstruktory:
 
-    Turtle() - tworzy obiekt żółwia z domyślnymi atrybutami (czarnym długopisem i pozycją (x=0, y=0))
-    Turtle(pen, position) - tworzy obiekt żółwia z podanymi przez użytkownika atrybutami
+    Turtle() - tworzy obiekt żółwia z domyślnymi atrybutami (czarnym długopisem, pozycją (x=0, y=0) i zwrotem w kierunku pionowym (angle=0))
+    Turtle(pen, position, angle) - tworzy obiekt żółwia z podanymi przez użytkownika atrybutami
 
 ***Pen*** - obiekt długopisu, umożliwia modyfikowanie cech linii rysowanych przez żółwia.  
 
@@ -315,15 +316,16 @@ Konstruktory:
     mult_op         = '*' | '/' | '//' | '%';
     pow_op          = '^';
     unar_op         = '!' | '-';
-    dot_op          = '.';
     
     terminator      = ';'
     
     
     SKLADNIA:
     program             = {instruction};
-    instruction         = statement 
-	                      | fun_def;
+    instruction         = fun_def;
+
+    fun_def             = 'fun', identifier, '(', [params], ')', statement_block;
+    statement_block     = '{', {statement}, '}';
 	
 	statement           = simple_statement, terminator 
 	                      | compound_statement 
@@ -334,14 +336,12 @@ Konstruktory:
 	                      | 'continue';
 					   
 	compound_statement  = if_statement
-	                      | while_statement
-	                      | statement_block;
+	                      | while_statement;
 	
-	fun_def             = 'fun', identifier, '(', [params], ')', statement_block;
     params              = identifier, {",", identifier}
 
-	obj_access          = name {'.', name };
-    name                = identifier, ['(' [args] ')'];
+	obj_access          = member {'.', member };
+    member              = identifier, ['(' [args] ')'];
 	args                = expression, {",", expression};
 	
     assign_statement    = assign_op, expression;
@@ -354,9 +354,6 @@ Konstruktory:
 	
 	while_statement     = 'while', '(', expression, ')', statement_block
 	
-	statement_block     = '{', {statement}, '}';
-	
-
     expression          = conjunction, {or_op, conjunction};
     conjunction         = comparison, {and_op, comparison};
     comparison          = sum, [rel_op, sum];
@@ -390,7 +387,7 @@ line 1, col 9:  "abc = (5;"
 **SyntaxError**: invalid syntax, missing semicolon!  
 line 1, col 8:  "abc = 5"
 
-**SyntaxError**: invalid syntax!  
+**SyntaxError**: invalid syntax, encountered unexpected loop statement while parsing expression!  
 line 1, col 7:  "abc = while(True);"
 
 **SyntaxError**: invalid syntax, missing opening bracket!  
@@ -440,7 +437,7 @@ Program będzie uruchamiany przez odpowiedni skrypt, otrzymujący plik tekstowy 
 8. Zmienne definiowane w języku będą miały określony zasięg (scope): globalny, lokalny, blokowy
 
 ## Sposób realizacji
-<img title="Graf" alt="Graf modułów" src="https://i.imgur.com/4mSGu26.png">  
+<img title="Graf" alt="Graf modułów" src="https://i.imgur.com/0vBynHX.jpg">  
 
 Do **leksera** trafiają szeregowo znaki z kodu źródłowego, które są analizowane leksykalnie i tokenizowane.   
 Wyprodukowane tokeny trafiają następnie do **parsera**, który dokonuje analizy składniowej i buduje na ich podstawie drzewo składniowe AST.  
@@ -497,7 +494,6 @@ Lekser pobiera znaki leniwie, pojedynczo znak po znaku. Odpowiednio skonstruowan
  - R_C_BRACE
  - COMMA
  - SEMICOL
- - EOL
  - EOF
  - UNRECOGNIZED
 	
