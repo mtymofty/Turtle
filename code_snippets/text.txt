@@ -1,0 +1,9 @@
+func hello(param) {
+    param = 5;
+}
+
+
+variable1 = 10;
+variable2 = variable1 + 5;
+variable3 = true;
+variable4 = 10.10;
