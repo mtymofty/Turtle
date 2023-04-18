@@ -1,37 +1,17 @@
-import * as util from 'util';
-import * as fs from 'fs';
-import {Lexer} from '../src/lexer/Lexer';
-import { Readable } from 'stream';
-
-// var reader = fs.createReadStream(file_path, {
-// 	encoding: 'utf8',
-// });
-
-// var i = 0;
-
-// reader.on('readable', () => {
-// 	var chunk;
-// 	chunk = reader.read(1)
-// 	console.log(chunk);
-//   });
-
-// var chunk = reader.read(1)
-// console.log(chunk);
-
-// const fs = require('fs');
-
-
+import { ReadStream } from 'fs';
+import {FileReader, Reader} from '../src/reader/Reader';
 
 var file_path: string = process.argv.slice(2)[0];
-var data = readBytesSync(file_path, 0, 1)
-console.log(readBytesSync(file_path, 0, 1).toString());
-console.log(readBytesSync(file_path, 1, 1).toString());
 
+var reader = new FileReader(file_path);
 
-// while(i<20){
-// 	let data = reader.read(1);
-// 	console.log(data);
-// 	i = i+1;
-// }
-
-// var lexer = new Lexer();
+var i = 0
+while (i < 200) {
+    var char = reader.get_char();
+    console.log(char);
+    i += 1;
+    if (char == null) {
+        console.log("Koniec");
+        break;
+    }
+}
