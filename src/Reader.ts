@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 
 export interface Reader {
-	get_char(pos: number): string | null;
+	get_char(pos: number): string;
 }
 
 export class FileReader implements Reader {
@@ -25,7 +25,7 @@ export class FileReader implements Reader {
 			}
 		}
 		if (read == 0){
-			return null;
+			return "";
 		}
 		return JSON.stringify(buf.toString()).slice(1, -1);
 	}
@@ -45,7 +45,7 @@ export class StringReader implements Reader {
 			let char = this.data[pos];
 			return JSON.stringify(char).slice(1, -1);
 		} else {
-			return null;
+			return "";
 		}
 	}
 }

@@ -1,22 +1,22 @@
 export class Position {
-	file_pos: number;
+	pos: number;
     line: number;
     col: number;
 
-    public constructor(file_pos?: number, line?: number, col?: number) {
-        this.file_pos = (file_pos) ? file_pos : 0;
+    constructor(pos?: number, line?: number, col?: number) {
+        this.pos = (pos) ? pos : -1;
         this.line = (line) ? line : 0;
-        this.col = (col) ? col : 0;
+        this.col = (col) ? col : -1;
 	}
 
     next_char() {
         this.col += 1;
-        this.file_pos += 1;
+        this.pos += 1;
     }
 
-    next_line() {
+    next_line(pos_diff: number) {
         this.line += 1;
         this.col = 0;
-        this.file_pos += 1;
+        this.pos += pos_diff;
     }
 }
