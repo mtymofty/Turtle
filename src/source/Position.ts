@@ -4,9 +4,9 @@ export class Position {
     col: number;
 
     constructor(pos?: number, line?: number, col?: number) {
-        this.pos = (pos) ? pos : -1;
-        this.line = (line) ? line : 0;
-        this.col = (col) ? col : -1;
+        this.pos = (pos !== undefined) ? pos : -1;
+        this.line = (line !== undefined) ? line : 0;
+        this.col = (col !== undefined) ? col : -1;
 	}
 
     next_char() {
