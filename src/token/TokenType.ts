@@ -2,6 +2,7 @@ export enum TokenType {
     INTEGER,
     DOUBLE,
     STRING,
+    COMMENT,
 
     IDENTIFIER,
     FUN_KW,
@@ -13,6 +14,8 @@ export enum TokenType {
     IF_KW,
     ELSE_KW,
     UNLESS_KW,
+    TRUE_KW,
+    FALSE_KW,
 
     ASSIGN_OP,
     ADD_OP,

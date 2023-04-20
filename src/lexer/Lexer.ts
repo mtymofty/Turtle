@@ -22,7 +22,7 @@ export class Lexer {
     newline_len: number = 0
 
     max_ident_len: number = 50;
-    max_str_len: number = 300;
+    max_str_len: number = 200;
 
     simple_one_char_ops: Record<string, TokenType> = {
         "+": TokenType.ADD_OP,
@@ -58,6 +58,20 @@ export class Lexer {
     double_char_ops: Record<string, TokenType> = {
         "&&": TokenType.AND_OP,
         "||": TokenType.OR_OP
+    }
+
+    keywords: Record<string, TokenType> = {
+        "func": TokenType.FUN_KW,
+        "return": TokenType.RET_KW,
+        "while": TokenType.WHILE_KW,
+        "break": TokenType.BREAK_KW,
+        "continue": TokenType.CONTINUE_KW,
+        "null": TokenType.NULL_KW,
+        "if": TokenType.IF_KW,
+        "else": TokenType.ELSE_KW,
+        "unless": TokenType.UNLESS_KW,
+        "true": TokenType.TRUE_KW,
+        "false": TokenType.FALSE_KW
     }
 
     constructor(reader: Reader) {
@@ -129,6 +143,10 @@ export class Lexer {
         }
     }
 
+    is_char_eof() {
+        return this.curr_char!.length === 0
+    }
+
     handle_eol() {
         if (this.newline === null) {
             this.newline = this.curr_char;
@@ -150,7 +168,7 @@ export class Lexer {
     }
 
     try_build_eof() {
-        if (this.curr_char!.length === 0) {
+        if (this.is_char_eof()) {
             this.token = new Token(TokenType.EOF, "", this.curr_token_pos!);
             return true;
         }
@@ -198,6 +216,7 @@ export class Lexer {
                 var decimal = numeric_value(this.curr_char);
                 if (((Number.MAX_SAFE_INTEGER - decimal) / 10 - value) >= 0) {
                     value = value * 10 + decimal;
+                    this.next_char();
                 } else {
                     // Skipping the rest of the number.
                     var found_dot = false;
@@ -216,10 +235,29 @@ export class Lexer {
                     }
                     return true;
                 }
-                this.next_char();
             }
         } else {
             this.next_char();
+            if (is_digit.test(this.curr_char)){
+                this.print_error_token("ERROR - PRECEDING ZERO IN A NUMERIC CONSTANT!");
+
+
+                var found_dot = false;
+                    while(is_digit.test(this.curr_char) || (this.curr_char == "." && !found_dot)) {
+                        if (this.curr_char == ".") {
+                            found_dot = true;
+                        }
+                        this.next_char();
+                    }
+
+                    if (!found_dot) {
+                        this.token = new Token(TokenType.INTEGER, value=value, this.curr_token_pos);
+                    } else {
+                        this.token = new Token(TokenType.DOUBLE, value=value+0.0, this.curr_token_pos);
+                    }
+
+                return true;
+            }
         }
         if (this.curr_char == ".") {
             var fraction: number = 0;
@@ -243,10 +281,6 @@ export class Lexer {
             }
             this.token = new Token(TokenType.DOUBLE, value=(value + fraction/Math.pow(10, num_of_decimals)), this.curr_token_pos);
             return true;
-        } else if (is_digit.test(this.curr_char)){
-            this.print_error_token("ERROR - EXCEEDING VALUE OF A NUMERIC CONSTANT!");
-            this.token = new Token(TokenType.INTEGER, value=value, this.curr_token_pos);
-            return true;
         } else {
             this.token = new Token(TokenType.INTEGER, value=value, this.curr_token_pos);
             return true;
@@ -254,11 +288,46 @@ export class Lexer {
     }
 
     try_build_id_kw() {
-        return false;
+        if (!is_letter.test(this.curr_char)) {
+            return false;
+        }
+        var ident: string = this.curr_char;
+        this.next_char();
+        while(is_letter.test(this.curr_char) || this.curr_char == "_") {
+            if (ident.length !== this.max_ident_len) {
+                ident = ident.concat(this.curr_char)
+                this.next_char();
+            } else {
+                this.print_error_token("ERROR - EXCEEDING LENGTH OF AN IDENTIFIER!");
+                this.token = new Token(TokenType.IDENTIFIER, ident, this.curr_token_pos);
+
+                while(is_letter.test(this.curr_char) || this.curr_char == "_") {
+                    this.next_char();
+                }
+                return true;
+            }
+        }
+        if (ident in this.keywords) {
+            this.token = new Token(this.keywords[ident], ident, this.curr_token_pos)
+            return true;
+        } else {
+            this.token = new Token(TokenType.IDENTIFIER, ident, this.curr_token_pos)
+            return true;
+        }
     }
 
     skip_cmnt() {
-        return false;
+        if (this.curr_char == "#") {
+            var comment: string = "";
+            this.next_char();
+            while(!this.is_char_eol() && !this.is_char_eof()) {
+                comment = comment.concat(this.curr_char);
+                this.next_char();
+            }
+            this.token = new Token(TokenType.COMMENT, comment, this.curr_token_pos)
+            return true
+        }
+        return false
     }
 
     try_build_string() {

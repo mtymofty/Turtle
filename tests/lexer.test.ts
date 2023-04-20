@@ -154,14 +154,6 @@ describe('Lexer class tests:', () => {
     expect(token.value).toBe(Number.MAX_SAFE_INTEGER);
   });
 
-  test('Exceeding value integer should raise an error', () => {
-    var lexer = new Lexer(new StringReader("9007199254740992"))
-    let token = lexer.next_token()
-    expect(token.type).toBe(TokenType.INTEGER);
-    expect(token.value).toBe(900719925474099);
-    expect(lexer.raised_error).toBe(true);
-  });
-
   test('"0.0" should return TokenType.DOUBLE with value=0.0', () => {
     var lexer = new Lexer(new StringReader("0.0"))
     let token = lexer.next_token()
@@ -176,22 +168,140 @@ describe('Lexer class tests:', () => {
     expect(token.value).toBe(123456789.123456789);
   });
 
-  test('Exceeding value double should raise an error', () => {
-    var lexer = new Lexer(new StringReader("9007199254740991.9007199254740992"))
-    let token = lexer.next_token()
-    expect(token.type).toBe(TokenType.DOUBLE);
-    expect(token.value).toBe(9007199254740991.9999999999999999);
-    expect(lexer.raised_error).toBe(true);
+
+
+  test('"#" should return TokenType.COMMENT with value=""', () => {
+    var lexer = new Lexer(new StringReader("#"))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.COMMENT);
+    expect(token.value).toBe("");
   });
 
-  test('Double with exceeding integer part value should raise an error', () => {
-    var lexer = new Lexer(new StringReader("9007199254740992.12345"))
-    let token = lexer.next_token()
-    expect(token.type).toBe(TokenType.DOUBLE);
-    expect(token.value).toBe(900719925474099.0);
-    expect(lexer.raised_error).toBe(true);
+  test('"#\\n" should return TokenType.COMMENT with value=""', () => {
+    var lexer = new Lexer(new StringReader("#\n"))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.COMMENT);
+    expect(token.value).toBe("");
   });
 
+  test('"#abc" should return TokenType.COMMENT with value="abc"', () => {
+    var lexer = new Lexer(new StringReader("#abc"))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.COMMENT);
+    expect(token.value).toBe("abc");
+  });
+
+  test('"#abc\\n" should return TokenType.COMMENT with value="abc"', () => {
+    var lexer = new Lexer(new StringReader("#abc\n"))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.COMMENT);
+    expect(token.value).toBe("abc");
+  });
+
+  test('"#abc\\ndef" should return TokenType.COMMENT and value string should only contain chars before newline', () => {
+    var lexer = new Lexer(new StringReader("#abc\n"))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.COMMENT);
+    expect(token.value).toBe("abc");
+  });
+
+  test('"a" should return TokenType.IDENTIFIER with value="a"', () => {
+    var lexer = new Lexer(new StringReader("a"))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.IDENTIFIER);
+    expect(token.value).toBe("a");
+  });
+
+  test('"a_b" should return TokenType.IDENTIFIER with value="a_b"', () => {
+    var lexer = new Lexer(new StringReader("a_b"))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.IDENTIFIER);
+    expect(token.value).toBe("a_b");
+  });
+
+  test('"func" should return TokenType.FUN_KW with value="func"', () => {
+    var lexer = new Lexer(new StringReader("func"))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.FUN_KW);
+    expect(token.value).toBe("func");
+  });
+
+  test('"return" should return TokenType.RET_KW with value="return"', () => {
+    var lexer = new Lexer(new StringReader("return"))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.RET_KW);
+    expect(token.value).toBe("return");
+  });
+
+  test('"while" should return TokenType.WHILE_KW with value="while"', () => {
+    var lexer = new Lexer(new StringReader("while"))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.WHILE_KW);
+    expect(token.value).toBe("while");
+  });
+
+  test('"break" should return TokenType.BREAK_KW with value="break"', () => {
+    var lexer = new Lexer(new StringReader("break"))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.BREAK_KW);
+    expect(token.value).toBe("break");
+  });
+
+  test('"continue" should return TokenType.CONTINUE_KW with value="continue"', () => {
+    var lexer = new Lexer(new StringReader("continue"))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.CONTINUE_KW);
+    expect(token.value).toBe("continue");
+  });
+
+  test('"null" should return TokenType.NULL_KW with value="null"', () => {
+    var lexer = new Lexer(new StringReader("null"))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.NULL_KW);
+    expect(token.value).toBe("null");
+  });
+
+  test('"if" should return TokenType.IF_KW with value="if"', () => {
+    var lexer = new Lexer(new StringReader("if"))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.IF_KW);
+    expect(token.value).toBe("if");
+  });
+
+  test('"else" should return TokenType.ELSE_KW with value="else"', () => {
+    var lexer = new Lexer(new StringReader("else"))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.ELSE_KW);
+    expect(token.value).toBe("else");
+  });
+
+  test('"unless" should return TokenType.UNLESS_KW with value="unless"', () => {
+    var lexer = new Lexer(new StringReader("unless"))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.UNLESS_KW);
+    expect(token.value).toBe("unless");
+  });
+
+  test('"true" should return TokenType.TRUE_KW with value="true"', () => {
+    var lexer = new Lexer(new StringReader("true"))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.TRUE_KW);
+    expect(token.value).toBe("true");
+  });
+
+  test('"false" should return TokenType.FALSE_KW with value="false"', () => {
+    var lexer = new Lexer(new StringReader("false"))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.FALSE_KW);
+    expect(token.value).toBe("false");
+  });
+
+  test('Max length identifier should return TokenType.IDENTIFIER with value="a"*50', () => {
+    var lexer = new Lexer(new StringReader("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.IDENTIFIER);
+    expect(token.value).toBe("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+  });
 
   test('Reading any char should increment position column', () => {
     var lexer = new Lexer(new StringReader("-"))
@@ -279,28 +389,114 @@ describe('Lexer class tests:', () => {
     expect(lexer.raised_error).toBe(true);
   });
 
-  test('Unexpected (illegal) token while parsing "&&" operator should raise error', () => {
+  test('Unexpected (illegal) token while parsing "&&" operator should raise error and return empty token', () => {
     var lexer = new Lexer(new StringReader("&~"));
-    lexer.next_token();
+    var token = lexer.next_token();
     expect(lexer.raised_error).toBe(true);
+    expect(token.type).toBe(TokenType.EMPTY);
   });
 
-  test('Unexpected (legal) token while parsing "&&" operator should raise error', () => {
+  test('Unexpected (legal) token while parsing "&&" operator should raise error and return empty token', () => {
     var lexer = new Lexer(new StringReader("&+"));
-    lexer.next_token();
+    var token = lexer.next_token();
     expect(lexer.raised_error).toBe(true);
+    expect(token.type).toBe(TokenType.EMPTY);
   });
 
-  test('Unexpected (illegal) token while parsing "||" operator should raise error', () => {
+  test('Unexpected (illegal) token while parsing "||" operator should raise error and return empty token', () => {
     var lexer = new Lexer(new StringReader("|~"));
-    lexer.next_token();
+    var token = lexer.next_token();
+    expect(lexer.raised_error).toBe(true);
+    expect(token.type).toBe(TokenType.EMPTY);
+  });
+
+  test('Unexpected (legal) token while parsing "||" operator should raise error and return empty token', () => {
+    var lexer = new Lexer(new StringReader("|+"));
+    var token = lexer.next_token();
+    expect(lexer.raised_error).toBe(true);
+    expect(token.type).toBe(TokenType.EMPTY);
+  });
+
+  test('Exceeding value integer should raise an error and return token', () => {
+    var lexer = new Lexer(new StringReader("9007199254740992"))
+    let token = lexer.next_token()
+    expect(token.type).toBe(TokenType.INTEGER);
+    expect(token.value).toBe(900719925474099);
     expect(lexer.raised_error).toBe(true);
   });
 
-  test('Unexpected (legal) token while parsing "||" operator should raise error', () => {
-    var lexer = new Lexer(new StringReader("|+"));
-    lexer.next_token();
+  test('Integer with preceding zero should raise an error and return token', () => {
+    var lexer = new Lexer(new StringReader("0123"))
+    let token = lexer.next_token()
+    expect(token.type).toBe(TokenType.INTEGER);
+    expect(token.value).toBe(0);
     expect(lexer.raised_error).toBe(true);
+  });
+
+  test('Exceeding value double should raise an error and return token', () => {
+    var lexer = new Lexer(new StringReader("9007199254740991.9007199254740992"))
+    let token = lexer.next_token()
+    expect(token.type).toBe(TokenType.DOUBLE);
+    expect(token.value).toBe(9007199254740991.900719925474099);
+    expect(lexer.raised_error).toBe(true);
+  });
+
+  test('Double with exceeding integer part value should raise an error and return token', () => {
+    var lexer = new Lexer(new StringReader("9007199254740992.12345"))
+    let token = lexer.next_token()
+    expect(token.type).toBe(TokenType.DOUBLE);
+    expect(token.value).toBe(900719925474099.0);
+    expect(lexer.raised_error).toBe(true);
+  });
+
+  test('Double with exceeding integer part value should raise an error and excess digits should be skipped', () => {
+    var lexer = new Lexer(new StringReader("9007199254740992.12345"))
+    var token = lexer.next_token()
+    expect(token.type).toBe(TokenType.DOUBLE);
+    expect(token.value).toBe(900719925474099.0);
+    expect(lexer.raised_error).toBe(true);
+    token = lexer.next_token()
+    expect(token.type).toBe(TokenType.EOF);
+    expect(token.pos.pos).toBe(22);
+
+  });
+
+  test('Double with preceding zero should raise an error and return token', () => {
+    var lexer = new Lexer(new StringReader("01.23"))
+    let token = lexer.next_token()
+    expect(token.type).toBe(TokenType.DOUBLE);
+    expect(token.value).toBe(0.0);
+    expect(lexer.raised_error).toBe(true);
+  });
+
+  test('Double with preceding zero should raise an error and and excess digits should be skipped', () => {
+    var lexer = new Lexer(new StringReader("01.23"))
+    var token = lexer.next_token()
+    expect(token.type).toBe(TokenType.DOUBLE);
+    expect(token.value).toBe(0.0);
+    expect(lexer.raised_error).toBe(true);
+    token = lexer.next_token()
+    expect(token.type).toBe(TokenType.EOF);
+    expect(token.pos.pos).toBe(5);
+  });
+
+  test('Too long indentifier (51) should raise an error and return token', () => {
+    var lexer = new Lexer(new StringReader("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"))
+    var token = lexer.next_token();
+    expect(lexer.raised_error).toBe(true);
+    expect(token.type).toBe(TokenType.IDENTIFIER);
+    expect(token.value).toBe("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+  });
+
+  test('Too long indentifier (51) should raise an error and excess chars should be skipped', () => {
+    var lexer = new Lexer(new StringReader("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"))
+    var token = lexer.next_token();
+    expect(lexer.raised_error).toBe(true);
+    expect(token.type).toBe(TokenType.IDENTIFIER);
+    expect(token.value).toBe("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    token = lexer.next_token();
+    expect(token.type).toBe(TokenType.EOF);
+    expect(token.pos.pos).toBe(51);
   });
 
 });
