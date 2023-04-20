@@ -8,19 +8,20 @@ import { Console } from 'console';
 
 var file_path: string = process.argv.slice(2)[0];
 var reader: Reader = new FileReader(file_path);
-
 var lexer = new Lexer(reader);
 
 var i = 0;
 var token: Token;
-while(i<40) {
+while(i<5001) {
     token = lexer.next_token();
-    if (token.type === TokenType.EOF) {
-        break;
-    } else if (token.type === TokenType.EMPTY) {
+    if (token.type === TokenType.EMPTY) {
         continue;
     } else {
-        console.log(`WYKRYTO TOKEN ${TokenType[token.type]}`);
+        console.log(`TOKEN: ${TokenType[token.type]}`);
+        console.log(`line: ${token.pos.line} col: ${token.pos.col} pos: ${token.pos.pos}\n`);
+    }
+    if (token.type === TokenType.EOF) {
+        break;
     }
     i += 1;
 }

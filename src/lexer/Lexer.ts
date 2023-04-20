@@ -81,9 +81,10 @@ export class Lexer {
             || this.try_build_id_kw() || this.skip_cmnt() || this.try_build_string()) {
             return this.token!;
         } else {
-            this.print_error(`ERROR - UNRECOGNIZED TOKEN: "${this.curr_char}"`);
-
-            this.next_char();
+            if (!this.raised_error){
+                this.print_error(`ERROR - UNRECOGNIZED TOKEN: "${this.curr_char}"`);
+                this.next_char();
+            }
             return new Token(TokenType.EMPTY, "", this.curr_token_pos)
         }
 
@@ -101,10 +102,8 @@ export class Lexer {
     }
 
     print_error(err_mess: string) {
-        if (!this.raised_error) {
-            this.error_handler.print_error(err_mess, this.curr_line_beg, this.curr_token_pos!)
-            this.raised_error = true;
-        }
+        this.error_handler.print_error(err_mess, this.curr_line_beg, this.curr_token_pos!)
+        this.raised_error = true;
 
     }
 
@@ -172,7 +171,7 @@ export class Lexer {
                 this.next_char();
                 return true;
             } else {
-                this.print_error(`ERROR WHILE CREATING "${char!.concat(char!)}" OPERATOR\nEXPECTED "${char}" GOT "${this.curr_char}"`);
+                this.print_error(`ERROR WHILE PARSING "${char!.concat(char!)}" OPERATOR\nEXPECTED "${char}" GOT "${this.curr_char}"`);
                 return false;
             }
         }
