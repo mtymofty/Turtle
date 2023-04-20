@@ -76,11 +76,12 @@ export class StringReader implements Reader {
 	}
 
 	get_line(pos: number) {
-		if (this.len != pos) {
-			let char = this.data[pos];
-			return JSON.stringify(char).slice(1, -1);
-		} else {
-			return "";
+		var line: string = ""
+		let newlines: string[] = ["\\n", "\\r"]
+		while (this.len != pos && !(this.data[pos] in newlines)) {
+			line = line.concat(this.data[pos])
+			pos += 1;
 		}
+		return line
 	}
 }

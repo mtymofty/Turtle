@@ -3,6 +3,10 @@ import { StringReader } from '../src/source/Reader';
 import { Token } from '../src/token/Token';
 import { TokenType } from '../src/token/TokenType';
 
+beforeEach(() => {
+  jest.spyOn(console, 'log').mockImplementation(() => {});
+});
+
 describe('Lexer class tests:', () => {
   test('Empty string should return TokenType.EOF', () => {
     var lexer = new Lexer(new StringReader(""))
@@ -128,6 +132,66 @@ describe('Lexer class tests:', () => {
     var lexer = new Lexer(new StringReader(";"))
     expect(lexer.next_token().type).toBe(TokenType.TERMINATOR);
   });
+
+  test('"0" should return TokenType.INTEGER with value=0', () => {
+    var lexer = new Lexer(new StringReader("0"))
+    let token = lexer.next_token()
+    expect(token.type).toBe(TokenType.INTEGER);
+    expect(token.value).toBe(0);
+  });
+
+  test('"123456789" should return TokenType.INTEGER with value=123456789', () => {
+    var lexer = new Lexer(new StringReader("123456789"))
+    let token = lexer.next_token()
+    expect(token.type).toBe(TokenType.INTEGER);
+    expect(token.value).toBe(123456789);
+  });
+
+  test('Max value integer should return TokenType.INTEGER with value=Number.MAX_SAFE_INTEGER', () => {
+    var lexer = new Lexer(new StringReader("9007199254740991"))
+    let token = lexer.next_token()
+    expect(token.type).toBe(TokenType.INTEGER);
+    expect(token.value).toBe(Number.MAX_SAFE_INTEGER);
+  });
+
+  test('Exceeding value integer should raise an error', () => {
+    var lexer = new Lexer(new StringReader("9007199254740992"))
+    let token = lexer.next_token()
+    expect(token.type).toBe(TokenType.INTEGER);
+    expect(token.value).toBe(900719925474099);
+    expect(lexer.raised_error).toBe(true);
+  });
+
+  test('"0.0" should return TokenType.DOUBLE with value=0.0', () => {
+    var lexer = new Lexer(new StringReader("0.0"))
+    let token = lexer.next_token()
+    expect(token.type).toBe(TokenType.DOUBLE);
+    expect(token.value).toBe(0.0);
+  });
+
+  test('"123456789.123456789" should return TokenType.DOUBLE with value=123456789.123456789', () => {
+    var lexer = new Lexer(new StringReader("123456789.123456789"))
+    let token = lexer.next_token()
+    expect(token.type).toBe(TokenType.DOUBLE);
+    expect(token.value).toBe(123456789.123456789);
+  });
+
+  test('Exceeding value double should raise an error', () => {
+    var lexer = new Lexer(new StringReader("9007199254740991.9007199254740992"))
+    let token = lexer.next_token()
+    expect(token.type).toBe(TokenType.DOUBLE);
+    expect(token.value).toBe(9007199254740991.9999999999999999);
+    expect(lexer.raised_error).toBe(true);
+  });
+
+  test('Double with exceeding integer part value should raise an error', () => {
+    var lexer = new Lexer(new StringReader("9007199254740992.12345"))
+    let token = lexer.next_token()
+    expect(token.type).toBe(TokenType.DOUBLE);
+    expect(token.value).toBe(900719925474099.0);
+    expect(lexer.raised_error).toBe(true);
+  });
+
 
   test('Reading any char should increment position column', () => {
     var lexer = new Lexer(new StringReader("-"))

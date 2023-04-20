@@ -3,6 +3,8 @@ import { Position } from "../source/Position";
 import { Reader } from "../source/Reader";
 import { Token } from "../token/Token";
 import { TokenType } from "../token/TokenType";
+import { is_letter, is_digit } from '../utils/Regex';
+import { numeric_value } from "../utils/Math";
 
 export class Lexer {
     token: Token | null = null;
@@ -14,6 +16,7 @@ export class Lexer {
 
     error_handler: ErrorHandler;
     raised_error: boolean = false;
+    raised_error_ever: boolean = false;
 
     newline: string | null = null
     newline_len: number = 0
@@ -77,12 +80,12 @@ export class Lexer {
         }
 
         this.curr_token_pos = new Position(this.curr_pos.pos, this.curr_pos.line, this.curr_pos.col)
-        if (this.try_build_eof() || this.try_build_operator() || this.try_build_terminator() || this.try_build_number()
+        if (this.try_build_eof() || this.try_build_operator() || this.try_build_number()
             || this.try_build_id_kw() || this.skip_cmnt() || this.try_build_string()) {
             return this.token!;
         } else {
             if (!this.raised_error){
-                this.print_error(`ERROR - UNRECOGNIZED TOKEN: "${this.curr_char}"`);
+                this.print_error_pos(`ERROR - UNRECOGNIZED TOKEN: "${this.curr_char}"`);
                 this.next_char();
             }
             return new Token(TokenType.EMPTY, "", this.curr_token_pos)
@@ -101,11 +104,18 @@ export class Lexer {
         this.curr_char = this.reader.get_char(this.curr_pos.pos);
     }
 
-    print_error(err_mess: string) {
+    print_error_pos(err_mess: string) {
+        this.error_handler.print_error(err_mess, this.curr_line_beg, this.curr_pos!)
+        this.raised_error = true;
+        this.raised_error_ever = true;
+    }
+
+    print_error_token(err_mess: string) {
         this.error_handler.print_error(err_mess, this.curr_line_beg, this.curr_token_pos!)
         this.raised_error = true;
-
+        this.raised_error_ever = true;
     }
+
 
     is_char_white() {
         return (this.curr_char ===  " ");
@@ -171,18 +181,76 @@ export class Lexer {
                 this.next_char();
                 return true;
             } else {
-                this.print_error(`ERROR WHILE PARSING "${char!.concat(char!)}" OPERATOR\nEXPECTED "${char}" GOT "${this.curr_char}"`);
+                this.print_error_pos(`ERROR WHILE PARSING "${char!.concat(char!)}" OPERATOR\nEXPECTED "${char}" GOT "${this.curr_char}"`);
                 return false;
             }
         }
     }
 
-    try_build_terminator() {
-        return false;
-    }
-
     try_build_number() {
-        return false;
+        if (!is_digit.test(this.curr_char)) {
+            return false;
+        }
+        var value: number = numeric_value(this.curr_char);
+        if (value != 0){
+            this.next_char();
+            while(is_digit.test(this.curr_char)) {
+                var decimal = numeric_value(this.curr_char);
+                if (((Number.MAX_SAFE_INTEGER - decimal) / 10 - value) >= 0) {
+                    value = value * 10 + decimal;
+                } else {
+                    // Skipping the rest of the number.
+                    var found_dot = false;
+                    while(is_digit.test(this.curr_char) || (this.curr_char == "." && !found_dot)) {
+                        if (this.curr_char == ".") {
+                            found_dot = true;
+                        }
+                        this.next_char();
+                    }
+                    if (!found_dot) {
+                        this.print_error_token("ERROR - EXCEEDING VALUE OF A NUMERIC CONSTANT (INT)!");
+                        this.token = new Token(TokenType.INTEGER, value=value, this.curr_token_pos);
+                    } else {
+                        this.print_error_token("ERROR - EXCEEDING VALUE OF A NUMERIC CONSTANT (DOUBLE)!");
+                        this.token = new Token(TokenType.DOUBLE, value=value+0.0, this.curr_token_pos);
+                    }
+                    return true;
+                }
+                this.next_char();
+            }
+        } else {
+            this.next_char();
+        }
+        if (this.curr_char == ".") {
+            var fraction: number = 0;
+            var num_of_decimals: number = 0;
+            this.next_char();
+            while(is_digit.test(this.curr_char)) {
+                var decimal = numeric_value(this.curr_char);
+                if (((Number.MAX_SAFE_INTEGER - decimal) / 10 - fraction) >= 0) {
+                    fraction = fraction * 10 + decimal;
+                    num_of_decimals += 1;
+                } else {
+                    // Skipping the rest of the number.
+                    while(is_digit.test(this.curr_char)) {
+                        this.next_char();
+                    }
+                    this.print_error_token("ERROR - EXCEEDING VALUE OF A NUMERIC CONSTANT (DOUBLE)!");
+                    this.token = new Token(TokenType.DOUBLE, value=(value + fraction/Math.pow(10, num_of_decimals)), this.curr_token_pos);
+                    return true;
+                }
+                this.next_char();
+            }
+            this.token = new Token(TokenType.DOUBLE, value=(value + fraction/Math.pow(10, num_of_decimals)), this.curr_token_pos);
+            return true;
+        } else if (is_digit.test(this.curr_char)){
+            this.print_error_token("ERROR - EXCEEDING VALUE OF A NUMERIC CONSTANT!");
+            this.token = new Token(TokenType.INTEGER, value=value, this.curr_token_pos);
+            return true;
+        } else {
+            this.token = new Token(TokenType.INTEGER, value=value, this.curr_token_pos);
+            return true;
+        }
     }
 
     try_build_id_kw() {

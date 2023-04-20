@@ -4,7 +4,7 @@ import {Position} from './source/Position';
 import { Lexer } from './lexer/Lexer';
 import { Token } from './token/Token';
 import { TokenType } from './token/TokenType';
-import { Console } from 'console';
+import XRegExp = require("xregexp")
 
 var file_path: string = process.argv.slice(2)[0];
 var reader: Reader = new FileReader(file_path);
@@ -25,4 +25,3 @@ while(i<5001) {
     }
     i += 1;
 }
-
