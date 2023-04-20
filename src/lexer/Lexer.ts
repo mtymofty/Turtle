@@ -1,3 +1,4 @@
+import { ErrorHandler } from "../error/ErrorHandler";
 import { Position } from "../source/Position";
 import { Reader } from "../source/Reader";
 import { Token } from "../token/Token";
@@ -8,8 +9,11 @@ export class Lexer {
     curr_char: string | null = null;
     curr_pos: Position;
     curr_token_pos: Position | null = null;
+    curr_line_beg: number;
     reader: Reader;
-    error_hanlder: string | null = null;
+
+    error_handler: ErrorHandler;
+    raised_error: boolean = false;
 
     newline: string | null = null
     newline_len: number = 0
@@ -55,11 +59,15 @@ export class Lexer {
 
     constructor(reader: Reader) {
         this.reader = reader;
+        this.error_handler = new ErrorHandler(reader);
         this.curr_pos = new Position();
         this.next_char();
+        this.curr_line_beg = 0;
     }
 
     next_token() {
+        this.raised_error = false;
+
         while(this.is_char_white() || this.is_char_eol()) {
             if (this.is_char_white()){
                 this.next_char();
@@ -73,8 +81,10 @@ export class Lexer {
             || this.try_build_id_kw() || this.skip_cmnt() || this.try_build_string()) {
             return this.token!;
         } else {
+            this.print_error(`ERROR - UNRECOGNIZED TOKEN: "${this.curr_char}"`);
+
             this.next_char();
-            return new Token(TokenType.UNDEFINED, "", this.curr_token_pos)
+            return new Token(TokenType.EMPTY, "", this.curr_token_pos)
         }
 
     }
@@ -86,7 +96,16 @@ export class Lexer {
 
     next_line() {
         this.curr_pos.next_line(this.newline_len);
+        this.curr_line_beg = this.curr_pos.pos;
         this.curr_char = this.reader.get_char(this.curr_pos.pos);
+    }
+
+    print_error(err_mess: string) {
+        if (!this.raised_error) {
+            this.error_handler.print_error(err_mess, this.curr_line_beg, this.curr_token_pos!)
+            this.raised_error = true;
+        }
+
     }
 
     is_char_white() {
@@ -153,9 +172,7 @@ export class Lexer {
                 this.next_char();
                 return true;
             } else {
-                // TODO - ERROR HANDLING
-                console.log(`ERROR WHILE CREATING "${char!.concat(char!)}" OPERATOR`)
-                console.log(`EXPECTED "${char}" GOT "${this.curr_char}"`)
+                this.print_error(`ERROR WHILE CREATING "${char!.concat(char!)}" OPERATOR\nEXPECTED "${char}" GOT "${this.curr_char}"`);
                 return false;
             }
         }
