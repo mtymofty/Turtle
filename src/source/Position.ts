@@ -5,8 +5,8 @@ export class Position {
 
     constructor(pos?: number, line?: number, col?: number) {
         this.pos = (pos !== undefined) ? pos : -1;
-        this.line = (line !== undefined) ? line : 0;
-        this.col = (col !== undefined) ? col : -1;
+        this.line = (line !== undefined) ? line : 1;
+        this.col = (col !== undefined) ? col : 0;
 	}
 
     next_char() {
@@ -16,7 +16,7 @@ export class Position {
 
     next_line(pos_diff: number) {
         this.line += 1;
-        this.col = 0;
+        this.col = 1;
         this.pos += pos_diff;
     }
 }

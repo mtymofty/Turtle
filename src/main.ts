@@ -12,13 +12,14 @@ var lexer = new Lexer(reader);
 
 var i = 0;
 var token: Token;
-while(i<5001) {
+while(true) {
     token = lexer.next_token();
     if (token.type === TokenType.EMPTY) {
         continue;
     } else {
         console.log(`TOKEN: ${TokenType[token.type]}`);
         console.log(`line: ${token.pos.line} col: ${token.pos.col} pos: ${token.pos.pos}\n`);
+        console.log(`VALUE: ${token.value}\n`);
     }
     if (token.type === TokenType.EOF) {
         break;

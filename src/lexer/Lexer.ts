@@ -17,6 +17,7 @@ export class Lexer {
     error_handler: ErrorHandler;
     raised_error: boolean = false;
     raised_error_ever: boolean = false;
+    raised_warning: boolean = false;
 
     newline: string | null = null
     newline_len: number = 0
@@ -73,6 +74,12 @@ export class Lexer {
         "true": TokenType.TRUE_KW,
         "false": TokenType.FALSE_KW
     }
+     escapable: Record<string, string> = {
+        "n": "\n",
+        "t": "\t",
+        '\\"': '"',
+        "\\\\": "\\"
+     }
 
     constructor(reader: Reader) {
         this.reader = reader;
@@ -122,6 +129,10 @@ export class Lexer {
         this.error_handler.print_error(err_mess, this.curr_line_beg, this.curr_pos!)
         this.raised_error = true;
         this.raised_error_ever = true;
+    }
+
+    print_warning_pos(err_mess: string) {
+        this.error_handler.print_warning(err_mess, this.curr_line_beg, this.curr_pos!)
     }
 
     print_error_token(err_mess: string) {
@@ -338,22 +349,27 @@ export class Lexer {
         this.next_char();
         while(!this.is_char_eol() && !this.is_char_eof() && this.curr_char != '\\"') {
             if (string.length != this.max_str_len) {
+                if (this.curr_char == "\\\\") {
+                    this.next_char();
+                    console.log(this.curr_char)
+                    if (this.curr_char in this.escapable) {
+                        this.curr_char = this.escapable[this.curr_char]
+                    } else if (this.is_char_eol() || this.is_char_eof()){
+                        break;
+                    } else {
+                        this.raised_warning = true;
+                        this.print_warning_pos("WARNING - TRIED TO ESCAPE UNESCAPABLE CHARACTER")
+                    }
+                }
                 string = string.concat(this.curr_char)
                 this.next_char();
             } else {
                 this.print_error_token("ERROR - EXCEEDING LENGTH OF A STRING!");
-                this.token = new Token(TokenType.STRING, string, this.curr_token_pos);
 
                 while(!this.is_char_eol() && !this.is_char_eof() && this.curr_char != '\\"') {
                     this.next_char();
                 }
-                if (this.curr_char == '\\"') {
-                    this.next_char();
-                } else if (this.is_char_eol()){
-                    this.print_error_pos(`ERROR - UNEXPECTED EOL WHILE PARSING STRING"`);
-                } else {
-                    this.print_error_pos(`ERROR - UNEXPECTED EOF WHILE PARSING STRING"`);
-                }
+                break;
                 return true;
             }
         }

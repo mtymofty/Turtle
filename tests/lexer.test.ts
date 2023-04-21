@@ -168,8 +168,6 @@ describe('Lexer class tests:', () => {
     expect(token.value).toBe(123456789.123456789);
   });
 
-
-
   test('"#" should return TokenType.COMMENT with value=""', () => {
     var lexer = new Lexer(new StringReader("#"))
     var token = lexer.next_token();
@@ -210,6 +208,13 @@ describe('Lexer class tests:', () => {
     var token = lexer.next_token();
     expect(token.type).toBe(TokenType.IDENTIFIER);
     expect(token.value).toBe("a");
+  });
+
+  test('"юя" should return TokenType.IDENTIFIER with value="юя"', () => {
+    var lexer = new Lexer(new StringReader("юя"))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.IDENTIFIER);
+    expect(token.value).toBe("юя");
   });
 
   test('"a_b" should return TokenType.IDENTIFIER with value="a_b"', () => {
@@ -324,6 +329,34 @@ describe('Lexer class tests:', () => {
     expect(token.value).toBe("+!  _1ą  ćź");
   });
 
+  test(`'"\\n"' should return TokenType.STRING with escaped newline char`, () => {
+    var lexer = new Lexer(new StringReader(`"\\n"`))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.STRING);
+    expect(token.value).toBe("\n");
+  });
+
+  test(`'"\\t"' should return TokenType.STRING with escaped tabulation char`, () => {
+    var lexer = new Lexer(new StringReader(`"\\t"`))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.STRING);
+    expect(token.value).toBe("\t");
+  });
+
+  test(`'"\\\\"' should return TokenType.STRING with escaped backslash char`, () => {
+    var lexer = new Lexer(new StringReader(`"\\\\"`))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.STRING);
+    expect(token.value).toBe("\\");
+  });
+
+  test(`'"\\""' should return TokenType.STRING with escaped quotation char`, () => {
+    var lexer = new Lexer(new StringReader(`"\\""`))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.STRING);
+    expect(token.value).toBe("\"");
+  });
+
   test('Reading any char should increment position column', () => {
     var lexer = new Lexer(new StringReader("-"))
     let init_col = lexer.curr_pos.col;
@@ -335,7 +368,7 @@ describe('Lexer class tests:', () => {
     var lexer = new Lexer(new StringReader("-"))
     let init_pos = lexer.curr_pos.pos;
     lexer.next_char()
-    expect(lexer.curr_pos.col).toBe(init_pos+1);
+    expect(lexer.curr_pos.pos).toBe(init_pos+1);
   });
 
   test('"\\n" should change current position to next line', () => {
@@ -343,7 +376,7 @@ describe('Lexer class tests:', () => {
     let init_line = lexer.curr_pos.line;
     lexer.next_token()
     expect(lexer.curr_pos.line).toBe(init_line+1);
-    expect(lexer.curr_pos.col).toBe(0);
+    expect(lexer.curr_pos.col).toBe(1);
   });
 
   test('"\\r" should change current position to next line', () => {
@@ -351,7 +384,7 @@ describe('Lexer class tests:', () => {
     let init_line = lexer.curr_pos.line;
     lexer.next_token()
     expect(lexer.curr_pos.line).toBe(init_line+1);
-    expect(lexer.curr_pos.col).toBe(0);
+    expect(lexer.curr_pos.col).toBe(1);
   });
 
   test('"\\n\\r" should change current position to next line', () => {
@@ -359,7 +392,7 @@ describe('Lexer class tests:', () => {
     let init_line = lexer.curr_pos.line;
     lexer.next_token()
     expect(lexer.curr_pos.line).toBe(init_line+1);
-    expect(lexer.curr_pos.col).toBe(0);
+    expect(lexer.curr_pos.col).toBe(1);
   });
 
   test('"\\r\\n" should change current position to next line', () => {
@@ -367,7 +400,7 @@ describe('Lexer class tests:', () => {
     let init_line = lexer.curr_pos.line;
     lexer.next_token();
     expect(lexer.curr_pos.line).toBe(init_line+1);
-    expect(lexer.curr_pos.col).toBe(0);
+    expect(lexer.curr_pos.col).toBe(1);
   });
 
   test('"\\n" should increment position offset by 1', () => {
