@@ -95,7 +95,7 @@ export class Lexer {
 
         this.curr_token_pos = new Position(this.curr_pos.pos, this.curr_pos.line, this.curr_pos.col)
         if (this.try_build_eof() || this.try_build_operator() || this.try_build_number()
-            || this.try_build_id_kw() || this.skip_cmnt() || this.try_build_string()) {
+            || this.try_build_id_kw() || this.try_build_cmnt() || this.try_build_string()) {
             return this.token!;
         } else {
             if (!this.raised_error){
@@ -316,7 +316,7 @@ export class Lexer {
         }
     }
 
-    skip_cmnt() {
+    try_build_cmnt() {
         if (this.curr_char == "#") {
             var comment: string = "";
             this.next_char();
@@ -331,6 +331,41 @@ export class Lexer {
     }
 
     try_build_string() {
-        return false;
+        if (this.curr_char != '\\"') {
+            return false;
+        }
+        var string: string = "";
+        this.next_char();
+        while(!this.is_char_eol() && !this.is_char_eof() && this.curr_char != '\\"') {
+            if (string.length != this.max_str_len) {
+                string = string.concat(this.curr_char)
+                this.next_char();
+            } else {
+                this.print_error_token("ERROR - EXCEEDING LENGTH OF A STRING!");
+                this.token = new Token(TokenType.STRING, string, this.curr_token_pos);
+
+                while(!this.is_char_eol() && !this.is_char_eof() && this.curr_char != '\\"') {
+                    this.next_char();
+                }
+                if (this.curr_char == '\\"') {
+                    this.next_char();
+                } else if (this.is_char_eol()){
+                    this.print_error_pos(`ERROR - UNEXPECTED EOL WHILE PARSING STRING"`);
+                } else {
+                    this.print_error_pos(`ERROR - UNEXPECTED EOF WHILE PARSING STRING"`);
+                }
+                return true;
+            }
+        }
+        if (this.curr_char == '\\"') {
+            this.next_char();
+        } else if (this.is_char_eol()){
+            this.print_error_pos(`ERROR - UNEXPECTED EOL WHILE PARSING STRING"`);
+        } else if (this.is_char_eof()){
+            this.print_error_pos(`ERROR - UNEXPECTED EOF WHILE PARSING STRING"`);
+        }
+
+        this.token = new Token(TokenType.STRING, string, this.curr_token_pos);
+        return true;
     }
 }

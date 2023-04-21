@@ -219,6 +219,13 @@ describe('Lexer class tests:', () => {
     expect(token.value).toBe("a_b");
   });
 
+  test('Max length identifier should return TokenType.IDENTIFIER with value="a"*50', () => {
+    var lexer = new Lexer(new StringReader("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.IDENTIFIER);
+    expect(token.value).toBe("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+  });
+
   test('"func" should return TokenType.FUN_KW with value="func"', () => {
     var lexer = new Lexer(new StringReader("func"))
     var token = lexer.next_token();
@@ -296,11 +303,25 @@ describe('Lexer class tests:', () => {
     expect(token.value).toBe("false");
   });
 
-  test('Max length identifier should return TokenType.IDENTIFIER with value="a"*50', () => {
-    var lexer = new Lexer(new StringReader("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"))
+  test(`'""' should return TokenType.STRING with value=""`, () => {
+    var lexer = new Lexer(new StringReader(`""`))
     var token = lexer.next_token();
-    expect(token.type).toBe(TokenType.IDENTIFIER);
-    expect(token.value).toBe("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    expect(token.type).toBe(TokenType.STRING);
+    expect(token.value).toBe("");
+  });
+
+  test(`'"a"' should return TokenType.STRING with value="a"`, () => {
+    var lexer = new Lexer(new StringReader(`"a"`))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.STRING);
+    expect(token.value).toBe("a");
+  });
+
+  test(`'"+!  _1ą  ćź"' should return TokenType.STRING with value="+!  _1ą  ćź"`, () => {
+    var lexer = new Lexer(new StringReader(`"+!  _1ą  ćź"`))
+    var token = lexer.next_token();
+    expect(token.type).toBe(TokenType.STRING);
+    expect(token.value).toBe("+!  _1ą  ćź");
   });
 
   test('Reading any char should increment position column', () => {
@@ -496,7 +517,42 @@ describe('Lexer class tests:', () => {
     expect(token.value).toBe("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     token = lexer.next_token();
     expect(token.type).toBe(TokenType.EOF);
-    expect(token.pos.pos).toBe(51);
+    expect(token.pos.pos).toBe(1+50); // 50 - identifier len
+  });
+
+  test('Too long string (201) should raise an error and return token', () => {
+    var lexer = new Lexer(new StringReader(`"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"`))
+    var token = lexer.next_token();
+    expect(lexer.raised_error).toBe(true);
+    expect(token.type).toBe(TokenType.STRING);
+    expect(token.value).toBe("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+  });
+
+  test('Too long string (201) should raise an error and excess chars should be skipped', () => {
+    var lexer = new Lexer(new StringReader('"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"'))
+    var token = lexer.next_token();
+    expect(lexer.raised_error).toBe(true);
+    expect(token.type).toBe(TokenType.STRING);
+    expect(token.value).toBe("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    token = lexer.next_token();
+    expect(token.type).toBe(TokenType.EOF);
+    expect(token.pos.pos).toBe(1+200+2);  // 200 - string len, 2 - quotes
+  });
+
+  test('String lacking closing bracket (EOL) should rise an error and return a token', () => {
+    var lexer = new Lexer(new StringReader('"aaa\n'))
+    var token = lexer.next_token();
+    expect(lexer.raised_error).toBe(true);
+    expect(token.type).toBe(TokenType.STRING);
+    expect(token.value).toBe("aaa");
+  });
+
+  test('String lacking closing bracket (EOF) should rise an error and return a token', () => {
+    var lexer = new Lexer(new StringReader('"aaa'))
+    var token = lexer.next_token();
+    expect(lexer.raised_error).toBe(true);
+    expect(token.type).toBe(TokenType.STRING);
+    expect(token.value).toBe("aaa");
   });
 
 });
