@@ -9,7 +9,8 @@ export function find_occurances(char: string, string:string): number[] {
 }
 
 export function insert(original: string, i: number, substr: string): string{
-    return original.substring(0, i) + substr + original.substring(i + substr.length);
+    let temp_str = original.substring(0, i).concat(substr);
+    return temp_str.concat(original.substring(i+1));
 }
 
 export function printable(char: string): string{

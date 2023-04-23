@@ -5,8 +5,12 @@ import { Lexer } from "./Lexer";
 import { LexerImp } from "./LexerImp";
 
 export class LexerFilter implements Lexer {
-    private lexer: LexerImp;
+    private lexer: Lexer;
     private token: Token;
+
+    constructor(lexer: Lexer) {
+        this.lexer = lexer;
+    }
 
     next_token(): Token {
         this.token = this.lexer.next_token()

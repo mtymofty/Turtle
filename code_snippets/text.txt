@@ -1,6 +1,11 @@
-"abc
-012
-&|
-$
-"abc
-"abc\a"
+rysuj_kwadrat(zolw, bok) {
+    i = 0;
+    while (i<=3) {
+        zolw.forward(bok);
+        zolw.right();
+        i = i + 1;
+    }
+}
+
+zolw = Turtle();
+rysuj_kwadrat(zolw, 10);

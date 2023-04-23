@@ -92,7 +92,7 @@ export class LexerImp implements Lexer {
     }
 
     is_char_white(): boolean {
-        return (this.curr_char ===  " ");
+        return (this.curr_char ===  " " || this.curr_char ===  "\t");
     }
 
     is_char_eol(): boolean {
@@ -133,14 +133,10 @@ export class LexerImp implements Lexer {
                     this.newline_len = 2;
 
                 } else {
-                    console.log(this.curr_char);
-                    console.log(this.newline.substring(2, 4));
                     this.raise_critical_error(ErrorType.NEWLINE_ERR, [])
                 }
             }
         } else {
-            console.log(this.curr_char);
-            console.log(this.newline.substring(0, 2));
             this.raise_critical_error(ErrorType.NEWLINE_ERR, [])
         }
     }
@@ -319,7 +315,6 @@ export class LexerImp implements Lexer {
             if (string.length != this.max_str_len) {
                 if (this.curr_char == "\\") {
                     this.next_char();
-                    console.log(this.curr_char)
                     if (this.curr_char in TokenUtils.escapable) {
                         this.curr_char = TokenUtils.escapable[this.curr_char]
                     } else if (this.is_char_eol() || this.is_char_eof()){

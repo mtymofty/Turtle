@@ -3,7 +3,7 @@ import { StringReader } from '../src/source/Reader';
 import { Token } from '../src/token/Token';
 import { TokenType } from '../src/token/TokenType';
 
-beforeEach(() => {
+beforeAll(() => {
   jest.spyOn(console, 'log').mockImplementation(() => {});
 });
 

@@ -27,15 +27,9 @@ export class ErrorHandler {
             this.raise_self_error(ErrorType[error_type]);
         }
 
-        var i = 0;
-        if (occurs.length) {
-            occurs.forEach( (occur) => {
-                mess = insert(mess, occur, args[i])
-                i += 1;
-            });
-        }
+        mess = this.insert_args(mess, args, occurs);
 
-        this.print_err_mess(mess, pos)
+        this.print_err_mess(mess)
         this.print_code(code, pos, line_beg)
     }
 
@@ -48,31 +42,41 @@ export class ErrorHandler {
             this.raise_self_error(WarningType[warn_type]);
         }
 
-        var i = 0;
-        if (occurs.length) {
-            occurs.forEach( (occur) => {
-                mess = insert(mess, occur, args[i])
-                i += 1;
-            });
-        }
+        mess = this.insert_args(mess, args, occurs);
 
-        this.print_warn_mess(mess, pos)
+        this.print_warn_mess(mess)
         this.print_code(code, pos, line_beg)
     }
 
-    print_err_mess(mess: string, pos: Position): void{
+    print_err_mess(mess: string): void{
         console.log(this.error_color + mess);
-        console.log(`line: ${pos.line} col: ${pos.col}`);
     }
 
-    print_warn_mess(mess: string, pos: Position): void{
+    print_warn_mess(mess: string): void{
         console.log(this.warning_color + mess);
-        console.log(`line: ${pos.line} col: ${pos.col}`);
     }
 
     print_code(code: string, pos: Position, line_beg: number):void {
+        console.log(`line: ${pos.line} col: ${pos.col}`);
         console.log(this.code_color + code);
         console.log(' '.repeat(pos.pos-line_beg) + '^' + this.white_color);
+    }
+
+    insert_args(mess: string, args: string[], occurs: number[]): string {
+        var i = 0;
+        if (occurs.length) {
+            var diff = 0;
+            occurs.forEach( (occur) => {
+
+                if (i!=0) {
+                    diff += args[i-1].length-1;
+                }
+                var idx = occur+diff;
+                mess = insert(mess, idx, args[i])
+                i += 1;
+            });
+        }
+        return mess;
     }
 
     raise_self_error(alert_type: string): void {

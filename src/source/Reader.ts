@@ -1,5 +1,8 @@
 import * as fs from 'fs';
 import { Position } from './Position';
+import { ErrorHandler } from '../error/ErrorHandler';
+import { ErrorType } from '../error/ErrorType';
+import { ErrorUtils } from '../error/ErrorUtils';
 
 export interface Reader {
 	curr_pos: Position;
@@ -12,10 +15,13 @@ export class FileReader implements Reader {
 	curr_pos: Position;
 	private fd: number;
 	private file_path: string;
+	private error_handler: ErrorHandler;
+	private newline_chars: string[] = ["\n", "\r"]
 
 	constructor(path: string) {
 		this.file_path = path;
 		this.curr_pos = new Position();
+		this.error_handler = new ErrorHandler(this);
 		this.open();
 	}
 
@@ -34,12 +40,10 @@ export class FileReader implements Reader {
 	get_line(pos: number): string {
 		let buf = Buffer.alloc(1, 0);
 		var read: number;
-
 		var line: string = ""
-		let newlines: string[] = ["\n", "\r"]
 
 		read = fs.readSync(this.fd, buf, 0, 1, pos);
-		while (!(newlines.includes(buf.toString())) && read != 0) {
+		while (!(this.newline_chars.includes(buf.toString())) && read != 0) {
 			line = line.concat(buf.toString())
 			pos += 1;
 			read = fs.readSync(this.fd, buf, 0, 1, pos);
@@ -51,9 +55,9 @@ export class FileReader implements Reader {
 	open(): void {
 		try {
 			this.fd = fs.openSync(this.file_path, "r");
-			console.log(this.fd);
 		} catch(e) {
-			console.log(e);
+			this.error_handler.print_err_mess(ErrorUtils.error_mess[ErrorType.PATH_ERR]);
+			process.exit(0);
 		}
 	}
 
@@ -72,6 +76,7 @@ export class StringReader implements Reader {
 	curr_pos: Position;
 	private data: string;
 	private len: number;
+	private newline_chars: string[] = ["\n", "\r"]
 
 	constructor(data: string) {
 		this.data = data;
@@ -90,8 +95,7 @@ export class StringReader implements Reader {
 
 	get_line(pos: number): string {
 		var line: string = ""
-		let newlines: string[] = ["\n", "\r"]
-		while (this.len != pos && !(this.data[pos] in newlines)) {
+		while (this.len != pos && !(this.data[pos] in this.newline_chars)) {
 			line = line.concat(this.data[pos])
 			pos += 1;
 		}

@@ -8,7 +8,8 @@ export enum ErrorType {
     INTEGER_EXC_VAL_ERR,
     OPERATOR_PARSE_ERR,
     UNREC_TOKEN_ERR,
-    NEWLINE_ERR
+    NEWLINE_ERR,
+    PATH_ERR
 }
 
 export enum WarningType {
