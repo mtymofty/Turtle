@@ -1,20 +1,18 @@
-import {ReadStream} from 'fs';
 import {FileReader, Reader, StringReader} from './source/Reader';
-import {Position} from './source/Position';
-import { Lexer } from './lexer/Lexer';
+import { LexerImp } from './lexer/LexerImp';
 import { Token } from './token/Token';
 import { TokenType } from './token/TokenType';
-import XRegExp = require("xregexp")
+import { Lexer } from './lexer/Lexer';
 
 var file_path: string = process.argv.slice(2)[0];
 var reader: Reader = new FileReader(file_path);
-var lexer = new Lexer(reader);
+var lexer: Lexer = new LexerImp(reader);
 
 var i = 0;
 var token: Token;
 while(true) {
     token = lexer.next_token();
-    if (token.type === TokenType.EMPTY) {
+    if (token.type === TokenType.INVALID) {
         continue;
     } else {
         console.log(`TOKEN: ${TokenType[token.type]}`);

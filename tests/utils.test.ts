@@ -1,5 +1,5 @@
-import { is_letter, is_digit } from '../src/utils/Regex';
-import { numeric_value } from '../src/utils/Math';
+import { is_letter, is_digit } from '../src/misc/Regex';
+import { numeric_value } from '../src/misc/Math';
 
 beforeEach(() => {
     jest.spyOn(console, 'log').mockImplementation(() => {});

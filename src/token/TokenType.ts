@@ -47,5 +47,5 @@ export enum TokenType {
     TERMINATOR,
 
     EOF,
-    EMPTY
+    INVALID
 }

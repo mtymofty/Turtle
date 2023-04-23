@@ -9,12 +9,12 @@ export class Position {
         this.col = (col !== undefined) ? col : 0;
 	}
 
-    next_char() {
+    next_char(): void {
         this.col += 1;
         this.pos += 1;
     }
 
-    next_line(pos_diff: number) {
+    next_line(pos_diff: number): void {
         this.line += 1;
         this.col = 1;
         this.pos += pos_diff;

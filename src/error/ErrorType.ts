@@ -1,0 +1,16 @@
+export enum ErrorType {
+    STRING_EOL_ERR,
+    STRING_EOF_ERR,
+    STRING_LEN_ERR,
+    IDENT_LEN_ERR,
+    NUM_PREC_ZERO_ERR,
+    DOUBLE_EXC_VAL_ERR,
+    INTEGER_EXC_VAL_ERR,
+    OPERATOR_PARSE_ERR,
+    UNREC_TOKEN_ERR,
+    NEWLINE_ERR
+}
+
+export enum WarningType {
+    STRING_ESC_WARN
+}

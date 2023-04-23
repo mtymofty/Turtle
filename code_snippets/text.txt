@@ -1,1 +1,6 @@
-"abcd \" def"
+"abc
+012
+&|
+$
+"abc
+"abc\a"
