@@ -28,7 +28,7 @@ export class FileReader implements Reader {
 			return "";
 		}
 
-		return JSON.stringify(buf.toString()).slice(1, -1);
+		return buf.toString();
 	}
 
 	get_line(pos: number): string {
@@ -36,10 +36,10 @@ export class FileReader implements Reader {
 		var read: number;
 
 		var line: string = ""
-		let newlines: string[] = ["\\n", "\\r"]
+		let newlines: string[] = ["\n", "\r"]
 
 		read = fs.readSync(this.fd, buf, 0, 1, pos);
-		while (!(newlines.includes(JSON.stringify(buf.toString()).slice(1, -1))) && read != 0) {
+		while (!(newlines.includes(buf.toString())) && read != 0) {
 			line = line.concat(buf.toString())
 			pos += 1;
 			read = fs.readSync(this.fd, buf, 0, 1, pos);
@@ -82,7 +82,7 @@ export class StringReader implements Reader {
 	get_char(): string {
 		if (this.len != this.curr_pos.pos) {
 			let char: string = this.data[this.curr_pos.pos];
-			return JSON.stringify(char).slice(1, -1);
+			return char;
 		} else {
 			return "";
 		}
@@ -90,7 +90,7 @@ export class StringReader implements Reader {
 
 	get_line(pos: number): string {
 		var line: string = ""
-		let newlines: string[] = ["\\n", "\\r"]
+		let newlines: string[] = ["\n", "\r"]
 		while (this.len != pos && !(this.data[pos] in newlines)) {
 			line = line.concat(this.data[pos])
 			pos += 1;

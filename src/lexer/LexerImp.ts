@@ -8,6 +8,7 @@ import { is_letter, is_digit } from '../misc/Regex';
 import { numeric_value } from "../misc/Math";
 import { Lexer } from "./Lexer";
 import { ErrorType, WarningType } from "../error/ErrorType";
+import { printable } from "../misc/String";
 
 export class LexerImp implements Lexer {
     private reader: Reader;
@@ -95,7 +96,7 @@ export class LexerImp implements Lexer {
     }
 
     is_char_eol(): boolean {
-        if (this.curr_char == "\\n" || this.curr_char == "\\r") {
+        if (this.curr_char == "\n" || this.curr_char == "\r") {
             return true;
         } else {
             return false;
@@ -177,7 +178,7 @@ export class LexerImp implements Lexer {
                 this.next_char();
                 return true;
             } else {
-                this.print_error_pos(ErrorType.OPERATOR_PARSE_ERR, [char!.concat(char!), char, this.curr_char]);
+                this.print_error_pos(ErrorType.OPERATOR_PARSE_ERR, [char!.concat(char!), char, printable(this.curr_char)]);
                 return false;
             }
         }
@@ -309,14 +310,14 @@ export class LexerImp implements Lexer {
     }
 
     try_build_string(): boolean {
-        if (this.curr_char != '\\"') {
+        if (this.curr_char != '\"') {
             return false;
         }
         var string: string = "";
         this.next_char();
-        while(!this.is_char_eol() && !this.is_char_eof() && this.curr_char != '\\"') {
+        while(!this.is_char_eol() && !this.is_char_eof() && this.curr_char != '\"') {
             if (string.length != this.max_str_len) {
-                if (this.curr_char == "\\\\") {
+                if (this.curr_char == "\\") {
                     this.next_char();
                     console.log(this.curr_char)
                     if (this.curr_char in TokenUtils.escapable) {
@@ -332,13 +333,13 @@ export class LexerImp implements Lexer {
             } else {
                 this.print_error_token(ErrorType.STRING_LEN_ERR, []);
 
-                while(!this.is_char_eol() && !this.is_char_eof() && this.curr_char != '\\"') {
+                while(!this.is_char_eol() && !this.is_char_eof() && this.curr_char != '\"') {
                     this.next_char();
                 }
                 break;
             }
         }
-        if (this.curr_char == '\\"') {
+        if (this.curr_char == '\"') {
             this.next_char();
         } else if (this.is_char_eol()){
             this.print_error_pos(ErrorType.STRING_EOL_ERR, []);

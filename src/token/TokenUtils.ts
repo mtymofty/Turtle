@@ -54,7 +54,7 @@ export class TokenUtils {
     static escapable: Record<string, string> = {
         "n": "\n",
         "t": "\t",
-        '\\"': '"',
-        "\\\\": "\\"
+        '\"': '"',
+        "\\": "\\"
      }
 }
