@@ -7,7 +7,5 @@ rysuj_kwadrat(zolw, bok) {
     }
 }
 юя = "юяюяюяюя"
-
-01
 zolw = Turtle();
 rysuj_kwadrat(zolw, 10);
