@@ -7,7 +7,7 @@ import { LexerFilter } from './lexer/LexerFilter';
 
 
 function get_all_tokens(file_path: string): Token[] {
-    var lexer: Lexer = new LexerImp(new FileReader(file_path));
+    var lexer: Lexer = new LexerImp(new StringReader("\n\r"));
 
     var i = 0;
     var tokens: Token[] = []

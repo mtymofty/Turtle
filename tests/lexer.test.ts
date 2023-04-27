@@ -417,18 +417,18 @@ describe('Lexer class tests:', () => {
     expect(lexer.get_reader().curr_pos.pos).toBe(init_pos+1);
   });
 
-  test('"\\n\\r" should increment position offset by 2', () => {
+  test('"\\n\\r" should increment position offset by 1', () => {
     var lexer = new LexerImp(new StringReader("\n\r"))
     let init_pos = lexer.get_reader().curr_pos.pos;
     lexer.next_token();
-    expect(lexer.get_reader().curr_pos.pos).toBe(init_pos+2);
+    expect(lexer.get_reader().curr_pos.pos).toBe(init_pos+1);
   });
 
-  test('"\\r\\n" should increment position offset by 2', () => {
+  test('"\\r\\n" should increment position offset by 1', () => {
     var lexer = new LexerImp(new StringReader("\r\n"))
     let init_pos = lexer.get_reader().curr_pos.pos;
     lexer.next_token();
-    expect(lexer.get_reader().curr_pos.pos).toBe(init_pos+2);
+    expect(lexer.get_reader().curr_pos.pos).toBe(init_pos+1);
   });
 
   test('Illegal symbol "~" should raise error', () => {

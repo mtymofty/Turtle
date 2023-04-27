@@ -22,27 +22,25 @@ export class LexerImp implements Lexer {
     private raised_error: boolean = false;
 
     private newline: string | null = null
-    private newline_len: number = 0
     private curr_line_beg: number = 0
 
     private max_ident_len: number = 50;
     private max_str_len: number = 200;
 
-    constructor(reader: Reader) {
+    constructor(reader: Reader, max_ident_len?, max_str_len?) {
+        this.max_ident_len = max_ident_len ? max_ident_len: 50
+        this.max_str_len = max_str_len ?  max_str_len: 200
         this.reader = reader;
         this.error_handler = new ErrorHandler(reader);
-        this.next_char();
+        this.curr_char = this.reader.get_char()
+        this.handle_eol()
     }
 
     next_token(): Token {
         this.raised_error_now = false;
 
-        while(this.is_char_white() || this.is_char_eol()) {
-            if (this.is_char_white()){
+        while(this.is_char_white()) {
                 this.next_char();
-            } else {
-                this.handle_eol();
-            }
         }
 
         this.curr_token_pos = new Position(this.reader.curr_pos.pos, this.reader.curr_pos.line, this.reader.curr_pos.col)
@@ -60,14 +58,17 @@ export class LexerImp implements Lexer {
     }
 
     next_char(): void {
-        this.reader.curr_pos.next_char();
-        this.curr_char = this.reader.get_char();
-    }
+        if (this.curr_char == "\n") {
+            this.reader.curr_pos.line += 1
+            this.reader.curr_pos.col = 1
+        } else if (this.is_char_eof()){
+            return
+        } else {
+            this.reader.curr_pos.col += 1
+        }
 
-    next_line(): void {
-        this.reader.curr_pos.next_line(this.newline_len);
-        this.curr_line_beg = this.reader.curr_pos.pos;
         this.curr_char = this.reader.get_char();
+        this.handle_eol();
     }
 
     print_error_pos(err_type: ErrorType, args: string[]): void {
@@ -92,11 +93,11 @@ export class LexerImp implements Lexer {
     }
 
     is_char_white(): boolean {
-        return (this.curr_char ===  " " || this.curr_char ===  "\t");
+        return (this.curr_char ===  " " || this.curr_char ===  "\t" || this.curr_char ===  "\n");
     }
 
-    is_char_eol(): boolean {
-        if (this.curr_char == "\n" || this.curr_char == "\r") {
+    is_char_eol(char: string): boolean {
+        if (char == "\n" || char == "\r") {
             return true;
         } else {
             return false;
@@ -108,30 +109,29 @@ export class LexerImp implements Lexer {
     }
 
     handle_eol(): void {
+        if(!this.is_char_eol(this.curr_char) ){
+            return
+        }
         if (this.newline === null) {
             this.newline = this.curr_char;
-            this.next_char();
+            var char = this.reader.peek()
 
-            if (this.is_char_eol() && this.curr_char !== this.newline) {
+            if (this.is_char_eol(char) && char !== this.newline) {
                 this.newline = this.newline!.concat(this.curr_char!);
-                this.newline_len = 1;
-                this.next_line();
-                this.newline_len = 2;
+                this.reader.get_char();
+                this.curr_char = '\n'
             } else {
-                this.next_line();
-                this.newline_len = 1;
+                this.curr_char = '\n'
             }
 
-        } else if (this.curr_char == this.newline.substring(0, 2)){
-            if (this.newline_len == 1) {
-                this.next_line();
+        } else if (this.curr_char == this.newline.substring(0, 1)){
+            if (this.newline.length == 1) {
+                this.curr_char = '\n'
             } else {
-                this.next_char();
-                if (this.curr_char == this.newline.substring(2, 4)){
-                    this.newline_len = 1;
-                    this.next_line();
-                    this.newline_len = 2;
-
+                var char = this.reader.peek()
+                if (char == this.newline.substring(1, 2)){
+                    this.reader.get_char();
+                    this.curr_char = '\n'
                 } else {
                     this.raise_critical_error(ErrorType.NEWLINE_ERR, [])
                 }
@@ -151,26 +151,34 @@ export class LexerImp implements Lexer {
     }
 
     try_build_operator(): boolean {
-        if (this.curr_char! in TokenUtils.simple_one_char_ops) {
-            this.token = new Token(TokenUtils.simple_one_char_ops[this.curr_char!], "", this.curr_token_pos!);
+        var token_type = TokenUtils.simple_one_char_ops[this.curr_char!]
+        if ( token_type!= null || token_type!= undefined) {
+            this.token = new Token(token_type, "", this.curr_token_pos!);
             this.next_char();
             return true
-        } else if (this.curr_char! in TokenUtils.extendable_one_char_ops) {
+        }
+
+        var token_type = TokenUtils.extendable_one_char_ops[this.curr_char!]
+        if (token_type!= null || token_type!= undefined) {
             var char = this.curr_char;
             this.next_char();
             var char_ext = char! + this.curr_char;
-            if (char_ext in TokenUtils.extended_two_char_ops) {
-                this.token = new Token(TokenUtils.extended_two_char_ops[char_ext], "", this.curr_token_pos!);
+            var two_char_token_type = TokenUtils.extended_two_char_ops[char_ext]
+            if (two_char_token_type!= null || two_char_token_type!= undefined) {
+                this.token = new Token(two_char_token_type, "", this.curr_token_pos!);
                 this.next_char();
             } else {
-                this.token = new Token(TokenUtils.extendable_one_char_ops[char!], "", this.curr_token_pos!);
+                this.token = new Token(token_type, "", this.curr_token_pos!);
             }
             return true;
-        } else if (this.curr_char!.concat(this.curr_char!) in TokenUtils.double_char_ops) {
+        }
+
+        var token_type = TokenUtils.double_char_ops[this.curr_char!.concat(this.curr_char!)]
+        if (token_type != null || token_type != undefined) {
             var char = this.curr_char;
             this.next_char();
             if (char == this.curr_char) {
-                this.token = new Token(TokenUtils.double_char_ops[this.curr_char!.concat(this.curr_char!)], "", this.curr_token_pos!);
+                this.token = new Token(token_type, "", this.curr_token_pos!);
                 this.next_char();
                 return true;
             } else {
@@ -194,20 +202,8 @@ export class LexerImp implements Lexer {
                     this.next_char();
                 } else {
                     // Skipping the rest of the number.
-                    var found_dot = false;
-                    while(is_digit.test(this.curr_char) || (this.curr_char == "." && !found_dot)) {
-                        if (this.curr_char == ".") {
-                            found_dot = true;
-                        }
-                        this.next_char();
-                    }
-                    if (!found_dot) {
-                        this.print_error_token(ErrorType.INTEGER_EXC_VAL_ERR, []);
-                        this.token = new Token(TokenType.INTEGER, value=value, this.curr_token_pos);
-                    } else {
-                        this.print_error_token(ErrorType.DOUBLE_EXC_VAL_ERR, []);
-                        this.token = new Token(TokenType.DOUBLE, value=value+0.0, this.curr_token_pos);
-                    }
+                    this.print_error_token(ErrorType.INTEGER_EXC_VAL_ERR, []);
+                    this.skip(value);
                     return true;
                 }
             }
@@ -215,22 +211,7 @@ export class LexerImp implements Lexer {
             this.next_char();
             if (is_digit.test(this.curr_char)){
                 this.print_error_token(ErrorType.NUM_PREC_ZERO_ERR, []);
-
-
-                var found_dot = false;
-                    while(is_digit.test(this.curr_char) || (this.curr_char == "." && !found_dot)) {
-                        if (this.curr_char == ".") {
-                            found_dot = true;
-                        }
-                        this.next_char();
-                    }
-
-                    if (!found_dot) {
-                        this.token = new Token(TokenType.INTEGER, value=value, this.curr_token_pos);
-                    } else {
-                        this.token = new Token(TokenType.DOUBLE, value=value+0.0, this.curr_token_pos);
-                    }
-
+                this.skip(value);
                 return true;
             }
         }
@@ -260,6 +241,23 @@ export class LexerImp implements Lexer {
             this.token = new Token(TokenType.INTEGER, value=value, this.curr_token_pos);
             return true;
         }
+    }
+
+    private skip(value: number) {
+        var found_dot = false;
+        while (is_digit.test(this.curr_char) || (this.curr_char == "." && !found_dot)) {
+            if (this.curr_char == ".") {
+                found_dot = true;
+            }
+            this.next_char();
+        }
+        if (!found_dot) {
+
+            this.token = new Token(TokenType.INTEGER, value = value, this.curr_token_pos);
+        } else {
+            this.token = new Token(TokenType.DOUBLE, value = value + 0.0, this.curr_token_pos);
+        }
+        return;
     }
 
     try_build_id_kw(): boolean {
@@ -292,17 +290,18 @@ export class LexerImp implements Lexer {
     }
 
     try_build_cmnt(): boolean {
-        if (this.curr_char == "#") {
-            var comment: string = "";
-            this.next_char();
-            while(!this.is_char_eol() && !this.is_char_eof()) {
-                comment = comment.concat(this.curr_char);
-                this.next_char();
-            }
-            this.token = new Token(TokenType.COMMENT, comment, this.curr_token_pos)
-            return true
+        if (this.curr_char != "#"){
+            return false
         }
-        return false
+        var comment: string = "";
+        this.next_char();
+        // @ts-ignore
+        while(this.curr_char != '\n' && !this.is_char_eof()) {
+            comment = comment.concat(this.curr_char);
+            this.next_char();
+        }
+        this.token = new Token(TokenType.COMMENT, comment, this.curr_token_pos)
+        return true
     }
 
     try_build_string(): boolean {
@@ -311,13 +310,14 @@ export class LexerImp implements Lexer {
         }
         var string: string = "";
         this.next_char();
-        while(!this.is_char_eol() && !this.is_char_eof() && this.curr_char != '\"') {
+        while(this.curr_char != '\n' && !this.is_char_eof() && this.curr_char != '\"') {
             if (string.length != this.max_str_len) {
                 if (this.curr_char == "\\") {
                     this.next_char();
                     if (this.curr_char in TokenUtils.escapable) {
                         this.curr_char = TokenUtils.escapable[this.curr_char]
-                    } else if (this.is_char_eol() || this.is_char_eof()){
+                        // @ts-ignore
+                    } else if (this.curr_char != '\n' || this.is_char_eof()){
                         break;
                     } else {
                         this.print_warning_pos(WarningType.STRING_ESC_WARN, [])
@@ -328,7 +328,7 @@ export class LexerImp implements Lexer {
             } else {
                 this.print_error_token(ErrorType.STRING_LEN_ERR, []);
 
-                while(!this.is_char_eol() && !this.is_char_eof() && this.curr_char != '\"') {
+                while(this.curr_char != '\n' && !this.is_char_eof() && this.curr_char != '\"') {
                     this.next_char();
                 }
                 break;
@@ -336,7 +336,7 @@ export class LexerImp implements Lexer {
         }
         if (this.curr_char == '\"') {
             this.next_char();
-        } else if (this.is_char_eol()){
+        } else if (this.curr_char == '\n'){
             this.print_error_pos(ErrorType.STRING_EOL_ERR, []);
         } else if (this.is_char_eof()){
             this.print_error_pos(ErrorType.STRING_EOF_ERR, []);
@@ -356,5 +356,15 @@ export class LexerImp implements Lexer {
 
     get_reader(): Reader {
         return this.reader;
+    }
+
+    skip_number() {
+        var found_dot = false;
+        while(is_digit.test(this.curr_char) || (this.curr_char == "." && !found_dot)) {
+            if (this.curr_char == ".") {
+                found_dot = true;
+            }
+            this.next_char();
+        }
     }
 }
