@@ -1,0 +1,13 @@
+rysuj_kwadrat(zolw, bok) {
+    i = 0;
+    while (i<=3) {
+        zolw.forward(bok);
+        zolw.right();
+        i = i + 1;
+    }
+}
+юя = "юяюяюяюя"
+
+01
+zolw = Turtle();
+rysuj_kwadrat(zolw, 10);
