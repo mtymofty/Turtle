@@ -1,11 +1,3 @@
-rysuj_kwadrat(zolw, bok) {
-    i = 0;
-    while (i<=3) {
-        zolw.forward(bok);
-        zolw.right();
-        i = i + 1;
-    }
+func rysuj_kwadrat(zolw, bok) {
+
 }
-юя = "юяюяюяюя"
-zolw = Turtle();
-rysuj_kwadrat(zolw, 10);

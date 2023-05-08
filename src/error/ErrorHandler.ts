@@ -5,26 +5,24 @@ import { ErrorType, WarningType } from "./ErrorType";
 import { ErrorUtils } from "./ErrorUtils";
 
 export class ErrorHandler {
-    private reader: Reader;
 	private error_color: string;
     private warning_color: string;
     private code_color: string;
     private white_color: string = "\x1B[0m";
 
-    constructor(reader: Reader, error_col?: string, code_col?: string, warn_col?: string) {
-        this.reader = reader;
+    constructor(error_col?: string, code_col?: string, warn_col?: string) {
         this.error_color = (error_col) ? error_col : "\x1B[31m";
         this.warning_color = (warn_col) ? warn_col : "\x1B[38;5;166m";
         this.code_color = (code_col) ? code_col : "\x1B[33m";
 	}
 
-    print_error(pos: Position, line_beg: number, error_type: ErrorType, args: string[]): void{
-        let code = this.reader.get_line(line_beg);
+    print_error(reader: Reader, pos: Position, line_beg: number, error_type: ErrorType, args: string[]): void{
+        let code = reader.get_line(line_beg);
         let mess = ErrorUtils.error_mess[error_type];
 
         var occurs: number[] = find_occurances("$", mess)
         if (args.length !== occurs.length) {
-            this.raise_self_error(ErrorType[error_type]);
+            this.raise_self_error(ErrorType[error_type], reader);
         }
 
         mess = this.insert_args(mess, args, occurs);
@@ -33,13 +31,13 @@ export class ErrorHandler {
         this.print_code(code, pos, line_beg)
     }
 
-    print_warning(pos: Position, line_beg: number, warn_type: WarningType, args: string[]){
-        let code = this.reader.get_line(line_beg);
+    print_warning(reader: Reader, pos: Position, line_beg: number, warn_type: WarningType, args: string[]){
+        let code = reader.get_line(line_beg);
         let mess = ErrorUtils.warning_mess[warn_type];
 
         var occurs: number[] = find_occurances("$", mess)
         if (args.length !== occurs.length) {
-            this.raise_self_error(WarningType[warn_type]);
+            this.raise_self_error(WarningType[warn_type], reader);
         }
 
         mess = this.insert_args(mess, args, occurs);
@@ -79,18 +77,18 @@ export class ErrorHandler {
         return mess;
     }
 
-    raise_self_error(alert_type: string): void {
+    raise_self_error(alert_type: string, reader: Reader): void {
         try {
             throw new Error(this.error_color + `Error/Warning string formatting doesn't match args number in ErrorHandler: ${alert_type}` + this.white_color);
           }
           catch(e) {
             console.log(e);
-            this.abort();
+            this.abort(reader);
           }
     }
 
-    abort(): void {
-        this.reader.abort();
+    abort(reader: Reader): void {
+        reader.abort();
         process.exit(0);
     }
 }

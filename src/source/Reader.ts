@@ -21,25 +21,13 @@ export class FileReader implements Reader {
 	private error_handler: ErrorHandler;
 	private newline_chars: string[] = ["\n", "\r"]
 
-	constructor(path: string) {
+	constructor(path: string, error_handler: ErrorHandler) {
 		this.file_path = path;
 		this.curr_pos = new Position();
 		this.reader_pos = 0;
-		this.error_handler = new ErrorHandler(this);
+		this.error_handler = error_handler;
 		this.open();
 	}
-
-	// get_char(): string {
-	// 	let buf = Buffer.alloc(1, 0);
-	// 	let read: number;
-
-	// 	read = fs.readSync(this.fd, buf, 0, 1, this.curr_pos.pos);
-	// 	if (read == 0){
-	// 		return "";
-	// 	}
-
-	// 	return buf.toString();
-	// }
 
 	get_char(): string {
 		var char = this.peek()
