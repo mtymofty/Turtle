@@ -17,5 +17,6 @@ export interface Visitator {
     visitIfStatement(node: IfStatement): void;
     visitReturn(node: ReturnStatement): void;
     visitBreak(node: BreakStatement): void;
+    visitContinue(node: BreakStatement): void;
 
 }

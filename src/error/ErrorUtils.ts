@@ -12,7 +12,28 @@ export class ErrorUtils {
         [ErrorType.OPERATOR_PARSE_ERR]: `ERROR WHILE PARSING "$" OPERATOR\nEXPECTED "$" GOT "$"`,
         [ErrorType.UNREC_TOKEN_ERR]: `ERROR - UNRECOGNIZED TOKEN: "$"`,
         [ErrorType.NEWLINE_ERR]: `CRITICAL ERROR - ENCOUNTERED TWO DIFFERENT NEWLINE SIGNS - CORRUPTED FILE`,
-        [ErrorType.PATH_ERR]: `CRITICAL ERROR - NO SUCH FILE OR DIRECTORY`
+        [ErrorType.INVALID_TOKEN_ERR]: `CRITICAL ERROR - EXPECTED FUNCTION DEFINITION, GOT $`,
+        [ErrorType.PARAMS_LEFT_BRACE_ERR]: `ERROR - EXPECTED LEFT BRACE OF PARAMETERS LIST`,
+        [ErrorType.PARAMS_RIGHT_BRACE_ERR]: `ERROR - EXPECTED RIGHT BRACE OF PARAMETERS LIST`,
+        [ErrorType.FUN_BLOCK_ERR]: `CRITICAL ERROR - EXPECTED FUNCTION BLOCK`,
+        [ErrorType.FUN_IDENTIFIER_ERR]: `CRITICAL ERROR - EXPECTED FUNCTION IDENTIFIER`,
+        [ErrorType.PARAMS_COMMA_ERR]: `ERROR - EXPECTED PARAMETER NAME`,
+        [ErrorType.PARAM_NAME_ERR]: `ERROR - DUPLICATE IDENTIFIER "$"`,
+        [ErrorType.PATH_ERR]: ``,
+        [ErrorType.PATH_ERR]: ``,
+        [ErrorType.PATH_ERR]: ``,
+        [ErrorType.PATH_ERR]: ``,
+        [ErrorType.PATH_ERR]: ``,
+        [ErrorType.PATH_ERR]: ``,
+        [ErrorType.PATH_ERR]: ``,
+        [ErrorType.PATH_ERR]: ``,
+        [ErrorType.PATH_ERR]: ``,
+        [ErrorType.PATH_ERR]: ``
+
+
+
+
+
     }
 
     static warning_mess: Record<WarningType, string> = {

@@ -7,6 +7,10 @@ import { Program } from "../syntax/Program";
 import { TokenType } from "../token/TokenType";
 import { Statement } from "../syntax/Statement";
 import { ReturnStatement } from "../syntax/ReturnStatement";
+import { BreakStatement } from "../syntax/BreakStatement";
+import { ContinueStatement } from "../syntax/ContinueStatement";
+import { ErrorType, WarningType } from "../error/ErrorType";
+import { ErrorUtils } from "../error/ErrorUtils";
 
 export class Parser {
     lexer: Lexer
@@ -27,49 +31,38 @@ export class Parser {
         while (this.parseFunDef(functions)) {}
 
         if (this.lexer.token.type !== TokenType.EOF) {
-            console.log("parse(): Invalid token")
-            // crit error, nielegalny token, wszystko musi być w funkcji
-            // expected function def
+            this.raise_critical_error(ErrorType.INVALID_TOKEN_ERR, [TokenType[this.lexer.token.type]])
         }
+        this.lexer.get_reader().abort();
         return new Program(functions)
     }
 
     parseFunDef(functions: Record<string, FunctionDef>): boolean{
         if(!this.consumeIf(TokenType.FUN_KW)) {
-            console.log("parseFunDef: Nie ma func")
             return false
         }
 
         if (this.lexer.token.type !== TokenType.IDENTIFIER) {
-            console.log("parseFunDef: Mial byc identifier")
-           // crit error, expected identifier
+            this.raise_critical_error(ErrorType.FUN_IDENTIFIER_ERR, [])
         }
 
         var fun_name: string = this.lexer.token.value.toString()
         this.lexer.next_token()
-        console.log("parseFunDef: nazwa funkcji: " + fun_name)
 
         if(!this.consumeIf(TokenType.L_BRACE_OP)) {
-            console.log("parseFunDef: expected left brace")
-            // CRIT error, expected left brace
+            this.print_error(ErrorType.PARAMS_LEFT_BRACE_ERR, [])
         }
-        console.log("parseFunDef: left brace")
 
         var fun_params: Array<Parameter> = this.parseParams()
-        console.log("parseFunDef: liczba parametrów: " + fun_params.length)
-
 
         if(!this.consumeIf(TokenType.R_BRACE_OP)) {
-            console.log("parseFunDef: expected right brace")
-            // NON-CRIT error, expected right brace
+            this.print_error(ErrorType.PARAMS_RIGHT_BRACE_ERR, [])
         }
-        console.log("parseFunDef: right brace")
 
         var fun_block = this.parseBlock()
 
-        if (fun_block === null) {
-            console.log("parseFunDef: brak bloku")
-            // CRIT error, expected block
+        if (fun_block == null) {
+            this.raise_critical_error(ErrorType.FUN_BLOCK_ERR, [])
         }
         console.log("parseFunDef: blok")
 
@@ -81,17 +74,21 @@ export class Parser {
         var parameters = new Array<Parameter>();
 
         var param = this.parseParameter();
-        console.log("parseParams(): nazwa parametru: " + param.name)
+
+
         if (param != null) {
             this.tryAddParam(parameters, param)
+            this.lexer.next_token()
 
             while(this.consumeIf(TokenType.COMMA_OP)) {
                 var param = this.parseParameter();
                 if (param === null) {
-                    //crit error, expected param
+                    this.print_error(ErrorType.PARAMS_COMMA_ERR, [])
+                } else {
+                    console.log("parseParams(): nazwa parametru: " + param.name)
+                    this.tryAddParam(parameters, param)
                 }
-                console.log("parseParams(): nazwa parametru: " + param.name)
-                this.tryAddParam(parameters, param)
+                this.lexer.next_token()
             }
         }
         console.log("parseParams(): liczba parametrów: " + parameters.length)
@@ -106,7 +103,7 @@ export class Parser {
          }
 
          var param_name: string = this.lexer.token.value.toString()
-         this.lexer.next_token()
+
          return new Parameter(param_name)
 
     }
@@ -138,9 +135,25 @@ export class Parser {
 
     parseStatement() {
         return this.parseIfStatement() || this.parseWhileStatement()
-               || this.parseAssignOrFunctionCallStatement() ||  this.parseReturnStatement()
-               || this.parseBreakStatement() ||  this.parseContinueStatement()
+               || this.parseSimpleStatement()
+    }
 
+    parseLoopStatement() {
+        return this.parseStatement() || this.parseBreakStatement() || this.parseContinueStatement()
+    }
+
+    parseSimpleStatement() {
+        var statement: Statement = this.parseAssignOrFunctionCallStatement() || this.parseReturnStatement()
+
+        if (statement == null){
+            return null
+        }
+
+        if(!this.consumeIf(TokenType.TERMINATOR)) {
+            console.log("parseSimpleStatement(): brak terminatora")
+            // non-crit error, expected terminator
+        }
+        return statement;
     }
 
     parseIfStatement() {
@@ -167,13 +180,21 @@ export class Parser {
     }
 
     parseBreakStatement() {
-        return null
-
+        if (this.lexer.token.type !== TokenType.BREAK_KW) {
+            console.log("parseBreakStatement(): nie break")
+            return null
+        }
+        this.lexer.next_token()
+        return new BreakStatement();
     }
 
     parseContinueStatement() {
-        return null
-
+        if (this.lexer.token.type !== TokenType.CONTINUE_KW) {
+            console.log("parseContinueStatement(): nie continue")
+            return null
+        }
+        this.lexer.next_token()
+        return new ContinueStatement();
     }
 
     tryAddFunction(functions: Record<string, FunctionDef>, fun_name: string, fun_def: FunctionDef) {
@@ -190,12 +211,13 @@ export class Parser {
         for(let parameter of parameters){
             if (parameter.name == param.name){
                 console.log("tryAddParam(): Zajęta nazwa parametru " + param.name)
-                // non-crit error, zajęta nazwa parametru
+                this.print_error(ErrorType.PARAM_NAME_ERR, [param.name])
                 return
             }
         }
         parameters.push(param)
     }
+
 
     consumeIf(type: TokenType): boolean {
         if (this.lexer.token.type !== type) {
@@ -204,6 +226,31 @@ export class Parser {
         this.lexer.next_token()
         return true
     }
+
+    print_warning(warn_type: WarningType, args: string[]): void {
+        this.error_handler.print_warning(this.lexer.get_reader(), this.lexer.token.pos, warn_type, args)
+    }
+
+    print_error(err_type: ErrorType, args: string[]): void {
+        this.error_handler.print_error(this.lexer.get_reader(), this.lexer.token.pos, err_type, args)
+        this.raised_error = true;
+    }
+
+    raise_critical_error(err_type: ErrorType, args: string[]): void {
+        this.print_error(err_type, args);
+        this.error_handler.abort(this.lexer.get_reader());
+    }
+
+    // print_error_no_code(err_type: ErrorType, args: string[]): void {
+    //     this.error_handler.print_err_mess(ErrorUtils.error_mess[ErrorType.PATH_ERR]);
+    //     this.raised_error = true;
+    // }
+
+
+
+
+
+
 
     did_raise_error(): boolean {
         return this.raised_error;

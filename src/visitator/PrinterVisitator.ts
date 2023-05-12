@@ -16,14 +16,7 @@ export class PrinterVisitator implements Visitator {
     }
 
     visitProgram(prog: Program) {
-
-        var count: number = 0;
-
-        for (let _ in prog.functions) {
-            count += 1
-        }
-
-        console.log('-'.repeat(this.indent) + `Program - number of functions: ${count}`);
+        this.print(`Program:`)
 
         this.indent += this.indent_inc
         for (let fun_name in prog.functions) {
@@ -34,22 +27,23 @@ export class PrinterVisitator implements Visitator {
     }
 
     visitFunctionDef(fun: FunctionDef) {
-        console.log('-'.repeat(this.indent) + `Function ${fun.name} - number of parameters: ${fun.parameters.length}`);
+        this.print(`Function definition (${fun.name}):`)
 
         this.indent += this.indent_inc
         fun.parameters.forEach(param => {
             param.accept(this)
         });
+
         fun.block.accept(this)
         this.indent -= this.indent_inc
     }
 
     visitParam(param: Parameter) {
-        console.log('-'.repeat(this.indent) + `Parameter: ${param.name}`)
+        this.print(`Parameter (${param.name})`)
     }
 
     visitBlock(block: Block) {
-        console.log('-'.repeat(this.indent) + `Statement Block`);
+        this.print("Block:")
 
         this.indent += this.indent_inc
         block.statements.forEach(statement => {
@@ -62,8 +56,18 @@ export class PrinterVisitator implements Visitator {
     }
 
     visitReturn() {
+        this.print("Return")
     }
 
     visitBreak() {
+        this.print("Break")
+    }
+
+    visitContinue() {
+        this.print("Continue")
+    }
+
+    print(mess: string){
+        console.log('|' + '-'.repeat(this.indent) + mess);
     }
 }

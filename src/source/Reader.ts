@@ -7,6 +7,7 @@ import { ErrorUtils } from '../error/ErrorUtils';
 export interface Reader {
 	curr_pos: Position;
 	reader_pos: number;
+	curr_line_beg: number;
 	get_char(): string;
 	peek(): string;
 	get_line(pos: number): string;
@@ -16,6 +17,7 @@ export interface Reader {
 export class FileReader implements Reader {
 	curr_pos: Position;
 	reader_pos: number;
+	curr_line_beg: number = 0;
 	private fd: number;
 	private file_path: string;
 	private error_handler: ErrorHandler;
@@ -31,6 +33,10 @@ export class FileReader implements Reader {
 
 	get_char(): string {
 		var char = this.peek()
+		if (char == '') {
+			this.curr_pos.pos = this.reader_pos
+			return char
+		}
 		this.curr_pos.pos = this.reader_pos
 		this.reader_pos += (new TextEncoder().encode(char)).byteLength
 		return char;
@@ -77,6 +83,7 @@ export class FileReader implements Reader {
 	close(): void {
 		if (this.fd) {
 			fs.closeSync(this.fd);
+			this.fd = 0
 		}
 	}
 
@@ -88,6 +95,7 @@ export class FileReader implements Reader {
 export class StringReader implements Reader {
 	curr_pos: Position;
 	reader_pos: number;
+	curr_line_beg: number = 0;
 	private data: string;
 	private len: number;
 	private newline_chars: string[] = ["\n", "\r"]
@@ -101,6 +109,10 @@ export class StringReader implements Reader {
 
 	get_char(): string {
 		var char = this.peek()
+		if (this.len == this.reader_pos) {
+			this.curr_pos.pos = this.reader_pos
+			return char;
+		}
 		this.curr_pos.pos = this.reader_pos
 		this.reader_pos += 1
 		return char;

@@ -16,8 +16,8 @@ export class ErrorHandler {
         this.code_color = (code_col) ? code_col : "\x1B[33m";
 	}
 
-    print_error(reader: Reader, pos: Position, line_beg: number, error_type: ErrorType, args: string[]): void{
-        let code = reader.get_line(line_beg);
+    print_error(reader: Reader, pos: Position, error_type: ErrorType, args: string[]): void{
+        let code = reader.get_line(reader.curr_line_beg);
         let mess = ErrorUtils.error_mess[error_type];
 
         var occurs: number[] = find_occurances("$", mess)
@@ -28,11 +28,11 @@ export class ErrorHandler {
         mess = this.insert_args(mess, args, occurs);
 
         this.print_err_mess(mess)
-        this.print_code(code, pos, line_beg)
+        this.print_code(code, pos, reader.curr_line_beg)
     }
 
-    print_warning(reader: Reader, pos: Position, line_beg: number, warn_type: WarningType, args: string[]){
-        let code = reader.get_line(line_beg);
+    print_warning(reader: Reader, pos: Position, warn_type: WarningType, args: string[]){
+        let code = reader.get_line(reader.curr_line_beg);
         let mess = ErrorUtils.warning_mess[warn_type];
 
         var occurs: number[] = find_occurances("$", mess)
@@ -43,7 +43,7 @@ export class ErrorHandler {
         mess = this.insert_args(mess, args, occurs);
 
         this.print_warn_mess(mess)
-        this.print_code(code, pos, line_beg)
+        this.print_code(code, pos, reader.curr_line_beg)
     }
 
     print_err_mess(mess: string): void{

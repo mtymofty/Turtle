@@ -9,7 +9,15 @@ export enum ErrorType {
     OPERATOR_PARSE_ERR,
     UNREC_TOKEN_ERR,
     NEWLINE_ERR,
-    PATH_ERR
+    PATH_ERR,
+    INVALID_TOKEN_ERR,
+    PARAMS_LEFT_BRACE_ERR,
+    PARAMS_RIGHT_BRACE_ERR,
+    PARAMS_COMMA_ERR,
+    PARAM_NAME_ERR,
+    FUN_BLOCK_ERR,
+    FUN_IDENTIFIER_ERR
+
 }
 
 export enum WarningType {
