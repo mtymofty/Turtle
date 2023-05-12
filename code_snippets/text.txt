@@ -1,12 +1,10 @@
-func rysuj_kwadrat(zolw, bok) {
-    return;
+
+
+func fun(param, param2) {
+
+    while (return) {
+        return;
+    }
+
 }
 
-func rysuj_kwadrat2 zolw, bok {
-    return;
-}
-
-func rysuj_kwadrat3 (zolw, bok) {
-    return;
-
-func fun(param, param) {}

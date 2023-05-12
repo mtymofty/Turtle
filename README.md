@@ -348,7 +348,6 @@ Konstruktory:
 	return_statement    = 'return', [expression];
 
 	if_statement        = if_kw, '(', expression, ')', statement_block,
-	                      {'else', if_kw, '(', expression, ')', statement_block},
 	                      ['else', statement_block];
 	if_kw               = 'if' | 'unless';
 

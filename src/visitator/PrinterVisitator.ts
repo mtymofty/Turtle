@@ -1,7 +1,11 @@
 import { Block } from "../syntax/Block";
 import { FunctionDef } from "../syntax/FunctionDef";
+import { Identifier } from "../syntax/Identifier";
+import { IfStatement } from "../syntax/IfStatement";
 import { Parameter } from "../syntax/Parameter";
 import { Program } from "../syntax/Program";
+import { UnlessStatement } from "../syntax/UnlessStatement";
+import { WhileStatement } from "../syntax/WhileStatement";
 import { Visitator } from "./Visitator";
 
 export class PrinterVisitator implements Visitator {
@@ -16,7 +20,7 @@ export class PrinterVisitator implements Visitator {
     }
 
     visitProgram(prog: Program) {
-        this.print(`Program:`)
+        this.print(`Program:\n`)
 
         this.indent += this.indent_inc
         for (let fun_name in prog.functions) {
@@ -27,7 +31,7 @@ export class PrinterVisitator implements Visitator {
     }
 
     visitFunctionDef(fun: FunctionDef) {
-        this.print(`Function definition (${fun.name}):`)
+        this.print(`Function definition (${fun.name}):\n`)
 
         this.indent += this.indent_inc
         fun.parameters.forEach(param => {
@@ -39,11 +43,11 @@ export class PrinterVisitator implements Visitator {
     }
 
     visitParam(param: Parameter) {
-        this.print(`Parameter (${param.name})`)
+        this.print(`Parameter (${param.name})\n`)
     }
 
     visitBlock(block: Block) {
-        this.print("Block:")
+        this.print("Block:\n")
 
         this.indent += this.indent_inc
         block.statements.forEach(statement => {
@@ -52,22 +56,76 @@ export class PrinterVisitator implements Visitator {
         this.indent -= this.indent_inc
     }
 
-    visitIfStatement() {
+    visitIfStatement(statement: IfStatement) {
+        this.print(`If statement:\n`)
+
+        this.indent += this.indent_inc
+        this.visitCondStatement(statement)
+        this.indent -= this.indent_inc
+    }
+
+    visitUnlessStatement(statement: UnlessStatement) {
+        this.print(`Unless statement:\n`)
+
+        this.indent += this.indent_inc
+        this.visitCondStatement(statement)
+        this.indent -= this.indent_inc
+    }
+
+    visitCondStatement(statement: IfStatement | UnlessStatement) {
+        this.print(`Condition:\n`)
+        this.indent += this.indent_inc
+        statement.condition.accept(this)
+        this.indent -= this.indent_inc
+
+        this.print(`True:\n`)
+        this.indent += this.indent_inc
+        statement.true_block.accept(this)
+        this.indent -= this.indent_inc
+
+        if (statement.false_block != null) {
+            this.print(`False:\n`)
+            this.indent += this.indent_inc
+            statement.false_block.accept(this)
+            this.indent -= this.indent_inc
+        }
+    }
+
+    visitWhileStatement(statement: WhileStatement) {
+        this.print(`While statement:\n`)
+
+        this.indent += this.indent_inc
+
+        this.print(`Condition:\n`)
+        this.indent += this.indent_inc
+        statement.condition.accept(this)
+        this.indent -= this.indent_inc
+
+        this.print(`Loop:\n`)
+        this.indent += this.indent_inc
+        statement.loop_block.accept(this)
+        this.indent -= this.indent_inc
+
+        this.indent -= this.indent_inc
     }
 
     visitReturn() {
-        this.print("Return")
+        this.print("Return\n")
     }
 
     visitBreak() {
-        this.print("Break")
+        this.print("Break\n")
     }
 
     visitContinue() {
-        this.print("Continue")
+        this.print("Continue\n")
+    }
+
+    visitIdentifier(identifier: Identifier) {
+        this.print(`Identifier: ${identifier.name}\n`)
     }
 
     print(mess: string){
-        console.log('|' + '-'.repeat(this.indent) + mess);
+        process.stdout.write('|' + '-'.repeat(this.indent) + mess);
     }
 }
