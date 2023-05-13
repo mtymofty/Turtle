@@ -1,6 +1,6 @@
 import { Visitable } from "../visitator/Visitable";
 import { Visitator } from "../visitator/Visitator";
-import { Statement } from "./Statement";
+import { Statement } from "./statement/Statement";
 
 export class Block implements Visitable{
     statements: Array<Statement>

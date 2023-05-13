@@ -359,8 +359,9 @@ Konstruktory:
     sum                 = term, {add_op, term};
     term                = factor, {mult_op, factor};
     factor              = [unar_op], power;
-    power              = primary, {pow_op, primary};
+    power               = primary, {pow_op, primary};
     primary             = parenth_expression | constant | obj_access;
+
     parenth_expression  = "(", expression, ")";
     constant            = int | double | string | boolean | null;
 

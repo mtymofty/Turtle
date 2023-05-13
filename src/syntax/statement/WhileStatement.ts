@@ -1,7 +1,7 @@
 import { Statement } from "./Statement";
-import { Visitator } from "../visitator/Visitator";
-import { Expression } from "./Expression";
-import { Block } from "./Block";
+import { Visitator } from "../../visitator/Visitator";
+import { Expression } from "../expression/Expression";
+import { Block } from "../Block";
 
 export class WhileStatement implements Statement {
     condition: Expression;

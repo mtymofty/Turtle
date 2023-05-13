@@ -1,10 +1,10 @@
-
-
-func fun(param, param2) {
-
-    while (return) {
-        return;
-    }
+func fun(){
+    a = (5);
+    a = (5.5);
+    a = (true);
+    a = (false);
+    a = ("string");
+    a = (abc);
+    a = (null);
 
 }
-

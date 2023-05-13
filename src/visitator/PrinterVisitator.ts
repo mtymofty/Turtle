@@ -1,12 +1,18 @@
 import { Block } from "../syntax/Block";
 import { FunctionDef } from "../syntax/FunctionDef";
-import { Identifier } from "../syntax/Identifier";
-import { IfStatement } from "../syntax/IfStatement";
+import { Identifier } from "../syntax/expression/Identifier";
+import { IfStatement } from "../syntax/statement/IfStatement";
 import { Parameter } from "../syntax/Parameter";
 import { Program } from "../syntax/Program";
-import { UnlessStatement } from "../syntax/UnlessStatement";
-import { WhileStatement } from "../syntax/WhileStatement";
+import { UnlessStatement } from "../syntax/statement/UnlessStatement";
+import { WhileStatement } from "../syntax/statement/WhileStatement";
 import { Visitator } from "./Visitator";
+import { Constant } from "../syntax/expression/Constant";
+import { ParenthExpression } from "../syntax/expression/ParenthExpression";
+import { AssignStatement } from "../syntax/statement/AssignStatement";
+import { MemberAccess } from "../syntax/expression/MemberAccess";
+import { FunCall } from "../syntax/expression/FunCall";
+import { Argument } from "../syntax/expression/Argument";
 
 export class PrinterVisitator implements Visitator {
     indent: number
@@ -123,6 +129,49 @@ export class PrinterVisitator implements Visitator {
 
     visitIdentifier(identifier: Identifier) {
         this.print(`Identifier: ${identifier.name}\n`)
+    }
+
+    visitConstant(constant: Constant) {
+        this.print(`Constant: ${constant.value}\n`)
+    }
+
+    visitParenthExpression(p_ex: ParenthExpression) {
+        this.print(`Parenthesis Expression: \n`)
+        this.indent += this.indent_inc
+        p_ex.expression.accept(this)
+        this.indent -= this.indent_inc
+    }
+
+    visitAssignStatement(stmnt: AssignStatement) {
+        this.print(`AssignStatement: \n`)
+        this.indent += this.indent_inc
+        stmnt.left.accept(this)
+        stmnt.right.accept(this)
+        this.indent -= this.indent_inc
+    }
+
+    visitFunCall(fun_call: FunCall) {
+        this.print(`FunCall: ${fun_call.fun_name}\n`)
+        this.indent += this.indent_inc
+        fun_call.args.forEach(arg => {
+            arg.accept(this)
+        });
+        this.indent -= this.indent_inc
+    }
+
+    visitMemberAccess(acc: MemberAccess) {
+        this.print(`MemberAccess: \n`)
+        this.indent += this.indent_inc
+        acc.left.accept(this)
+        acc.right.accept(this)
+        this.indent -= this.indent_inc
+    }
+
+    visitArgument(arg: Argument) {
+        this.print(`Argument: \n`)
+        this.indent += this.indent_inc
+        arg.expression.accept(this)
+        this.indent -= this.indent_inc
     }
 
     print(mess: string){

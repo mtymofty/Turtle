@@ -1,9 +1,9 @@
 import { Statement } from "./Statement";
-import { Visitator } from "../visitator/Visitator";
-import { Expression } from "./Expression";
-import { Block } from "./Block";
+import { Visitator } from "../../visitator/Visitator";
+import { Expression } from "../expression/Expression";
+import { Block } from "../Block";
 
-export class IfStatement implements Statement {
+export class UnlessStatement implements Statement {
     condition: Expression;
     true_block: Block;
     false_block: Block;
@@ -15,7 +15,7 @@ export class IfStatement implements Statement {
     }
 
     accept(visitator: Visitator) {
-        visitator.visitIfStatement(this)
+        visitator.visitUnlessStatement(this)
     }
 
 }
