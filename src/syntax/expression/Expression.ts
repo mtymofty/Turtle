@@ -1,5 +1,3 @@
-import { Visitable } from "../../visitator/Visitable";
+import { Visitable } from "../../visitor/Visitable";
 
-export interface Expression extends Visitable {
-
-}
+export interface Expression extends Visitable {}

@@ -1,4 +1,4 @@
-import { Visitator } from "../../../../visitator/Visitator";
+import { Visitor } from "../../../../visitor/Visitor";
 import { Expression } from "../../Expression";
 
 export class DoubleConstant implements Expression {
@@ -8,8 +8,7 @@ export class DoubleConstant implements Expression {
         this.value = value;
     }
 
-    accept(visitator: Visitator) {
-        visitator.visitDoubleConstant(this)
+    accept(visitor: Visitor) {
+        visitor.visitDoubleConstant(this)
     }
-
 }

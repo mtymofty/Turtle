@@ -1,5 +1,5 @@
-import { Visitable } from "../visitator/Visitable";
-import { Visitator } from "../visitator/Visitator";
+import { Visitable } from "../visitor/Visitable";
+import { Visitor } from "../visitor/Visitor";
 import { Statement } from "./statement/Statement";
 
 export class Block implements Visitable{
@@ -9,7 +9,7 @@ export class Block implements Visitable{
         this.statements = statements
     }
 
-    accept(visitator: Visitator) {
-        visitator.visitBlock(this)
+    accept(visitor: Visitor) {
+        visitor.visitBlock(this)
     }
 }

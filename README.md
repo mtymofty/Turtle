@@ -71,14 +71,6 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
     ...
     }
 
-    else if(condition){     <- wykonaj jeśli poprzedni warunek był fałszywy oraz obecny jest prawdą
-    ...
-    }
-
-    else unless(condition){ <- wykonaj jeśli poprzedni warunek był fałszywy oraz obecny nie jest prawdą
-    ...
-    }
-
     else {                  <- wykonaj jeśli poprzednie warunki były fałszywe
     ...
     }
@@ -87,10 +79,8 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
 
     if(len < 10) {          <- Jeśli len mniejsze od 10
 	    res = true;
-	} else unless(len % 2 == 0) {   <- Jeśli len nie jest podzielne przez 2
-	    res = false;
 	} else {                <- W innym wypadku
-	    res = null;
+	    res = false;
 	}
 
 ### Instrukcje pętli
@@ -112,14 +102,14 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
 
 ### Definiowanie funkcji
 
-    fun name(arg1, arg2 ...){   <- Funkcja posiada nazwę oraz przymuje ustaloną liczb argumentów.
+    func name(arg1, arg2 ...){   <- Funkcja posiada nazwę oraz przymuje ustaloną liczb argumentów.
 	    ...
 	    return data;            <- Funkcja może zwracać dane instrukcją return
     }
    Parametry funkcji przekazywane są przez **wartość**.
 #### Przykłady:
 
-    fun sum(a, b) {
+    func sum(a, b) {
 	    return a + b;
 	}
 
@@ -214,7 +204,7 @@ Konstruktory:
 
 #### Rysowanie kwadratu:
 
-    rysuj_kwadrat(zolw, bok) {
+    func rysuj_kwadrat(zolw, bok) {
 	    i = 0;
 	    while (i<=3) {
 	    	zolw.forward(bok);
@@ -261,9 +251,9 @@ Konstruktory:
     if (a > b < c > d) ...
 
 	Definiowanie funkcji wewnątrz innej funkcji:
-	fun foo() {
+	func foo() {
 	    ...
-	    fun foo_too() {
+	    func foo_too() {
 	    	...
 	    }
 	...
@@ -324,7 +314,7 @@ Konstruktory:
     program             = {instruction};
     instruction         = fun_def;
 
-    fun_def             = 'fun', identifier, '(', [params], ')', statement_block;
+    fun_def             = 'func', identifier, '(', [params], ')', statement_block;
     statement_block     = '{', {statement}, '}';
 
 	statement           = simple_statement, terminator
@@ -495,7 +485,8 @@ Lekser pobiera znaki leniwie, pojedynczo znak po znaku. Odpowiednio skonstruowan
  - COMMA
  - SEMICOL
  - EOF
- - UNRECOGNIZED
+ - EOL (filtrowane między lekserem a parserem)
+ - UNRECOGNIZED (filtrowane między lekserem a parserem)
 
 
 ## Testowanie

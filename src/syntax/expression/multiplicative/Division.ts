@@ -1,4 +1,4 @@
-import { Visitator } from "../../../visitator/Visitator";
+import { Visitor } from "../../../visitor/Visitor";
 import { Expression } from "../Expression";
 
 export class Division implements Expression {
@@ -10,7 +10,7 @@ export class Division implements Expression {
         this.right = right;
     }
 
-    accept(visitator: Visitator) {
-        visitator.visitDivision(this)
+    accept(visitor: Visitor) {
+        visitor.visitDivision(this)
     }
 }

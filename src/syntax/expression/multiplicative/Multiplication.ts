@@ -1,4 +1,4 @@
-import { Visitator } from "../../../visitator/Visitator";
+import { Visitor } from "../../../visitor/Visitor";
 import { Expression } from "../Expression";
 
 export class Multiplication implements Expression {
@@ -10,7 +10,7 @@ export class Multiplication implements Expression {
         this.right = right;
     }
 
-    accept(visitator: Visitator) {
-        visitator.visitMultiplication(this)
+    accept(visitor: Visitor) {
+        visitor.visitMultiplication(this)
     }
 }

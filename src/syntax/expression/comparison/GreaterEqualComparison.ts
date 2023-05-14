@@ -1,4 +1,4 @@
-import { Visitator } from "../../../visitator/Visitator";
+import { Visitor } from "../../../visitor/Visitor";
 import { Expression } from "../Expression";
 
 export class GreaterEqualComparison implements Expression {
@@ -10,7 +10,7 @@ export class GreaterEqualComparison implements Expression {
         this.right = right;
     }
 
-    accept(visitator: Visitator) {
-        visitator.visitGreaterEqualComparison(this)
+    accept(visitor: Visitor) {
+        visitor.visitGreaterEqualComparison(this)
     }
 }

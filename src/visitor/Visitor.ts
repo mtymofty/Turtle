@@ -39,9 +39,8 @@ import { StringConstant } from "../syntax/expression/primary/constant/StringCons
 import { IntConstant } from "../syntax/expression/primary/constant/IntConstant";
 import { DoubleConstant } from "../syntax/expression/primary/constant/DoubleConstant";
 
-export interface Visitator {
+export interface Visitor {
     indent: number
-    visit(node: Visitable): void;
     visitProgram(node: Program): void;
     visitFunctionDef(node: FunctionDef): void;
     visitParam(node: Parameter): void;

@@ -1,6 +1,6 @@
-import { Visitator } from "../visitator/Visitator";
+import { Visitor } from "../visitor/Visitor";
 import { FunctionDef } from "./FunctionDef";
-import { Visitable } from "../visitator/Visitable";
+import { Visitable } from "../visitor/Visitable";
 
 export class Program implements Visitable {
     functions: Record<string, FunctionDef>
@@ -9,9 +9,7 @@ export class Program implements Visitable {
         this.functions = functions
     }
 
-    accept(visitator: Visitator) {
-        visitator.visitProgram(this)
+    accept(visitor: Visitor) {
+        visitor.visitProgram(this)
     }
-
-
 }

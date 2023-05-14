@@ -1,10 +1,9 @@
-import { Visitator } from "../../../../visitator/Visitator";
+import { Visitor } from "../../../../visitor/Visitor";
 import { Expression } from "../../Expression";
 
 export class NullConstant implements Expression {
 
-    accept(visitator: Visitator) {
-        visitator.visitNullConstant(this)
+    accept(visitor: Visitor) {
+        visitor.visitNullConstant(this)
     }
-
 }

@@ -1,5 +1,3 @@
-import { Visitable } from "../../visitator/Visitable";
+import { Visitable } from "../../visitor/Visitable";
 
-export interface Statement extends Visitable {
-
-}
+export interface Statement extends Visitable {}

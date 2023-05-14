@@ -1,11 +1,9 @@
-import { Visitable } from "../../visitator/Visitable";
 import { Statement } from "./Statement";
-import { Visitator } from "../../visitator/Visitator";
+import { Visitor } from "../../visitor/Visitor";
 
 export class ReturnStatement implements Statement {
 
-    accept(visitator: Visitator) {
-        visitator.visitReturn(this)
+    accept(visitor: Visitor) {
+        visitor.visitReturn(this)
     }
-
 }

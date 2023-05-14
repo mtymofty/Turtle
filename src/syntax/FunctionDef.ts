@@ -1,7 +1,7 @@
-import { Visitator } from "../visitator/Visitator";
+import { Visitor } from "../visitor/Visitor";
 import { Block } from "./Block";
 import { Parameter } from "./Parameter";
-import { Visitable } from "../visitator/Visitable";
+import { Visitable } from "../visitor/Visitable";
 
 export class FunctionDef implements Visitable {
     name: string
@@ -14,7 +14,7 @@ export class FunctionDef implements Visitable {
         this.block = block
     }
 
-    accept(visitator: Visitator) {
-        visitator.visitFunctionDef(this)
+    accept(visitor: Visitor) {
+        visitor.visitFunctionDef(this)
     }
 }

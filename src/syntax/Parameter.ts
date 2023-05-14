@@ -1,5 +1,5 @@
-import { Visitable } from "../visitator/Visitable"
-import { Visitator } from "../visitator/Visitator"
+import { Visitable } from "../visitor/Visitable"
+import { Visitor } from "../visitor/Visitor"
 
 export class Parameter implements Visitable{
     name: string
@@ -8,7 +8,7 @@ export class Parameter implements Visitable{
         this.name = name
     }
 
-    accept(visitator: Visitator) {
-        visitator.visitParam(this)
+    accept(visitor: Visitor) {
+        visitor.visitParam(this)
     }
 }

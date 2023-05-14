@@ -1,11 +1,9 @@
-import { Visitable } from "../../visitator/Visitable";
 import { Statement } from "./Statement";
-import { Visitator } from "../../visitator/Visitator";
+import { Visitor } from "../../visitor/Visitor";
 
 export class BreakStatement implements Statement {
 
-    accept(visitator: Visitator) {
-        visitator.visitBreak(this)
+    accept(visitor: Visitor) {
+        visitor.visitBreak(this)
     }
-
 }

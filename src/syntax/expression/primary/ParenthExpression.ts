@@ -1,5 +1,4 @@
-import { Visitable } from "../../../visitator/Visitable";
-import { Visitator } from "../../../visitator/Visitator";
+import { Visitor } from "../../../visitor/Visitor";
 import { Expression } from "../Expression";
 
 export class ParenthExpression implements Expression {
@@ -9,8 +8,7 @@ export class ParenthExpression implements Expression {
         this.expression = expression;
     }
 
-    accept(visitator: Visitator) {
-        visitator.visitParenthExpression(this)
+    accept(visitor: Visitor) {
+        visitor.visitParenthExpression(this)
     }
-
 }

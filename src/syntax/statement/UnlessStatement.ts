@@ -1,5 +1,5 @@
 import { Statement } from "./Statement";
-import { Visitator } from "../../visitator/Visitator";
+import { Visitor } from "../../visitor/Visitor";
 import { Expression } from "../expression/Expression";
 import { Block } from "../Block";
 
@@ -14,8 +14,7 @@ export class UnlessStatement implements Statement {
         this.false_block = false_block;
     }
 
-    accept(visitator: Visitator) {
-        visitator.visitUnlessStatement(this)
+    accept(visitor: Visitor) {
+        visitor.visitUnlessStatement(this)
     }
-
 }

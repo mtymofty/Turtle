@@ -1,5 +1,5 @@
 import { Statement } from "./Statement";
-import { Visitator } from "../../visitator/Visitator";
+import { Visitor } from "../../visitor/Visitor";
 import { Expression } from "../expression/Expression";
 import { Block } from "../Block";
 
@@ -12,8 +12,7 @@ export class WhileStatement implements Statement {
         this.loop_block = loop_block;
     }
 
-    accept(visitator: Visitator) {
-        visitator.visitWhileStatement(this)
+    accept(visitor: Visitor) {
+        visitor.visitWhileStatement(this)
     }
-
 }

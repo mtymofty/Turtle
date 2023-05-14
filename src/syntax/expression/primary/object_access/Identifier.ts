@@ -1,4 +1,4 @@
-import { Visitator } from "../../../../visitator/Visitator";
+import { Visitor } from "../../../../visitor/Visitor";
 import { ObjectAccess } from "./ObjectAccess";
 
 export class Identifier implements ObjectAccess {
@@ -8,8 +8,7 @@ export class Identifier implements ObjectAccess {
         this.name = name;
     }
 
-    accept(visitator: Visitator) {
-        visitator.visitIdentifier(this)
+    accept(visitor: Visitor) {
+        visitor.visitIdentifier(this)
     }
-
 }

@@ -58,6 +58,8 @@ export class ParserImp implements Parser {
         this.lexer.next_token();
     }
 
+    // program      = {instruction};
+    // instruction  = fun_def;
     parse(): Program {
         var functions: Record<string, FunctionDef> = {}
 
@@ -66,10 +68,12 @@ export class ParserImp implements Parser {
         if (this.lexer.token.type !== TokenType.EOF) {
             this.raise_critical_error(ErrorType.INVALID_TOKEN_ERR, [TokenType[this.lexer.token.type]])
         }
+
         this.lexer.get_reader().abort();
         return new Program(functions)
     }
 
+    // fun_def = 'func', identifier, '(', [params], ')', statement_block;
     parseFunDef(functions: Record<string, FunctionDef>): boolean{
         if(!this.consumeIf(TokenType.FUN_KW)) {
             return false
@@ -92,27 +96,27 @@ export class ParserImp implements Parser {
             this.print_error(ErrorType.PARAMS_RIGHT_BRACE_ERR, [])
         }
 
-        var fun_block = this.parseBlock(false)
+        var fun_block: Block = this.parseBlock(false)
 
-        if (fun_block == null) {
+        if (fun_block === null) {
             this.raise_critical_error(ErrorType.FUN_BLOCK_ERR, [])
         }
 
         this.tryAddFunction(functions, fun_name, new FunctionDef(fun_name, fun_params, fun_block))
         return true
-
     }
 
-    parseParams() {
-        var parameters = new Array<Parameter>();
-        var param = this.parseParameter();
+    // params = identifier, {",", identifier}
+    parseParams(): Parameter[]  {
+        var parameters: Parameter[] = new Array<Parameter>();
+        var param: Parameter = this.parseParameter();
 
-        if (param != null) {
+        if (param !== null) {
             this.tryAddParam(parameters, param)
             this.lexer.next_token()
 
             while(this.consumeIf(TokenType.COMMA_OP)) {
-                var param = this.parseParameter();
+                param = this.parseParameter();
                 if (param === null) {
                     this.print_error(ErrorType.PARAMS_COMMA_ERR, [])
                 } else {
@@ -124,7 +128,8 @@ export class ParserImp implements Parser {
         return parameters
     }
 
-    parseParameter() {
+    // identifier
+    parseParameter(): Parameter {
         if (this.lexer.token.type !== TokenType.IDENTIFIER) {
             return null
         }
@@ -133,12 +138,13 @@ export class ParserImp implements Parser {
 
     }
 
-    parseBlock(in_loop: boolean) {
+    // statement_block = '{', {statement}, '}';
+    parseBlock(in_loop: boolean): Block {
         if(!this.consumeIf(TokenType.L_C_BRACE_OP)) {
             return null
         }
 
-        var statements = new Array<Statement>();
+        var statements: Statement[] = new Array<Statement>();
 
         if (!in_loop){
             var statement = this.parseStatement();
@@ -146,13 +152,13 @@ export class ParserImp implements Parser {
             var statement = this.parseInsideLoopStatement();
         }
 
-        while (statement != null) {
+        while (statement !== null) {
             statements.push(statement)
 
-            if (!in_loop){
-            var statement = this.parseStatement();
+            if (!in_loop) {
+                statement = this.parseStatement();
             } else {
-                var statement = this.parseInsideLoopStatement();
+                statement = this.parseInsideLoopStatement();
             }
         }
 
@@ -163,6 +169,8 @@ export class ParserImp implements Parser {
         return new Block(statements)
     }
 
+    // statement = simple_statement, terminator
+    //             | compound_statement
     parseStatement(): Statement {
         return this.parseIfStatement() || this.parseWhileStatement()
                || this.parseSimpleStatement()
@@ -172,6 +180,7 @@ export class ParserImp implements Parser {
         return this.parseStatement() || this.parseSimpleInLoopStatement()
     }
 
+    // break and continue can only be successfully parsed inside a loop
     parseSimpleInLoopStatement(): Statement {
         var statement: Statement = this.parseBreakStatement() || this.parseContinueStatement()
 
@@ -179,13 +188,15 @@ export class ParserImp implements Parser {
             return null
         }
 
-
         if(!this.consumeIf(TokenType.TERMINATOR)) {
             this.print_error(ErrorType.TERMINATOR_ERR, [])
         }
+
         return statement;
     }
 
+    // simple_statement = obj_access, [assign_statement]
+	//                    | return_statement
     parseSimpleStatement(): Statement {
         var statement: Statement = this.parseAssignOrObjectAccessStatement() || this.parseReturnStatement()
 
@@ -196,12 +207,16 @@ export class ParserImp implements Parser {
         if(!this.consumeIf(TokenType.TERMINATOR)) {
             this.print_error(ErrorType.TERMINATOR_ERR, [])
         }
+
         return statement;
     }
 
+    // if_statement = if_kw, '(', expression, ')', statement_block,
+	//                ['else', statement_block];
+	// if_kw        = 'if' | 'unless';
     parseIfStatement(): Statement {
         if(!this.consumeIf(TokenType.IF_KW)) {
-            var is_unless = true
+            var is_unless: boolean = true
             if(!this.consumeIf(TokenType.UNLESS_KW)) {
                 return null
             }
@@ -211,7 +226,7 @@ export class ParserImp implements Parser {
             this.print_error(ErrorType.IF_LEFT_BRACE_ERR, [])
         }
 
-        var condition = this.parseExpression();
+        var condition: Expression = this.parseExpression();
 
         if (condition == null) {
             this.raise_critical_error(ErrorType.IF_COND_ERR, [])
@@ -221,7 +236,7 @@ export class ParserImp implements Parser {
             this.print_error(ErrorType.IF_RIGHT_BRACE_ERR, [])
         }
 
-        var if_block = this.parseBlock(false)
+        var if_block: Block = this.parseBlock(false)
 
         if (if_block == null) {
             this.raise_critical_error(ErrorType.IF_BLOCK_ERR, [])
@@ -231,7 +246,7 @@ export class ParserImp implements Parser {
             return new IfStatement(condition, if_block, null)
         }
 
-        var else_block = this.parseBlock(false)
+        var else_block: Block = this.parseBlock(false)
 
         if (else_block == null) {
             this.raise_critical_error(ErrorType.ELSE_BLOCK_ERR, [])
@@ -244,7 +259,8 @@ export class ParserImp implements Parser {
 
     }
 
-    parseWhileStatement() {
+    // while_statement = 'while', '(', expression, ')', statement_block
+    parseWhileStatement(): Statement {
         if(!this.consumeIf(TokenType.WHILE_KW)) {
             return null
         }
@@ -253,9 +269,9 @@ export class ParserImp implements Parser {
             this.print_error(ErrorType.WHILE_LEFT_BRACE_ERR, [])
         }
 
-        var condition = this.parseExpression();
+        var condition: Expression = this.parseExpression();
 
-        if (condition == null) {
+        if (condition === null) {
             this.raise_critical_error(ErrorType.WHILE_COND_ERR, [])
         }
 
@@ -263,18 +279,19 @@ export class ParserImp implements Parser {
             this.print_error(ErrorType.WHILE_RIGHT_BRACE_ERR, [])
         }
 
-        var loop_block = this.parseBlock(true)
+        var loop_block: Block = this.parseBlock(true)
 
-        if (loop_block == null) {
+        if (loop_block === null) {
             this.raise_critical_error(ErrorType.WHILE_BLOCK_ERR, [])
         }
 
         return new WhileStatement(condition, loop_block)
     }
 
-    parseAssignOrObjectAccessStatement() {
-        var left: ObjectAccess = this.parseObjectAccessStatement();
-        if (left == null) {
+    // obj_access, [assign_statement]
+    parseAssignOrObjectAccessStatement(): Statement {
+        var left: ObjectAccess = this.parseObjectAccess();
+        if (left === null) {
             return null
         }
 
@@ -285,7 +302,7 @@ export class ParserImp implements Parser {
             return left
         }
 
-        var right = this.parseExpression()
+        var right: Expression = this.parseExpression()
 
         if (right == null) {
             this.raise_critical_error(ErrorType.ASSIGN_ERR, [])
@@ -296,17 +313,17 @@ export class ParserImp implements Parser {
         } else {
             this.raise_critical_error(ErrorType.FUN_METH_CALL_ERR, [])
         }
-
     }
 
-    parseObjectAccessStatement() {
+    // obj_access = member {'.', member };
+    parseObjectAccess(): ObjectAccess {
         var left: ObjectAccess = this.parseMember()
         if (left == null) {
             return null
         }
 
         while(this.consumeIf(TokenType.DOT_OP)) {
-            var right = this.parseMember()
+            var right: ObjectAccess = this.parseMember()
             if (right == null) {
                 this.raise_critical_error(ErrorType.OBJ_ACC_ERR, [])
             }
@@ -315,9 +332,8 @@ export class ParserImp implements Parser {
         return left
     }
 
-
-
-    parseMember() {
+    // member = identifier, ['(' [args] ')'];
+    parseMember(): ObjectAccess {
         if (this.lexer.token.type !== TokenType.IDENTIFIER) {
             return null
         }
@@ -328,7 +344,7 @@ export class ParserImp implements Parser {
         if(!this.consumeIf(TokenType.L_BRACE_OP)) {
             return new Identifier(name)
         }
-        var args = this.parseArgs()
+        var args: Argument[] = this.parseArgs()
 
         if(!this.consumeIf(TokenType.R_BRACE_OP)) {
             this.print_error(ErrorType.ARGS_RIGHT_BRACE_ERR, [])
@@ -337,12 +353,12 @@ export class ParserImp implements Parser {
         return new FunCall(name, args)
     }
 
+    // args = expression, {",", expression};
+    parseArgs(): Argument[] {
+        var args: Argument[] = new Array<Argument>();
+        var arg: Argument = this.parseArg();
 
-    parseArgs() {
-        var args = new Array<Argument>();
-        var arg = this.parseArg();
-
-        if (arg != null) {
+        if (arg !== null) {
             args.push(arg)
 
             while(this.consumeIf(TokenType.COMMA_OP)) {
@@ -357,16 +373,17 @@ export class ParserImp implements Parser {
         return args
     }
 
-    parseArg() {
-        var arg = this.parseExpression();
+    // expression
+    parseArg(): Argument {
+        var arg: Expression = this.parseExpression();
         if (arg == null) {
             return null
         }
         return new Argument(arg)
     }
 
-
-    parseReturnStatement() {
+    // return_statement    = 'return', [expression];
+    parseReturnStatement(): Statement {
         if (this.lexer.token.type !== TokenType.RET_KW) {
             return null
         }
@@ -375,7 +392,8 @@ export class ParserImp implements Parser {
         return new ReturnStatement();
     }
 
-    parseBreakStatement() {
+    // 'break'
+    parseBreakStatement(): Statement {
         if (this.lexer.token.type !== TokenType.BREAK_KW) {
             return null
         }
@@ -384,7 +402,8 @@ export class ParserImp implements Parser {
         return new BreakStatement();
     }
 
-    parseContinueStatement() {
+    // 'continue'
+    parseContinueStatement(): Statement {
         if (this.lexer.token.type !== TokenType.CONTINUE_KW) {
             return null
         }
@@ -399,7 +418,7 @@ export class ParserImp implements Parser {
     }
 
     // disjunction = conjunction, {or_op, conjunction};
-    parseDisjunction() {
+    parseDisjunction(): Expression {
         var left: Expression = this.parseConjunction()
         if (left == null) {
             return null
@@ -416,7 +435,7 @@ export class ParserImp implements Parser {
     }
 
     // conjunction = comparison, {and_op, comparison};
-    parseConjunction() {
+    parseConjunction(): Expression {
         var left: Expression = this.parseComparison()
         if (left == null) {
             return null
@@ -433,7 +452,7 @@ export class ParserImp implements Parser {
     }
 
     // comparison = sum, [rel_op, sum];
-    parseComparison() {
+    parseComparison(): Expression {
         var left: Expression = this.parseSumOrSubtr()
         if (left == null) {
             return null
@@ -452,12 +471,11 @@ export class ParserImp implements Parser {
             this.raise_critical_error(ErrorType.COMP_NUM_ERR, [])
         }
 
-
         return left
     }
 
     // sum_sub = term, {add_op, term};
-    parseSumOrSubtr() {
+    parseSumOrSubtr(): Expression {
         var left: Expression = this.parseMultiplicationOrDivision()
         if (left == null) {
             return null
@@ -475,7 +493,7 @@ export class ParserImp implements Parser {
     }
 
     // term = factor, {mult_op, factor};
-    parseMultiplicationOrDivision() {
+    parseMultiplicationOrDivision(): Expression {
         var left: Expression = this.parseNegation()
         if (left == null) {
             return null
@@ -493,9 +511,9 @@ export class ParserImp implements Parser {
     }
 
     // factor = [unar_op], power;
-    parseNegation() {
-        var negation = false
-        var log_negation = false
+    parseNegation(): Expression {
+        var negation: boolean = false
+        var log_negation: boolean = false
         if (this.consumeIf(TokenType.NOT_OP)) {
             log_negation = true
         } else if (this.consumeIf(TokenType.MINUS_OP)) {
@@ -518,7 +536,7 @@ export class ParserImp implements Parser {
     }
 
     // power = primary, {pow_op, primary};
-    parseExponentiation() {
+    parseExponentiation(): Expression {
         var left: Expression = this.parsePrimary()
         if (left == null) {
             return null
@@ -535,13 +553,14 @@ export class ParserImp implements Parser {
     }
 
     // primary = parenth_expression | constant | obj_access;
-    parsePrimary() {
-        return this.parseObjectAccessStatement()
+    parsePrimary(): Expression {
+        return this.parseObjectAccess()
                || this.parseConstant()
                || this.parseParenthExpression()
     }
 
-    parseConstant() {
+    // constant = int | double | string | boolean | null;
+    parseConstant(): Expression {
         if (this.lexer.token.type !== TokenType.INTEGER
             && this.lexer.token.type !== TokenType.DOUBLE
             && this.lexer.token.type !== TokenType.STRING
@@ -579,7 +598,8 @@ export class ParserImp implements Parser {
         }
     }
 
-    parseParenthExpression() {
+    // parenth_expression = "(", expression, ")";
+    parseParenthExpression(): Expression {
         if(!this.consumeIf(TokenType.L_BRACE_OP)) {
             return null
         }
@@ -593,7 +613,7 @@ export class ParserImp implements Parser {
         return new ParenthExpression(expr)
     }
 
-    tryAddFunction(functions: Record<string, FunctionDef>, fun_name: string, fun_def: FunctionDef) {
+    tryAddFunction(functions: Record<string, FunctionDef>, fun_name: string, fun_def: FunctionDef): void {
         if (functions[fun_name] !== undefined) {
             this.print_error(ErrorType.FUN_NAME_ERR, [fun_name])
             return
@@ -601,7 +621,7 @@ export class ParserImp implements Parser {
         functions[fun_name] = fun_def
     }
 
-    tryAddParam(parameters: Array<Parameter>, param: Parameter) {
+    tryAddParam(parameters: Array<Parameter>, param: Parameter): void {
         for(let parameter of parameters){
             if (parameter.name == param.name){
                 this.print_error(ErrorType.PARAM_NAME_ERR, [param.name])
@@ -648,7 +668,7 @@ export class ParserImp implements Parser {
         return true
     }
 
-    getCompExpr(type: TokenType, left: Expression, right: Expression) {
+    getCompExpr(type: TokenType, left: Expression, right: Expression): Expression {
         if (type == TokenType.EQ_OP) {
             return new EqualComparison(left, right)
         } else if (type == TokenType.NEQ_OP) {
@@ -683,7 +703,7 @@ export class ParserImp implements Parser {
         return true
     }
 
-    raise_mult_error(type: TokenType) {
+    raise_mult_error(type: TokenType): void {
         if (type == TokenType.MULT_OP) {
             this.raise_critical_error(ErrorType.MULT_EXPR_ERR, [])
         } else if (type == TokenType.DIV_INT_OP) {
@@ -695,7 +715,7 @@ export class ParserImp implements Parser {
         }
     }
 
-    getMultExpr(type: TokenType, left: Expression, right: Expression) {
+    getMultExpr(type: TokenType, left: Expression, right: Expression): Expression {
         if (type == TokenType.MULT_OP) {
             return new Multiplication(left, right)
         } else if (type == TokenType.DIV_INT_OP) {
@@ -732,7 +752,7 @@ export class ParserImp implements Parser {
         }
     }
 
-    getAddExpr(type: TokenType, left: Expression, right: Expression) {
+    getAddExpr(type: TokenType, left: Expression, right: Expression): Expression {
         if (type == TokenType.ADD_OP) {
             return new Addition(left, right)
         } else if (type == TokenType.MINUS_OP) {
@@ -757,5 +777,4 @@ export class ParserImp implements Parser {
     did_raise_error(): boolean {
         return this.raised_error;
     }
-
 }

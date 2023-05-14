@@ -1,4 +1,4 @@
-import { Visitator } from "../../../visitator/Visitator";
+import { Visitor } from "../../../visitor/Visitor";
 import { Expression } from "../Expression";
 
 export class LogicalNegation implements Expression {
@@ -8,7 +8,7 @@ export class LogicalNegation implements Expression {
         this.expr = expr;
     }
 
-    accept(visitator: Visitator) {
-        visitator.visitLogicalNegation(this)
+    accept(visitor: Visitor) {
+        visitor.visitLogicalNegation(this)
     }
 }

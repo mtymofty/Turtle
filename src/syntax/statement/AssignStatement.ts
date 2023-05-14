@@ -1,5 +1,5 @@
 import { Statement } from "./Statement";
-import { Visitator } from "../../visitator/Visitator";
+import { Visitor } from "../../visitor/Visitor";
 import { Expression } from "../expression/Expression";
 import { MemberAccess } from "../expression/primary/object_access/MemberAccess";
 import { Identifier } from "../expression/primary/object_access/Identifier";
@@ -13,8 +13,7 @@ export class AssignStatement implements Statement {
         this.right = right;
     }
 
-    accept(visitator: Visitator) {
-        visitator.visitAssignStatement(this)
+    accept(visitor: Visitor) {
+        visitor.visitAssignStatement(this)
     }
-
 }

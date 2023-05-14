@@ -1,4 +1,4 @@
-import { Visitator } from "../../../visitator/Visitator";
+import { Visitor } from "../../../visitor/Visitor";
 import { Expression } from "../Expression";
 
 export class NotEqualComparison implements Expression {
@@ -10,7 +10,7 @@ export class NotEqualComparison implements Expression {
         this.right = right;
     }
 
-    accept(visitator: Visitator) {
-        visitator.visitNotEqualComparison(this)
+    accept(visitor: Visitor) {
+        visitor.visitNotEqualComparison(this)
     }
 }

@@ -1,4 +1,4 @@
-import { Visitator } from "../../visitator/Visitator";
+import { Visitor } from "../../visitor/Visitor";
 import { Expression } from "./Expression";
 
 export class OrExpression implements Expression {
@@ -10,7 +10,7 @@ export class OrExpression implements Expression {
         this.right = right;
     }
 
-    accept(visitator: Visitator) {
-        visitator.visitOrExpression(this)
+    accept(visitor: Visitor) {
+        visitor.visitOrExpression(this)
     }
 }

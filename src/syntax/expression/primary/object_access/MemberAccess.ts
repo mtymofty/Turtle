@@ -1,4 +1,4 @@
-import { Visitator } from "../../../../visitator/Visitator";
+import { Visitor } from "../../../../visitor/Visitor";
 import { ObjectAccess } from "./ObjectAccess";
 
 export class MemberAccess implements ObjectAccess {
@@ -10,8 +10,7 @@ export class MemberAccess implements ObjectAccess {
         this.right = right;
     }
 
-    accept(visitator: Visitator) {
-        visitator.visitMemberAccess(this)
+    accept(visitor: Visitor) {
+        visitor.visitMemberAccess(this)
     }
-
 }

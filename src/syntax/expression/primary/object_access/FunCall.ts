@@ -1,4 +1,4 @@
-import { Visitator } from "../../../../visitator/Visitator";
+import { Visitor } from "../../../../visitor/Visitor";
 import { Statement } from "../../../statement/Statement";
 import { Argument } from "../../Argument";
 import { ObjectAccess } from "./ObjectAccess";
@@ -12,8 +12,7 @@ export class FunCall implements ObjectAccess, Statement {
         this.args = args;
     }
 
-    accept(visitator: Visitator) {
-        visitator.visitFunCall(this)
+    accept(visitor: Visitor) {
+        visitor.visitFunCall(this)
     }
-
 }
