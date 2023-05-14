@@ -10,7 +10,6 @@ import { ReturnStatement } from "../syntax/statement/ReturnStatement";
 import { UnlessStatement } from "../syntax/statement/UnlessStatement";
 import { WhileStatement } from "../syntax/statement/WhileStatement";
 import { Visitable } from "./Visitable";
-import { Constant } from "../syntax/expression/primary/Constant";
 import { ParenthExpression } from "../syntax/expression/primary/ParenthExpression";
 import { AssignStatement } from "../syntax/statement/AssignStatement";
 import { FunCall } from "../syntax/expression/primary/object_access/FunCall";
@@ -33,6 +32,12 @@ import { LesserComparison } from "../syntax/expression/comparison/LesserComparis
 import { LesserEqualComparison } from "../syntax/expression/comparison/LesserEqualComparison";
 import { EqualComparison } from "../syntax/expression/comparison/EqualComparison";
 import { NotEqualComparison } from "../syntax/expression/comparison/NotEqualComparison";
+import { TrueConstant } from "../syntax/expression/primary/constant/TrueConstant";
+import { FalseConstant } from "../syntax/expression/primary/constant/FalseConstant";
+import { NullConstant } from "../syntax/expression/primary/constant/NullConstant";
+import { StringConstant } from "../syntax/expression/primary/constant/StringConstant";
+import { IntConstant } from "../syntax/expression/primary/constant/IntConstant";
+import { DoubleConstant } from "../syntax/expression/primary/constant/DoubleConstant";
 
 export interface Visitator {
     indent: number
@@ -48,7 +53,6 @@ export interface Visitator {
     visitBreak(node: BreakStatement): void;
     visitContinue(node: ContinueStatement): void;
     visitIdentifier(node: Identifier): void;
-    visitConstant(node: Constant): void;
     visitParenthExpression(node: ParenthExpression): void;
     visitAssignStatement(node: AssignStatement): void;
     visitFunCall(node: FunCall): void;
@@ -71,4 +75,10 @@ export interface Visitator {
     visitLesserEqualComparison(node: LesserEqualComparison): void;
     visitEqualComparison(node: EqualComparison): void;
     visitNotEqualComparison(node: NotEqualComparison): void;
+    visitTrueConstant(node: TrueConstant): void;
+    visitFalseConstant(node: FalseConstant): void;
+    visitNullConstant(node: NullConstant): void;
+    visitStringConstant(node: StringConstant): void;
+    visitIntConstant(node: IntConstant): void;
+    visitDoubleConstant(node: DoubleConstant): void;
 }

@@ -3,7 +3,6 @@ import { LexerImp } from '../src/lexer/LexerImp';
 import { ParserImp } from '../src/parser/ParserImp';
 import { StringReader } from '../src/source/Reader';
 import { AndExpression } from '../src/syntax/expression/AndExpression';
-import { Argument } from '../src/syntax/expression/Argument';
 import { Exponentiation } from '../src/syntax/expression/Exponentiation';
 import { OrExpression } from '../src/syntax/expression/OrExpression';
 import { Addition } from '../src/syntax/expression/additive/Addition';
@@ -20,7 +19,6 @@ import { Modulo } from '../src/syntax/expression/multiplicative/Modulo';
 import { Multiplication } from '../src/syntax/expression/multiplicative/Multiplication';
 import { LogicalNegation } from '../src/syntax/expression/negation/LogicalNegation';
 import { Negation } from '../src/syntax/expression/negation/Negation';
-import { Constant } from '../src/syntax/expression/primary/Constant';
 import { ParenthExpression } from '../src/syntax/expression/primary/ParenthExpression';
 import { FunCall } from '../src/syntax/expression/primary/object_access/FunCall';
 import { Identifier } from '../src/syntax/expression/primary/object_access/Identifier';
@@ -28,8 +26,12 @@ import { MemberAccess } from '../src/syntax/expression/primary/object_access/Mem
 import { AssignStatement } from '../src/syntax/statement/AssignStatement';
 import { IfStatement } from '../src/syntax/statement/IfStatement';
 import { WhileStatement } from '../src/syntax/statement/WhileStatement';
-import { Token } from '../src/token/Token';
-import { TokenType } from '../src/token/TokenType';
+import { IntConstant } from '../src/syntax/expression/primary/constant/IntConstant';
+import { DoubleConstant } from '../src/syntax/expression/primary/constant/DoubleConstant';
+import { TrueConstant } from '../src/syntax/expression/primary/constant/TrueConstant';
+import { FalseConstant } from '../src/syntax/expression/primary/constant/FalseConstant';
+import { NullConstant } from '../src/syntax/expression/primary/constant/NullConstant';
+import { StringConstant } from '../src/syntax/expression/primary/constant/StringConstant';
 
 const mock_exit = jest.spyOn(process, 'exit')
             .mockImplementation((number) => { throw new Error('process.exit: ' + number); });
@@ -560,7 +562,7 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
 
     var assign = <AssignStatement>program.functions['fun'].block.statements[0];
-    var const_ = <Constant>assign.right;
+    var const_ = <IntConstant>assign.right;
 
 
     expect(Object.keys(program.functions).length).toBe(1);
@@ -577,7 +579,7 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
 
     var assign = <AssignStatement>program.functions['fun'].block.statements[0];
-    var const_ = <Constant>assign.right;
+    var const_ = <DoubleConstant>assign.right;
 
 
     expect(Object.keys(program.functions).length).toBe(1);
@@ -594,14 +596,13 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
 
     var assign = <AssignStatement>program.functions['fun'].block.statements[0];
-    var const_ = <Constant>assign.right;
+    var const_ = <TrueConstant>assign.right;
 
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
     expect(assign.left).not.toBe(null);
     expect(const_).not.toBe(null);
-    expect(const_.value).toBe(true);
     expect(parser.did_raise_error()).toBe(false);
   });
 
@@ -611,14 +612,13 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
 
     var assign = <AssignStatement>program.functions['fun'].block.statements[0];
-    var const_ = <Constant>assign.right;
+    var const_ = <FalseConstant>assign.right;
 
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
     expect(assign.left).not.toBe(null);
     expect(const_).not.toBe(null);
-    expect(const_.value).toBe(false);
     expect(parser.did_raise_error()).toBe(false);
   });
 
@@ -628,14 +628,13 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
 
     var assign = <AssignStatement>program.functions['fun'].block.statements[0];
-    var const_ = <Constant>assign.right;
+    var const_ = <NullConstant>assign.right;
 
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
     expect(assign.left).not.toBe(null);
     expect(const_).not.toBe(null);
-    expect(const_.value).toBe(null);
     expect(parser.did_raise_error()).toBe(false);
   });
 
@@ -645,7 +644,7 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
 
     var assign = <AssignStatement>program.functions['fun'].block.statements[0];
-    var const_ = <Constant>assign.right;
+    var const_ = <StringConstant>assign.right;
 
 
     expect(Object.keys(program.functions).length).toBe(1);
@@ -661,13 +660,13 @@ describe('Parser class integration tests:', () => {
     var parser: ParserImp = new ParserImp(lexer, error_handler);
     let program = parser.parse()
     var fun = <FunCall>program.functions['fun'].block.statements[0];
-    var exp1 = <Constant>fun.args[0].expression
+    var exp1 = <IntConstant>fun.args[0].expression
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
     expect(fun.fun_name).toBe('fun');
     expect(fun.args.length).toBe(1);
-    expect(fun.args[0].expression instanceof Constant).toBe(true);
+    expect(fun.args[0].expression instanceof IntConstant).toBe(true);
     expect(exp1.value).toBe(5);
     expect(parser.did_raise_error()).toBe(false);
   });
@@ -677,19 +676,19 @@ describe('Parser class integration tests:', () => {
     var parser: ParserImp = new ParserImp(lexer, error_handler);
     let program = parser.parse()
     var fun = <FunCall>program.functions['fun'].block.statements[0];
-    var exp1 = <Constant>fun.args[0].expression
-    var exp2 = <Constant>fun.args[1].expression
-    var exp3 = <Constant>fun.args[2].expression
+    var exp1 = <IntConstant>fun.args[0].expression
+    var exp2 = <IntConstant>fun.args[1].expression
+    var exp3 = <IntConstant>fun.args[2].expression
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
     expect(fun.fun_name).toBe('fun');
     expect(fun.args.length).toBe(3);
-    expect(fun.args[0].expression instanceof Constant).toBe(true);
+    expect(fun.args[0].expression instanceof IntConstant).toBe(true);
     expect(exp1.value).toBe(5);
-    expect(fun.args[1].expression instanceof Constant).toBe(true);
+    expect(fun.args[1].expression instanceof IntConstant).toBe(true);
     expect(exp2.value).toBe(10);
-    expect(fun.args[2].expression instanceof Constant).toBe(true);
+    expect(fun.args[2].expression instanceof IntConstant).toBe(true);
     expect(exp3.value).toBe(15);
     expect(parser.did_raise_error()).toBe(false);
   });
@@ -699,13 +698,13 @@ describe('Parser class integration tests:', () => {
     var parser: ParserImp = new ParserImp(lexer, error_handler);
     let program = parser.parse()
     var fun = <FunCall>program.functions['fun'].block.statements[0];
-    var exp1 = <Constant>fun.args[0].expression
+    var exp1 = <DoubleConstant>fun.args[0].expression
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
     expect(fun.fun_name).toBe('fun');
     expect(fun.args.length).toBe(1);
-    expect(fun.args[0].expression instanceof Constant).toBe(true);
+    expect(fun.args[0].expression instanceof DoubleConstant).toBe(true);
     expect(exp1.value).toBe(5.5);
     expect(parser.did_raise_error()).toBe(false);
   });
@@ -715,19 +714,19 @@ describe('Parser class integration tests:', () => {
     var parser: ParserImp = new ParserImp(lexer, error_handler);
     let program = parser.parse()
     var fun = <FunCall>program.functions['fun'].block.statements[0];
-    var exp1 = <Constant>fun.args[0].expression
-    var exp2 = <Constant>fun.args[1].expression
-    var exp3 = <Constant>fun.args[2].expression
+    var exp1 = <DoubleConstant>fun.args[0].expression
+    var exp2 = <DoubleConstant>fun.args[1].expression
+    var exp3 = <DoubleConstant>fun.args[2].expression
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
     expect(fun.fun_name).toBe('fun');
     expect(fun.args.length).toBe(3);
-    expect(fun.args[0].expression instanceof Constant).toBe(true);
+    expect(fun.args[0].expression instanceof DoubleConstant).toBe(true);
     expect(exp1.value).toBe(5.5);
-    expect(fun.args[1].expression instanceof Constant).toBe(true);
+    expect(fun.args[1].expression instanceof DoubleConstant).toBe(true);
     expect(exp2.value).toBe(10.5);
-    expect(fun.args[2].expression instanceof Constant).toBe(true);
+    expect(fun.args[2].expression instanceof DoubleConstant).toBe(true);
     expect(exp3.value).toBe(15.5);
     expect(parser.did_raise_error()).toBe(false);
   });
@@ -737,14 +736,12 @@ describe('Parser class integration tests:', () => {
     var parser: ParserImp = new ParserImp(lexer, error_handler);
     let program = parser.parse()
     var fun = <FunCall>program.functions['fun'].block.statements[0];
-    var exp1 = <Constant>fun.args[0].expression
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
     expect(fun.fun_name).toBe('fun');
     expect(fun.args.length).toBe(1);
-    expect(fun.args[0].expression instanceof Constant).toBe(true);
-    expect(exp1.value).toBe(true);
+    expect(fun.args[0].expression instanceof TrueConstant).toBe(true);
     expect(parser.did_raise_error()).toBe(false);
   });
 
@@ -753,20 +750,14 @@ describe('Parser class integration tests:', () => {
     var parser: ParserImp = new ParserImp(lexer, error_handler);
     let program = parser.parse()
     var fun = <FunCall>program.functions['fun'].block.statements[0];
-    var exp1 = <Constant>fun.args[0].expression
-    var exp2 = <Constant>fun.args[1].expression
-    var exp3 = <Constant>fun.args[2].expression
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
     expect(fun.fun_name).toBe('fun');
     expect(fun.args.length).toBe(3);
-    expect(fun.args[0].expression instanceof Constant).toBe(true);
-    expect(exp1.value).toBe(true);
-    expect(fun.args[1].expression instanceof Constant).toBe(true);
-    expect(exp2.value).toBe(true);
-    expect(fun.args[2].expression instanceof Constant).toBe(true);
-    expect(exp3.value).toBe(true);
+    expect(fun.args[0].expression instanceof TrueConstant).toBe(true);
+    expect(fun.args[1].expression instanceof TrueConstant).toBe(true);
+    expect(fun.args[2].expression instanceof TrueConstant).toBe(true);
     expect(parser.did_raise_error()).toBe(false);
   });
 
@@ -775,14 +766,12 @@ describe('Parser class integration tests:', () => {
     var parser: ParserImp = new ParserImp(lexer, error_handler);
     let program = parser.parse()
     var fun = <FunCall>program.functions['fun'].block.statements[0];
-    var exp1 = <Constant>fun.args[0].expression
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
     expect(fun.fun_name).toBe('fun');
     expect(fun.args.length).toBe(1);
-    expect(fun.args[0].expression instanceof Constant).toBe(true);
-    expect(exp1.value).toBe(false);
+    expect(fun.args[0].expression instanceof FalseConstant).toBe(true);
     expect(parser.did_raise_error()).toBe(false);
   });
 
@@ -791,20 +780,14 @@ describe('Parser class integration tests:', () => {
     var parser: ParserImp = new ParserImp(lexer, error_handler);
     let program = parser.parse()
     var fun = <FunCall>program.functions['fun'].block.statements[0];
-    var exp1 = <Constant>fun.args[0].expression
-    var exp2 = <Constant>fun.args[1].expression
-    var exp3 = <Constant>fun.args[2].expression
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
     expect(fun.fun_name).toBe('fun');
     expect(fun.args.length).toBe(3);
-    expect(fun.args[0].expression instanceof Constant).toBe(true);
-    expect(exp1.value).toBe(false);
-    expect(fun.args[1].expression instanceof Constant).toBe(true);
-    expect(exp2.value).toBe(false);
-    expect(fun.args[2].expression instanceof Constant).toBe(true);
-    expect(exp3.value).toBe(false);
+    expect(fun.args[0].expression instanceof FalseConstant).toBe(true);
+    expect(fun.args[1].expression instanceof FalseConstant).toBe(true);
+    expect(fun.args[2].expression instanceof FalseConstant).toBe(true);
     expect(parser.did_raise_error()).toBe(false);
   });
 
@@ -813,14 +796,13 @@ describe('Parser class integration tests:', () => {
     var parser: ParserImp = new ParserImp(lexer, error_handler);
     let program = parser.parse()
     var fun = <FunCall>program.functions['fun'].block.statements[0];
-    var exp1 = <Constant>fun.args[0].expression
+    var exp1 = <NullConstant>fun.args[0].expression
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
     expect(fun.fun_name).toBe('fun');
     expect(fun.args.length).toBe(1);
-    expect(fun.args[0].expression instanceof Constant).toBe(true);
-    expect(exp1.value).toBe(null);
+    expect(fun.args[0].expression instanceof NullConstant).toBe(true);
     expect(parser.did_raise_error()).toBe(false);
   });
 
@@ -829,20 +811,14 @@ describe('Parser class integration tests:', () => {
     var parser: ParserImp = new ParserImp(lexer, error_handler);
     let program = parser.parse()
     var fun = <FunCall>program.functions['fun'].block.statements[0];
-    var exp1 = <Constant>fun.args[0].expression
-    var exp2 = <Constant>fun.args[1].expression
-    var exp3 = <Constant>fun.args[2].expression
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
     expect(fun.fun_name).toBe('fun');
     expect(fun.args.length).toBe(3);
-    expect(fun.args[0].expression instanceof Constant).toBe(true);
-    expect(exp1.value).toBe(null);
-    expect(fun.args[1].expression instanceof Constant).toBe(true);
-    expect(exp2.value).toBe(null);
-    expect(fun.args[2].expression instanceof Constant).toBe(true);
-    expect(exp3.value).toBe(null);
+    expect(fun.args[0].expression instanceof NullConstant).toBe(true);
+    expect(fun.args[1].expression instanceof NullConstant).toBe(true);
+    expect(fun.args[2].expression instanceof NullConstant).toBe(true);
     expect(parser.did_raise_error()).toBe(false);
   });
 
@@ -851,13 +827,13 @@ describe('Parser class integration tests:', () => {
     var parser: ParserImp = new ParserImp(lexer, error_handler);
     let program = parser.parse()
     var fun = <FunCall>program.functions['fun'].block.statements[0];
-    var exp1 = <Constant>fun.args[0].expression
+    var exp1 = <StringConstant>fun.args[0].expression
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
     expect(fun.fun_name).toBe('fun');
     expect(fun.args.length).toBe(1);
-    expect(fun.args[0].expression instanceof Constant).toBe(true);
+    expect(fun.args[0].expression instanceof StringConstant).toBe(true);
     expect(exp1.value).toBe("string");
     expect(parser.did_raise_error()).toBe(false);
   });
@@ -867,19 +843,19 @@ describe('Parser class integration tests:', () => {
     var parser: ParserImp = new ParserImp(lexer, error_handler);
     let program = parser.parse()
     var fun = <FunCall>program.functions['fun'].block.statements[0];
-    var exp1 = <Constant>fun.args[0].expression
-    var exp2 = <Constant>fun.args[1].expression
-    var exp3 = <Constant>fun.args[2].expression
+    var exp1 = <StringConstant>fun.args[0].expression
+    var exp2 = <StringConstant>fun.args[1].expression
+    var exp3 = <StringConstant>fun.args[2].expression
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
     expect(fun.fun_name).toBe('fun');
     expect(fun.args.length).toBe(3);
-    expect(fun.args[0].expression instanceof Constant).toBe(true);
+    expect(fun.args[0].expression instanceof StringConstant).toBe(true);
     expect(exp1.value).toBe("string");
-    expect(fun.args[1].expression instanceof Constant).toBe(true);
+    expect(fun.args[1].expression instanceof StringConstant).toBe(true);
     expect(exp2.value).toBe("string");
-    expect(fun.args[2].expression instanceof Constant).toBe(true);
+    expect(fun.args[2].expression instanceof StringConstant).toBe(true);
     expect(exp3.value).toBe("string");
     expect(parser.did_raise_error()).toBe(false);
   });
@@ -890,8 +866,8 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <Addition>assign.right
-    let left = <Constant>addition.left
-    let right = <Constant>addition.right
+    let left = <IntConstant>addition.left
+    let right = <IntConstant>addition.right
     let left_val = left.value
     let right_val = right.value
 
@@ -911,9 +887,9 @@ describe('Parser class integration tests:', () => {
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <Addition>assign.right
     let left = <Addition>addition.left
-    let const1 = <Constant>addition.right
-    let const2 = <Constant>left.right
-    let const3 = <Constant>left.left
+    let const1 = <IntConstant>addition.right
+    let const2 = <IntConstant>left.right
+    let const3 = <IntConstant>left.left
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
@@ -941,8 +917,8 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <Subtraction>assign.right
-    let left = <Constant>addition.left
-    let right = <Constant>addition.right
+    let left = <IntConstant>addition.left
+    let right = <IntConstant>addition.right
     let left_val = left.value
     let right_val = right.value
 
@@ -962,9 +938,9 @@ describe('Parser class integration tests:', () => {
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <Subtraction>assign.right
     let left = <Subtraction>addition.left
-    let const1 = <Constant>addition.right
-    let const2 = <Constant>left.right
-    let const3 = <Constant>left.left
+    let const1 = <IntConstant>addition.right
+    let const2 = <IntConstant>left.right
+    let const3 = <IntConstant>left.left
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
@@ -992,8 +968,8 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <Multiplication>assign.right
-    let left = <Constant>addition.left
-    let right = <Constant>addition.right
+    let left = <IntConstant>addition.left
+    let right = <IntConstant>addition.right
     let left_val = left.value
     let right_val = right.value
 
@@ -1013,9 +989,9 @@ describe('Parser class integration tests:', () => {
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <Multiplication>assign.right
     let left = <Multiplication>addition.left
-    let const1 = <Constant>addition.right
-    let const2 = <Constant>left.right
-    let const3 = <Constant>left.left
+    let const1 = <IntConstant>addition.right
+    let const2 = <IntConstant>left.right
+    let const3 = <IntConstant>left.left
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
@@ -1043,8 +1019,8 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <Division>assign.right
-    let left = <Constant>addition.left
-    let right = <Constant>addition.right
+    let left = <IntConstant>addition.left
+    let right = <IntConstant>addition.right
     let left_val = left.value
     let right_val = right.value
 
@@ -1064,9 +1040,9 @@ describe('Parser class integration tests:', () => {
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <Division>assign.right
     let left = <Division>addition.left
-    let const1 = <Constant>addition.right
-    let const2 = <Constant>left.right
-    let const3 = <Constant>left.left
+    let const1 = <IntConstant>addition.right
+    let const2 = <IntConstant>left.right
+    let const3 = <IntConstant>left.left
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
@@ -1094,8 +1070,8 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <IntDivision>assign.right
-    let left = <Constant>addition.left
-    let right = <Constant>addition.right
+    let left = <IntConstant>addition.left
+    let right = <IntConstant>addition.right
     let left_val = left.value
     let right_val = right.value
 
@@ -1115,9 +1091,9 @@ describe('Parser class integration tests:', () => {
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <IntDivision>assign.right
     let left = <IntDivision>addition.left
-    let const1 = <Constant>addition.right
-    let const2 = <Constant>left.right
-    let const3 = <Constant>left.left
+    let const1 = <IntConstant>addition.right
+    let const2 = <IntConstant>left.right
+    let const3 = <IntConstant>left.left
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
@@ -1139,65 +1115,14 @@ describe('Parser class integration tests:', () => {
   expect(mock_exit).toHaveBeenCalledWith(0);
   });
 
-  test('76. Parser should succesfully parse simple modulo', () => {
-    var lexer = new LexerImp(new StringReader("func fun(){   ident=5%10;   }"), error_handler)
-    var parser: ParserImp = new ParserImp(lexer, error_handler);
-    let program = parser.parse()
-    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
-    let addition = <Modulo>assign.right
-    let left = <Constant>addition.left
-    let right = <Constant>addition.right
-    let left_val = left.value
-    let right_val = right.value
-
-    expect(Object.keys(program.functions).length).toBe(1);
-    expect(program.functions['fun'].block.statements.length).toBe(1);
-    expect(left).not.toBe(null);
-    expect(right).not.toBe(null);
-    expect(left_val).toBe(5);
-    expect(right_val).toBe(10);
-    expect(parser.did_raise_error()).toBe(false);
-  });
-
-  test('77. Parser should succesfully parse compound modulo', () => {
-    var lexer = new LexerImp(new StringReader("func fun(){   ident=5%10%15;   }"), error_handler)
-    var parser: ParserImp = new ParserImp(lexer, error_handler);
-    let program = parser.parse()
-    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
-    let addition = <Modulo>assign.right
-    let left = <Modulo>addition.left
-    let const1 = <Constant>addition.right
-    let const2 = <Constant>left.right
-    let const3 = <Constant>left.left
-
-    expect(Object.keys(program.functions).length).toBe(1);
-    expect(program.functions['fun'].block.statements.length).toBe(1);
-    expect(const1.value).toBe(15);
-    expect(const2.value).toBe(10);
-    expect(const3.value).toBe(5);
-    expect(parser.did_raise_error()).toBe(false);
-  });
-
-  test('78. Missing expression after modulo should raise crit-error', () => {
-    var lexer = new LexerImp(new StringReader("func fun(){   ident=5%;   }"), error_handler)
-    var parser: ParserImp = new ParserImp(lexer, error_handler);
-
-    const parse = () => {
-      parser.parse()
-    };
-
-  expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
-  });
-
   test('79. Parser should succesfully parse simple disjunction', () => {
     var lexer = new LexerImp(new StringReader("func fun(){   ident=5 || 10;   }"), error_handler)
     var parser: ParserImp = new ParserImp(lexer, error_handler);
     let program = parser.parse()
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <OrExpression>assign.right
-    let left = <Constant>addition.left
-    let right = <Constant>addition.right
+    let left = <IntConstant>addition.left
+    let right = <IntConstant>addition.right
     let left_val = left.value
     let right_val = right.value
 
@@ -1217,9 +1142,9 @@ describe('Parser class integration tests:', () => {
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <OrExpression>assign.right
     let left = <OrExpression>addition.left
-    let const1 = <Constant>addition.right
-    let const2 = <Constant>left.right
-    let const3 = <Constant>left.left
+    let const1 = <IntConstant>addition.right
+    let const2 = <IntConstant>left.right
+    let const3 = <IntConstant>left.left
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
@@ -1247,8 +1172,8 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <AndExpression>assign.right
-    let left = <Constant>addition.left
-    let right = <Constant>addition.right
+    let left = <IntConstant>addition.left
+    let right = <IntConstant>addition.right
     let left_val = left.value
     let right_val = right.value
 
@@ -1268,9 +1193,9 @@ describe('Parser class integration tests:', () => {
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <AndExpression>assign.right
     let left = <AndExpression>addition.left
-    let const1 = <Constant>addition.right
-    let const2 = <Constant>left.right
-    let const3 = <Constant>left.left
+    let const1 = <IntConstant>addition.right
+    let const2 = <IntConstant>left.right
+    let const3 = <IntConstant>left.left
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
@@ -1298,8 +1223,8 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <AndExpression>assign.right
-    let left = <Constant>addition.left
-    let right = <Constant>addition.right
+    let left = <IntConstant>addition.left
+    let right = <IntConstant>addition.right
     let left_val = left.value
     let right_val = right.value
 
@@ -1319,9 +1244,9 @@ describe('Parser class integration tests:', () => {
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <AndExpression>assign.right
     let left = <AndExpression>addition.left
-    let const1 = <Constant>addition.right
-    let const2 = <Constant>left.right
-    let const3 = <Constant>left.left
+    let const1 = <IntConstant>addition.right
+    let const2 = <IntConstant>left.right
+    let const3 = <IntConstant>left.left
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
@@ -1349,8 +1274,8 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <Exponentiation>assign.right
-    let left = <Constant>addition.left
-    let right = <Constant>addition.right
+    let left = <IntConstant>addition.left
+    let right = <IntConstant>addition.right
     let left_val = left.value
     let right_val = right.value
 
@@ -1370,9 +1295,9 @@ describe('Parser class integration tests:', () => {
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <Exponentiation>assign.right
     let left = <Exponentiation>addition.left
-    let const1 = <Constant>addition.right
-    let const2 = <Constant>left.right
-    let const3 = <Constant>left.left
+    let const1 = <IntConstant>addition.right
+    let const2 = <IntConstant>left.right
+    let const3 = <IntConstant>left.left
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
@@ -1400,8 +1325,8 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <GreaterComparison>assign.right
-    let left = <Constant>addition.left
-    let right = <Constant>addition.right
+    let left = <IntConstant>addition.left
+    let right = <IntConstant>addition.right
     let left_val = left.value
     let right_val = right.value
 
@@ -1444,8 +1369,8 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <GreaterEqualComparison>assign.right
-    let left = <Constant>addition.left
-    let right = <Constant>addition.right
+    let left = <IntConstant>addition.left
+    let right = <IntConstant>addition.right
     let left_val = left.value
     let right_val = right.value
 
@@ -1488,8 +1413,8 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <LesserComparison>assign.right
-    let left = <Constant>addition.left
-    let right = <Constant>addition.right
+    let left = <IntConstant>addition.left
+    let right = <IntConstant>addition.right
     let left_val = left.value
     let right_val = right.value
 
@@ -1532,8 +1457,8 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <LesserEqualComparison>assign.right
-    let left = <Constant>addition.left
-    let right = <Constant>addition.right
+    let left = <IntConstant>addition.left
+    let right = <IntConstant>addition.right
     let left_val = left.value
     let right_val = right.value
 
@@ -1576,8 +1501,8 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <EqualComparison>assign.right
-    let left = <Constant>addition.left
-    let right = <Constant>addition.right
+    let left = <IntConstant>addition.left
+    let right = <IntConstant>addition.right
     let left_val = left.value
     let right_val = right.value
 
@@ -1620,8 +1545,8 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <NotEqualComparison>assign.right
-    let left = <Constant>addition.left
-    let right = <Constant>addition.right
+    let left = <IntConstant>addition.left
+    let right = <IntConstant>addition.right
     let left_val = left.value
     let right_val = right.value
 
@@ -1676,7 +1601,7 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <Negation>assign.right;
-    let const_ = <Constant>addition.expr;
+    let const_ = <IntConstant>addition.expr;
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
@@ -1690,11 +1615,10 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <LogicalNegation>assign.right;
-    let const_ = <Constant>addition.expr;
+    let _ = <TrueConstant>addition.expr;
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
-    expect(const_.value).toBe(true);
     expect(parser.did_raise_error()).toBe(false);
   });
 
@@ -1722,15 +1646,15 @@ describe('Parser class integration tests:', () => {
   expect(mock_exit).toHaveBeenCalledWith(0);
   });
 
-  test('106. Parser should succesfully parse simple parenthesis expression', () => {
+  test('114. Parser should succesfully parse simple parenthesis expression', () => {
     var lexer = new LexerImp(new StringReader("func fun(){   ident= (5+10);   }"), error_handler)
     var parser: ParserImp = new ParserImp(lexer, error_handler);
     let program = parser.parse()
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let parenth = <ParenthExpression>assign.right
     let addition = <Addition>parenth.expression
-    let left = <Constant>addition.left
-    let right = <Constant>addition.right
+    let left = <IntConstant>addition.left
+    let right = <IntConstant>addition.right
     let left_val = left.value
     let right_val = right.value
 
@@ -1743,15 +1667,15 @@ describe('Parser class integration tests:', () => {
     expect(parser.did_raise_error()).toBe(false);
   });
 
-  test('106. Parser should succesfully parse simple parenthesis expression', () => {
+  test('115. Parser should succesfully parse simple parenthesis expression', () => {
     var lexer = new LexerImp(new StringReader("func fun(){   ident= (5+10;   }"), error_handler)
     var parser: ParserImp = new ParserImp(lexer, error_handler);
     let program = parser.parse()
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let parenth = <ParenthExpression>assign.right
     let addition = <Addition>parenth.expression
-    let left = <Constant>addition.left
-    let right = <Constant>addition.right
+    let left = <IntConstant>addition.left
+    let right = <IntConstant>addition.right
     let left_val = left.value
     let right_val = right.value
 
@@ -1764,17 +1688,17 @@ describe('Parser class integration tests:', () => {
     expect(parser.did_raise_error()).toBe(true);
   });
 
-  test('106. Parser should succesfully parse compound parenthesis expression', () => {
+  test('116. Parser should succesfully parse compound parenthesis expression', () => {
     var lexer = new LexerImp(new StringReader("func fun(){   ident = (5+10)*15;   }"), error_handler)
     var parser: ParserImp = new ParserImp(lexer, error_handler);
     let program = parser.parse()
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let mult = <Multiplication> assign.right
     let parenth = <ParenthExpression>mult.left
-    let right_mult = <Constant>mult.right
+    let right_mult = <IntConstant>mult.right
     let addition = <Addition>parenth.expression
-    let left_add = <Constant>addition.left
-    let right_add = <Constant>addition.right
+    let left_add = <IntConstant>addition.left
+    let right_add = <IntConstant>addition.right
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);
@@ -1784,5 +1708,56 @@ describe('Parser class integration tests:', () => {
     expect(right_add.value).toBe(10);
     expect(right_mult.value).toBe(15);
     expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('117. Parser should succesfully parse simple modulo', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5%10;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <Modulo>assign.right
+    let left = <IntConstant>addition.left
+    let right = <IntConstant>addition.right
+    let left_val = left.value
+    let right_val = right.value
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(left).not.toBe(null);
+    expect(right).not.toBe(null);
+    expect(left_val).toBe(5);
+    expect(right_val).toBe(10);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('118. Parser should succesfully parse compound modulo', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5%10%15;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <Modulo>assign.right
+    let left = <Modulo>addition.left
+    let const1 = <IntConstant>addition.right
+    let const2 = <IntConstant>left.right
+    let const3 = <IntConstant>left.left
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(const1.value).toBe(15);
+    expect(const2.value).toBe(10);
+    expect(const3.value).toBe(5);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('119. Missing expression after modulo should raise crit-error', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5%;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
   });
 });

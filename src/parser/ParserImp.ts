@@ -10,7 +10,6 @@ import { ReturnStatement } from "../syntax/statement/ReturnStatement";
 import { BreakStatement } from "../syntax/statement/BreakStatement";
 import { ContinueStatement } from "../syntax/statement/ContinueStatement";
 import { ErrorType, WarningType } from "../error/ErrorType";
-import { ErrorUtils } from "../error/ErrorUtils";
 import { IfStatement } from "../syntax/statement/IfStatement";
 import { Identifier } from "../syntax/expression/primary/object_access/Identifier";
 import { UnlessStatement } from "../syntax/statement/UnlessStatement";
@@ -22,7 +21,6 @@ import { ObjectAccess } from "../syntax/expression/primary/object_access/ObjectA
 import { MemberAccess } from "../syntax/expression/primary/object_access/MemberAccess";
 import { Argument } from "../syntax/expression/Argument";
 import { FunCall } from "../syntax/expression/primary/object_access/FunCall";
-import { Constant } from "../syntax/expression/primary/Constant";
 import { ParenthExpression } from "../syntax/expression/primary/ParenthExpression";
 import { OrExpression } from "../syntax/expression/OrExpression";
 import { Negation } from "../syntax/expression/negation/Negation";
@@ -41,6 +39,12 @@ import { GreaterEqualComparison } from "../syntax/expression/comparison/GreaterE
 import { LesserComparison } from "../syntax/expression/comparison/LesserComparison";
 import { LesserEqualComparison } from "../syntax/expression/comparison/LesserEqualComparison";
 import { AndExpression } from "../syntax/expression/AndExpression";
+import { TrueConstant } from "../syntax/expression/primary/constant/TrueConstant";
+import { FalseConstant } from "../syntax/expression/primary/constant/FalseConstant";
+import { NullConstant } from "../syntax/expression/primary/constant/NullConstant";
+import { IntConstant } from "../syntax/expression/primary/constant/IntConstant";
+import { DoubleConstant } from "../syntax/expression/primary/constant/DoubleConstant";
+import { StringConstant } from "../syntax/expression/primary/constant/StringConstant";
 
 export class ParserImp implements Parser {
     lexer: Lexer
@@ -546,22 +550,33 @@ export class ParserImp implements Parser {
             && this.lexer.token.type !== TokenType.NULL_KW) {
             return null
         }
+
+        var val = this.lexer.token.value
+
         if (this.lexer.token.type === TokenType.TRUE_KW) {
             this.lexer.next_token()
-            return new Constant(true)
+            return new TrueConstant()
         }
         if (this.lexer.token.type === TokenType.FALSE_KW) {
             this.lexer.next_token()
-            return new Constant(false)
+            return new FalseConstant()
         }
         if (this.lexer.token.type === TokenType.NULL_KW) {
             this.lexer.next_token()
-            return new Constant(null)
+            return new NullConstant()
         }
-        var val = this.lexer.token.value
-        this.lexer.next_token()
-
-        return new Constant(val);
+        if (this.lexer.token.type === TokenType.INTEGER && typeof val === "number") {
+            this.lexer.next_token()
+            return new IntConstant(val)
+        }
+        if (this.lexer.token.type === TokenType.DOUBLE && typeof val === "number") {
+            this.lexer.next_token()
+            return new DoubleConstant(val)
+        }
+        if (this.lexer.token.type === TokenType.STRING && typeof val === "string") {
+            this.lexer.next_token()
+            return new StringConstant(val)
+        }
     }
 
     parseParenthExpression() {

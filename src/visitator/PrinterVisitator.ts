@@ -7,7 +7,6 @@ import { Program } from "../syntax/Program";
 import { UnlessStatement } from "../syntax/statement/UnlessStatement";
 import { WhileStatement } from "../syntax/statement/WhileStatement";
 import { Visitator } from "./Visitator";
-import { Constant } from "../syntax/expression/primary/Constant";
 import { ParenthExpression } from "../syntax/expression/primary/ParenthExpression";
 import { AssignStatement } from "../syntax/statement/AssignStatement";
 import { MemberAccess } from "../syntax/expression/primary/object_access/MemberAccess";
@@ -29,6 +28,12 @@ import { LesserComparison } from "../syntax/expression/comparison/LesserComparis
 import { GreaterComparison } from "../syntax/expression/comparison/GreaterComparison";
 import { Modulo } from "../syntax/expression/multiplicative/Modulo";
 import { IntDivision } from "../syntax/expression/multiplicative/IntDivision";
+import { TrueConstant } from "../syntax/expression/primary/constant/TrueConstant";
+import { FalseConstant } from "../syntax/expression/primary/constant/FalseConstant";
+import { DoubleConstant } from "../syntax/expression/primary/constant/DoubleConstant";
+import { IntConstant } from "../syntax/expression/primary/constant/IntConstant";
+import { StringConstant } from "../syntax/expression/primary/constant/StringConstant";
+import { NullConstant } from "../syntax/expression/primary/constant/NullConstant";
 
 export class PrinterVisitator implements Visitator {
     indent: number
@@ -147,8 +152,29 @@ export class PrinterVisitator implements Visitator {
         this.print(`Identifier: ${identifier.name}\n`)
     }
 
-    visitConstant(constant: Constant) {
+
+    visitDoubleConstant(constant: DoubleConstant) {
         this.print(`Constant: ${constant.value}\n`)
+    }
+
+    visitIntConstant(constant: IntConstant) {
+        this.print(`Constant: ${constant.value}\n`)
+    }
+
+    visitStringConstant(constant: StringConstant) {
+        this.print(`Constant: ${constant.value}\n`)
+    }
+
+    visitNullConstant(constant: NullConstant) {
+        this.print(`Constant: null\n`)
+    }
+
+    visitFalseConstant(constant: FalseConstant) {
+        this.print(`False Constant: false\n`)
+    }
+
+    visitTrueConstant(constant: TrueConstant) {
+        this.print(`True Constant: true\n`)
     }
 
     visitParenthExpression(p_ex: ParenthExpression) {
