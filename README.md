@@ -314,8 +314,8 @@ Konstruktory:
     rel_op          = '>' | '>=' | '<' | '<=' | '==' | '!=';
     add_op          = '+' | '-';
     mult_op         = '*' | '/' | '//' | '%';
-    pow_op          = '^';
     unar_op         = '!' | '-';
+    pow_op          = '^';
 
     terminator      = ';'
 
@@ -353,10 +353,11 @@ Konstruktory:
 
 	while_statement     = 'while', '(', expression, ')', statement_block
 
-    expression          = conjunction, {or_op, conjunction};
+    expression          = disjunction;
+    disjunction         = conjunction, {or_op, conjunction};
     conjunction         = comparison, {and_op, comparison};
-    comparison          = sum, [rel_op, sum];
-    sum                 = term, {add_op, term};
+    comparison          = sum_sub, [rel_op, sum_sub];
+    sum_sub             = term, {add_op, term};
     term                = factor, {mult_op, factor};
     factor              = [unar_op], power;
     power               = primary, {pow_op, primary};

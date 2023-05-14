@@ -1,6 +1,4 @@
-import { Visitator } from "../../visitator/Visitator";
-import { FunCall } from "./FunCall";
-import { Identifier } from "./Identifier";
+import { Visitator } from "../../../../visitator/Visitator";
 import { ObjectAccess } from "./ObjectAccess";
 
 export class MemberAccess implements ObjectAccess {

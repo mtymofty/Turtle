@@ -1,4 +1,4 @@
-import { Visitator } from "../../visitator/Visitator";
+import { Visitator } from "../../../../visitator/Visitator";
 import { ObjectAccess } from "./ObjectAccess";
 
 export class Identifier implements ObjectAccess {

@@ -1,18 +1,34 @@
 import { Block } from "../syntax/Block";
 import { FunctionDef } from "../syntax/FunctionDef";
-import { Identifier } from "../syntax/expression/Identifier";
+import { Identifier } from "../syntax/expression/primary/object_access/Identifier";
 import { IfStatement } from "../syntax/statement/IfStatement";
 import { Parameter } from "../syntax/Parameter";
 import { Program } from "../syntax/Program";
 import { UnlessStatement } from "../syntax/statement/UnlessStatement";
 import { WhileStatement } from "../syntax/statement/WhileStatement";
 import { Visitator } from "./Visitator";
-import { Constant } from "../syntax/expression/Constant";
-import { ParenthExpression } from "../syntax/expression/ParenthExpression";
+import { Constant } from "../syntax/expression/primary/Constant";
+import { ParenthExpression } from "../syntax/expression/primary/ParenthExpression";
 import { AssignStatement } from "../syntax/statement/AssignStatement";
-import { MemberAccess } from "../syntax/expression/MemberAccess";
-import { FunCall } from "../syntax/expression/FunCall";
+import { MemberAccess } from "../syntax/expression/primary/object_access/MemberAccess";
+import { FunCall } from "../syntax/expression/primary/object_access/FunCall";
 import { Argument } from "../syntax/expression/Argument";
+import { Addition } from "../syntax/expression/additive/Addition";
+import { Negation } from "../syntax/expression/negation/Negation";
+import { Division } from "../syntax/expression/multiplicative/Division";
+import { AndExpression } from "../syntax/expression/AndExpression";
+import { Multiplication } from "../syntax/expression/multiplicative/Multiplication";
+import { Subtraction } from "../syntax/expression/additive/Subtraction";
+import { Exponentiation } from "../syntax/expression/Exponentiation";
+import { LogicalNegation } from "../syntax/expression/negation/LogicalNegation";
+import { OrExpression } from "../syntax/expression/OrExpression";
+import { NotEqualComparison } from "../syntax/expression/comparison/NotEqualComparison";
+import { EqualComparison } from "../syntax/expression/comparison/EqualComparison";
+import { LesserEqualComparison } from "../syntax/expression/comparison/LesserEqualComparison";
+import { LesserComparison } from "../syntax/expression/comparison/LesserComparison";
+import { GreaterComparison } from "../syntax/expression/comparison/GreaterComparison";
+import { Modulo } from "../syntax/expression/multiplicative/Modulo";
+import { IntDivision } from "../syntax/expression/multiplicative/IntDivision";
 
 export class PrinterVisitator implements Visitator {
     indent: number
@@ -173,6 +189,141 @@ export class PrinterVisitator implements Visitator {
         arg.expression.accept(this)
         this.indent -= this.indent_inc
     }
+
+    visitAddition(add: Addition) {
+        this.print(`Addition: \n`)
+        this.indent += this.indent_inc
+        add.left.accept(this)
+        add.right.accept(this)
+        this.indent -= this.indent_inc
+    }
+
+    visitAndExpression(and: AndExpression){
+        this.print(`Conjunction: \n`)
+        this.indent += this.indent_inc
+        and.left.accept(this)
+        and.right.accept(this)
+        this.indent -= this.indent_inc
+    }
+
+    visitDivision(div: Division){
+        this.print(`Division: \n`)
+        this.indent += this.indent_inc
+        div.left.accept(this)
+        div.right.accept(this)
+        this.indent -= this.indent_inc
+    }
+
+    visitMultiplication(mult: Multiplication){
+        this.print(`Multiplication: \n`)
+        this.indent += this.indent_inc
+        mult.left.accept(this)
+        mult.right.accept(this)
+        this.indent -= this.indent_inc
+    }
+
+    visitSubtraction(sub: Subtraction){
+        this.print(`Subtraction: \n`)
+        this.indent += this.indent_inc
+        sub.left.accept(this)
+        sub.right.accept(this)
+        this.indent -= this.indent_inc
+    }
+
+    visitExponentiation(exp: Exponentiation){
+        this.print(`Exponentiation: \n`)
+        this.indent += this.indent_inc
+        exp.left.accept(this)
+        exp.right.accept(this)
+        this.indent -= this.indent_inc
+    }
+
+    visitLogicalNegation(l_neg: LogicalNegation){
+        this.print(`Logical Negation: \n`)
+        this.indent += this.indent_inc
+        l_neg.expr.accept(this)
+        this.indent -= this.indent_inc
+    }
+
+    visitOrExpression(or: OrExpression){
+        this.print(`Disjunction: \n`)
+        this.indent += this.indent_inc
+        or.left.accept(this)
+        or.right.accept(this)
+        this.indent -= this.indent_inc
+    }
+
+    visitNegation(neg: Negation){
+        this.print(`Negation: \n`)
+        this.indent += this.indent_inc
+        neg.expr.accept(this)
+        this.indent -= this.indent_inc
+    }
+
+    visitIntDivision(int_div: IntDivision){
+        this.print(`Integer Division: \n`)
+        this.indent += this.indent_inc
+        int_div.left.accept(this)
+        int_div.right.accept(this)
+        this.indent -= this.indent_inc
+    }
+
+    visitModulo(mod: Modulo){
+        this.print(`Modulo: \n`)
+        this.indent += this.indent_inc
+        mod.left.accept(this)
+        mod.right.accept(this)
+        this.indent -= this.indent_inc
+    }
+
+    visitGreaterComparison(comp: OrExpression){
+        this.print(`Greater Comparison: \n`)
+        this.indent += this.indent_inc
+        comp.left.accept(this)
+        comp.right.accept(this)
+        this.indent -= this.indent_inc
+    }
+
+    visitGreaterEqualComparison(comp: GreaterComparison){
+        this.print(`Greater or Equal Comparison: \n`)
+        this.indent += this.indent_inc
+        comp.left.accept(this)
+        comp.right.accept(this)
+        this.indent -= this.indent_inc
+    }
+
+    visitLesserComparison(comp: LesserComparison){
+        this.print(`Lesser Comparison: \n`)
+        this.indent += this.indent_inc
+        comp.left.accept(this)
+        comp.right.accept(this)
+        this.indent -= this.indent_inc
+    }
+
+    visitLesserEqualComparison(comp: LesserEqualComparison){
+        this.print(`Lesser or Equal Comparison: \n`)
+        this.indent += this.indent_inc
+        comp.left.accept(this)
+        comp.right.accept(this)
+        this.indent -= this.indent_inc
+    }
+
+    visitEqualComparison(comp: EqualComparison){
+        this.print(`Equal Comparison: \n`)
+        this.indent += this.indent_inc
+        comp.left.accept(this)
+        comp.right.accept(this)
+        this.indent -= this.indent_inc
+    }
+
+    visitNotEqualComparison(comp: NotEqualComparison){
+        this.print(`Not Equal Comparison: \n`)
+        this.indent += this.indent_inc
+        comp.left.accept(this)
+        comp.right.accept(this)
+        this.indent -= this.indent_inc
+    }
+
 
     print(mess: string){
         process.stdout.write('|' + '-'.repeat(this.indent) + mess);

@@ -1,6 +1,6 @@
-import { Visitable } from "../../visitator/Visitable";
-import { Visitator } from "../../visitator/Visitator";
-import { Expression } from "./Expression";
+import { Visitable } from "../../../visitator/Visitable";
+import { Visitator } from "../../../visitator/Visitator";
+import { Expression } from "../Expression";
 
 export class Constant implements Expression {
     value: number | string | boolean;

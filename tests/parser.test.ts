@@ -2,11 +2,29 @@ import { ErrorHandler } from '../src/error/ErrorHandler';
 import { LexerImp } from '../src/lexer/LexerImp';
 import { ParserImp } from '../src/parser/ParserImp';
 import { StringReader } from '../src/source/Reader';
+import { AndExpression } from '../src/syntax/expression/AndExpression';
 import { Argument } from '../src/syntax/expression/Argument';
-import { Constant } from '../src/syntax/expression/Constant';
-import { FunCall } from '../src/syntax/expression/FunCall';
-import { Identifier } from '../src/syntax/expression/Identifier';
-import { MemberAccess } from '../src/syntax/expression/MemberAccess';
+import { Exponentiation } from '../src/syntax/expression/Exponentiation';
+import { OrExpression } from '../src/syntax/expression/OrExpression';
+import { Addition } from '../src/syntax/expression/additive/Addition';
+import { Subtraction } from '../src/syntax/expression/additive/Subtraction';
+import { EqualComparison } from '../src/syntax/expression/comparison/EqualComparison';
+import { GreaterComparison } from '../src/syntax/expression/comparison/GreaterComparison';
+import { GreaterEqualComparison } from '../src/syntax/expression/comparison/GreaterEqualComparison';
+import { LesserComparison } from '../src/syntax/expression/comparison/LesserComparison';
+import { LesserEqualComparison } from '../src/syntax/expression/comparison/LesserEqualComparison';
+import { NotEqualComparison } from '../src/syntax/expression/comparison/NotEqualComparison';
+import { Division } from '../src/syntax/expression/multiplicative/Division';
+import { IntDivision } from '../src/syntax/expression/multiplicative/IntDivision';
+import { Modulo } from '../src/syntax/expression/multiplicative/Modulo';
+import { Multiplication } from '../src/syntax/expression/multiplicative/Multiplication';
+import { LogicalNegation } from '../src/syntax/expression/negation/LogicalNegation';
+import { Negation } from '../src/syntax/expression/negation/Negation';
+import { Constant } from '../src/syntax/expression/primary/Constant';
+import { ParenthExpression } from '../src/syntax/expression/primary/ParenthExpression';
+import { FunCall } from '../src/syntax/expression/primary/object_access/FunCall';
+import { Identifier } from '../src/syntax/expression/primary/object_access/Identifier';
+import { MemberAccess } from '../src/syntax/expression/primary/object_access/MemberAccess';
 import { AssignStatement } from '../src/syntax/statement/AssignStatement';
 import { IfStatement } from '../src/syntax/statement/IfStatement';
 import { WhileStatement } from '../src/syntax/statement/WhileStatement';
@@ -866,11 +884,905 @@ describe('Parser class integration tests:', () => {
     expect(parser.did_raise_error()).toBe(false);
   });
 
+  test('64. Parser should succesfully parse simple addition', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5+10;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <Addition>assign.right
+    let left = <Constant>addition.left
+    let right = <Constant>addition.right
+    let left_val = left.value
+    let right_val = right.value
 
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(left).not.toBe(null);
+    expect(right).not.toBe(null);
+    expect(left_val).toBe(5);
+    expect(right_val).toBe(10);
+    expect(parser.did_raise_error()).toBe(false);
+  });
 
+  test('65. Parser should succesfully parse compound addition', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5+10+15;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <Addition>assign.right
+    let left = <Addition>addition.left
+    let const1 = <Constant>addition.right
+    let const2 = <Constant>left.right
+    let const3 = <Constant>left.left
 
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(const1.value).toBe(15);
+    expect(const2.value).toBe(10);
+    expect(const3.value).toBe(5);
+    expect(parser.did_raise_error()).toBe(false);
+  });
 
+  test('66. Missing expression after addition should raise crit-error', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5+;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('67. Parser should succesfully parse simple subtraction', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5-10;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <Subtraction>assign.right
+    let left = <Constant>addition.left
+    let right = <Constant>addition.right
+    let left_val = left.value
+    let right_val = right.value
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(left).not.toBe(null);
+    expect(right).not.toBe(null);
+    expect(left_val).toBe(5);
+    expect(right_val).toBe(10);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('68. Parser should succesfully parse compound subtraction', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5-10-15;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <Subtraction>assign.right
+    let left = <Subtraction>addition.left
+    let const1 = <Constant>addition.right
+    let const2 = <Constant>left.right
+    let const3 = <Constant>left.left
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(const1.value).toBe(15);
+    expect(const2.value).toBe(10);
+    expect(const3.value).toBe(5);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('69. Missing expression after subtraction should raise crit-error', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5-;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('70. Parser should succesfully parse simple multiplication', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5*10;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <Multiplication>assign.right
+    let left = <Constant>addition.left
+    let right = <Constant>addition.right
+    let left_val = left.value
+    let right_val = right.value
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(left).not.toBe(null);
+    expect(right).not.toBe(null);
+    expect(left_val).toBe(5);
+    expect(right_val).toBe(10);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('71. Parser should succesfully parse compound multiplication', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5*10*15;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <Multiplication>assign.right
+    let left = <Multiplication>addition.left
+    let const1 = <Constant>addition.right
+    let const2 = <Constant>left.right
+    let const3 = <Constant>left.left
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(const1.value).toBe(15);
+    expect(const2.value).toBe(10);
+    expect(const3.value).toBe(5);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('72. Missing expression after multiplication should raise crit-error', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5*;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('73. Parser should succesfully parse simple division', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5/10;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <Division>assign.right
+    let left = <Constant>addition.left
+    let right = <Constant>addition.right
+    let left_val = left.value
+    let right_val = right.value
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(left).not.toBe(null);
+    expect(right).not.toBe(null);
+    expect(left_val).toBe(5);
+    expect(right_val).toBe(10);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('74. Parser should succesfully parse compound division', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5/10/15;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <Division>assign.right
+    let left = <Division>addition.left
+    let const1 = <Constant>addition.right
+    let const2 = <Constant>left.right
+    let const3 = <Constant>left.left
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(const1.value).toBe(15);
+    expect(const2.value).toBe(10);
+    expect(const3.value).toBe(5);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('75. Missing expression after division should raise crit-error', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5/;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('76. Parser should succesfully parse simple integer division', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5//10;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <IntDivision>assign.right
+    let left = <Constant>addition.left
+    let right = <Constant>addition.right
+    let left_val = left.value
+    let right_val = right.value
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(left).not.toBe(null);
+    expect(right).not.toBe(null);
+    expect(left_val).toBe(5);
+    expect(right_val).toBe(10);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('77. Parser should succesfully parse compound integer division', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5//10//15;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <IntDivision>assign.right
+    let left = <IntDivision>addition.left
+    let const1 = <Constant>addition.right
+    let const2 = <Constant>left.right
+    let const3 = <Constant>left.left
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(const1.value).toBe(15);
+    expect(const2.value).toBe(10);
+    expect(const3.value).toBe(5);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('78. Missing expression after integer division should raise crit-error', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5//;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('76. Parser should succesfully parse simple modulo', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5%10;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <Modulo>assign.right
+    let left = <Constant>addition.left
+    let right = <Constant>addition.right
+    let left_val = left.value
+    let right_val = right.value
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(left).not.toBe(null);
+    expect(right).not.toBe(null);
+    expect(left_val).toBe(5);
+    expect(right_val).toBe(10);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('77. Parser should succesfully parse compound modulo', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5%10%15;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <Modulo>assign.right
+    let left = <Modulo>addition.left
+    let const1 = <Constant>addition.right
+    let const2 = <Constant>left.right
+    let const3 = <Constant>left.left
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(const1.value).toBe(15);
+    expect(const2.value).toBe(10);
+    expect(const3.value).toBe(5);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('78. Missing expression after modulo should raise crit-error', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5%;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('79. Parser should succesfully parse simple disjunction', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5 || 10;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <OrExpression>assign.right
+    let left = <Constant>addition.left
+    let right = <Constant>addition.right
+    let left_val = left.value
+    let right_val = right.value
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(left).not.toBe(null);
+    expect(right).not.toBe(null);
+    expect(left_val).toBe(5);
+    expect(right_val).toBe(10);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('80. Parser should succesfully parse compound disjunction', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5 || 10 || 15;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <OrExpression>assign.right
+    let left = <OrExpression>addition.left
+    let const1 = <Constant>addition.right
+    let const2 = <Constant>left.right
+    let const3 = <Constant>left.left
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(const1.value).toBe(15);
+    expect(const2.value).toBe(10);
+    expect(const3.value).toBe(5);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('81. Missing expression after disjunction should raise crit-error', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5 ||;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('82. Parser should succesfully parse simple conjunction', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5 && 10;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <AndExpression>assign.right
+    let left = <Constant>addition.left
+    let right = <Constant>addition.right
+    let left_val = left.value
+    let right_val = right.value
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(left).not.toBe(null);
+    expect(right).not.toBe(null);
+    expect(left_val).toBe(5);
+    expect(right_val).toBe(10);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('83. Parser should succesfully parse compound conjunction', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5 && 10 && 15;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <AndExpression>assign.right
+    let left = <AndExpression>addition.left
+    let const1 = <Constant>addition.right
+    let const2 = <Constant>left.right
+    let const3 = <Constant>left.left
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(const1.value).toBe(15);
+    expect(const2.value).toBe(10);
+    expect(const3.value).toBe(5);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('84. Missing expression after conjunction should raise crit-error', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5 &&;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('85. Parser should succesfully parse simple conjunction', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5 && 10;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <AndExpression>assign.right
+    let left = <Constant>addition.left
+    let right = <Constant>addition.right
+    let left_val = left.value
+    let right_val = right.value
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(left).not.toBe(null);
+    expect(right).not.toBe(null);
+    expect(left_val).toBe(5);
+    expect(right_val).toBe(10);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('86. Parser should succesfully parse compound conjunction', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5 && 10 && 15;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <AndExpression>assign.right
+    let left = <AndExpression>addition.left
+    let const1 = <Constant>addition.right
+    let const2 = <Constant>left.right
+    let const3 = <Constant>left.left
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(const1.value).toBe(15);
+    expect(const2.value).toBe(10);
+    expect(const3.value).toBe(5);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('87. Missing expression after conjunction should raise crit-error', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5 &&;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('88. Parser should succesfully parse simple exponentiation', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5^10;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <Exponentiation>assign.right
+    let left = <Constant>addition.left
+    let right = <Constant>addition.right
+    let left_val = left.value
+    let right_val = right.value
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(left).not.toBe(null);
+    expect(right).not.toBe(null);
+    expect(left_val).toBe(5);
+    expect(right_val).toBe(10);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('89. Parser should succesfully parse compound exponentiation', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5^10^15;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <Exponentiation>assign.right
+    let left = <Exponentiation>addition.left
+    let const1 = <Constant>addition.right
+    let const2 = <Constant>left.right
+    let const3 = <Constant>left.left
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(const1.value).toBe(15);
+    expect(const2.value).toBe(10);
+    expect(const3.value).toBe(5);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('90. Missing expression after exponentiation should raise crit-error', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5 ^;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('91. Parser should succesfully parse simple greater comparison', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5>10;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <GreaterComparison>assign.right
+    let left = <Constant>addition.left
+    let right = <Constant>addition.right
+    let left_val = left.value
+    let right_val = right.value
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(left).not.toBe(null);
+    expect(right).not.toBe(null);
+    expect(left_val).toBe(5);
+    expect(right_val).toBe(10);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('92. Parser should raise crit-error while encountering too many greater comparison', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5>10>15;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('93. Missing expression after greater comparison should raise crit-error', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5 >;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('94. Parser should succesfully parse simple greater equal comparison', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5>=10;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <GreaterEqualComparison>assign.right
+    let left = <Constant>addition.left
+    let right = <Constant>addition.right
+    let left_val = left.value
+    let right_val = right.value
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(left).not.toBe(null);
+    expect(right).not.toBe(null);
+    expect(left_val).toBe(5);
+    expect(right_val).toBe(10);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('95. Parser should raise crit-error while encountering too many greater equal comparison', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5>=10>=15;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('96. Missing expression after greater equal comparison should raise crit-error', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5 >=;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('97. Parser should succesfully parse simple lesser comparison', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5<10;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <LesserComparison>assign.right
+    let left = <Constant>addition.left
+    let right = <Constant>addition.right
+    let left_val = left.value
+    let right_val = right.value
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(left).not.toBe(null);
+    expect(right).not.toBe(null);
+    expect(left_val).toBe(5);
+    expect(right_val).toBe(10);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('98. Parser should raise crit-error while encountering too many lesser comparison', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5<10<15;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('99. Missing expression after lesser comparison should raise crit-error', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5<;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('100. Parser should succesfully parse simple lesser equal comparison', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5<=10;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <LesserEqualComparison>assign.right
+    let left = <Constant>addition.left
+    let right = <Constant>addition.right
+    let left_val = left.value
+    let right_val = right.value
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(left).not.toBe(null);
+    expect(right).not.toBe(null);
+    expect(left_val).toBe(5);
+    expect(right_val).toBe(10);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('101. Parser should raise crit-error while encountering too many lesser equal comparison', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5<=10<=15;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('102. Missing lesser equal comparison after exponentiation should raise crit-error', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5 <=;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('103. Parser should succesfully parse simple equal comparison', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5==10;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <EqualComparison>assign.right
+    let left = <Constant>addition.left
+    let right = <Constant>addition.right
+    let left_val = left.value
+    let right_val = right.value
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(left).not.toBe(null);
+    expect(right).not.toBe(null);
+    expect(left_val).toBe(5);
+    expect(right_val).toBe(10);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('104. Parser should raise crit-error while encountering too many equal comparison', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5==10==15;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('105. Missing expression after equal comparison should raise crit-error', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5 ==;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('106. Parser should succesfully parse simple not equal comparison', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5!=10;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <NotEqualComparison>assign.right
+    let left = <Constant>addition.left
+    let right = <Constant>addition.right
+    let left_val = left.value
+    let right_val = right.value
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(left).not.toBe(null);
+    expect(right).not.toBe(null);
+    expect(left_val).toBe(5);
+    expect(right_val).toBe(10);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('107. Parser should raise crit-error while encountering too many not equal comparison', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5!=10!=15;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('108. Missing not equal comparison after exponentiation should raise crit-error', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5 !=;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('109. Parser should raise crit-error while encountering too many comparisons', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident=5!=10==15;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('110. Parser should succesfully parse simple negation', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident = -10;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <Negation>assign.right;
+    let const_ = <Constant>addition.expr;
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(const_.value).toBe(10);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('111. Parser should succesfully parse simple logical negation', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident = !true;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let addition = <LogicalNegation>assign.right;
+    let const_ = <Constant>addition.expr;
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(const_.value).toBe(true);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('112. Missing expression after negation should raise crit-error', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident = -;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('113. Missing expression after logical negation should raise crit-error', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident= !;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+
+    const parse = () => {
+      parser.parse()
+    };
+
+  expect(parse).toThrow();
+  expect(mock_exit).toHaveBeenCalledWith(0);
+  });
+
+  test('106. Parser should succesfully parse simple parenthesis expression', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident= (5+10);   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let parenth = <ParenthExpression>assign.right
+    let addition = <Addition>parenth.expression
+    let left = <Constant>addition.left
+    let right = <Constant>addition.right
+    let left_val = left.value
+    let right_val = right.value
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(left).not.toBe(null);
+    expect(right).not.toBe(null);
+    expect(left_val).toBe(5);
+    expect(right_val).toBe(10);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('106. Parser should succesfully parse simple parenthesis expression', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident= (5+10;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let parenth = <ParenthExpression>assign.right
+    let addition = <Addition>parenth.expression
+    let left = <Constant>addition.left
+    let right = <Constant>addition.right
+    let left_val = left.value
+    let right_val = right.value
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(left).not.toBe(null);
+    expect(right).not.toBe(null);
+    expect(left_val).toBe(5);
+    expect(right_val).toBe(10);
+    expect(parser.did_raise_error()).toBe(true);
+  });
+
+  test('106. Parser should succesfully parse compound parenthesis expression', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   ident = (5+10)*15;   }"), error_handler)
+    var parser: ParserImp = new ParserImp(lexer, error_handler);
+    let program = parser.parse()
+    let assign = <AssignStatement>program.functions['fun'].block.statements[0];
+    let mult = <Multiplication> assign.right
+    let parenth = <ParenthExpression>mult.left
+    let right_mult = <Constant>mult.right
+    let addition = <Addition>parenth.expression
+    let left_add = <Constant>addition.left
+    let right_add = <Constant>addition.right
+
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(left_add).not.toBe(null);
+    expect(right_add).not.toBe(null);
+    expect(left_add.value).toBe(5);
+    expect(right_add.value).toBe(10);
+    expect(right_mult.value).toBe(15);
+    expect(parser.did_raise_error()).toBe(false);
+  });
 });
-
-
-

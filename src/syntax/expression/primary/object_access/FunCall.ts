@@ -1,6 +1,6 @@
-import { Visitator } from "../../visitator/Visitator";
-import { Statement } from "../statement/Statement";
-import { Argument } from "./Argument";
+import { Visitator } from "../../../../visitator/Visitator";
+import { Statement } from "../../../statement/Statement";
+import { Argument } from "../../Argument";
 import { ObjectAccess } from "./ObjectAccess";
 
 export class FunCall implements ObjectAccess, Statement {

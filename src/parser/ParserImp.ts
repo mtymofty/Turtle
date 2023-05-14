@@ -12,18 +12,35 @@ import { ContinueStatement } from "../syntax/statement/ContinueStatement";
 import { ErrorType, WarningType } from "../error/ErrorType";
 import { ErrorUtils } from "../error/ErrorUtils";
 import { IfStatement } from "../syntax/statement/IfStatement";
-import { Identifier } from "../syntax/expression/Identifier";
+import { Identifier } from "../syntax/expression/primary/object_access/Identifier";
 import { UnlessStatement } from "../syntax/statement/UnlessStatement";
 import { WhileStatement } from "../syntax/statement/WhileStatement";
 import { Expression } from "../syntax/expression/Expression";
 import { Parser } from "./Parser";
 import { AssignStatement } from "../syntax/statement/AssignStatement";
-import { ObjectAccess } from "../syntax/expression/ObjectAccess";
-import { MemberAccess } from "../syntax/expression/MemberAccess";
+import { ObjectAccess } from "../syntax/expression/primary/object_access/ObjectAccess";
+import { MemberAccess } from "../syntax/expression/primary/object_access/MemberAccess";
 import { Argument } from "../syntax/expression/Argument";
-import { FunCall } from "../syntax/expression/FunCall";
-import { Constant } from "../syntax/expression/Constant";
-import { ParenthExpression } from "../syntax/expression/ParenthExpression";
+import { FunCall } from "../syntax/expression/primary/object_access/FunCall";
+import { Constant } from "../syntax/expression/primary/Constant";
+import { ParenthExpression } from "../syntax/expression/primary/ParenthExpression";
+import { OrExpression } from "../syntax/expression/OrExpression";
+import { Negation } from "../syntax/expression/negation/Negation";
+import { LogicalNegation } from "../syntax/expression/negation/LogicalNegation";
+import { Exponentiation } from "../syntax/expression/Exponentiation";
+import { Multiplication } from "../syntax/expression/multiplicative/Multiplication";
+import { IntDivision } from "../syntax/expression/multiplicative/IntDivision";
+import { Division } from "../syntax/expression/multiplicative/Division";
+import { Modulo } from "../syntax/expression/multiplicative/Modulo";
+import { Addition } from "../syntax/expression/additive/Addition";
+import { Subtraction } from "../syntax/expression/additive/Subtraction";
+import { EqualComparison } from "../syntax/expression/comparison/EqualComparison";
+import { NotEqualComparison } from "../syntax/expression/comparison/NotEqualComparison";
+import { GreaterComparison } from "../syntax/expression/comparison/GreaterComparison";
+import { GreaterEqualComparison } from "../syntax/expression/comparison/GreaterEqualComparison";
+import { LesserComparison } from "../syntax/expression/comparison/LesserComparison";
+import { LesserEqualComparison } from "../syntax/expression/comparison/LesserEqualComparison";
+import { AndExpression } from "../syntax/expression/AndExpression";
 
 export class ParserImp implements Parser {
     lexer: Lexer
@@ -307,9 +324,7 @@ export class ParserImp implements Parser {
         if(!this.consumeIf(TokenType.L_BRACE_OP)) {
             return new Identifier(name)
         }
-        console.log(TokenType[this.lexer.token.type])
         var args = this.parseArgs()
-        console.log(TokenType[this.lexer.token.type])
 
         if(!this.consumeIf(TokenType.R_BRACE_OP)) {
             this.print_error(ErrorType.ARGS_RIGHT_BRACE_ERR, [])
@@ -374,12 +389,155 @@ export class ParserImp implements Parser {
         return new ContinueStatement();
     }
 
+    // expression = disjunction;
     parseExpression(): Expression {
-        return this.parseObjectAccessStatement() || this.parseConstant() || this.parseParenthExpression()
+        return this.parseDisjunction()
+    }
+
+    // disjunction = conjunction, {or_op, conjunction};
+    parseDisjunction() {
+        var left: Expression = this.parseConjunction()
+        if (left == null) {
+            return null
+        }
+
+        while(this.consumeIf(TokenType.OR_OP)) {
+            var right: Expression = this.parseConjunction()
+            if (right == null) {
+                this.raise_critical_error(ErrorType.OR_EXPR_ERR, [])
+            }
+            left = new OrExpression(left, right)
+        }
+        return left
+    }
+
+    // conjunction = comparison, {and_op, comparison};
+    parseConjunction() {
+        var left: Expression = this.parseComparison()
+        if (left == null) {
+            return null
+        }
+
+        while(this.consumeIf(TokenType.AND_OP)) {
+            var right: Expression = this.parseComparison()
+            if (right == null) {
+                this.raise_critical_error(ErrorType.AND_EXPR_ERR, [])
+            }
+            left = new AndExpression(left, right)
+        }
+        return left
+    }
+
+    // comparison = sum, [rel_op, sum];
+    parseComparison() {
+        var left: Expression = this.parseSumOrSubtr()
+        if (left == null) {
+            return null
+        }
+
+        var type: TokenType;
+        if(type = this.getTypeIfComp()) {
+            var right: Expression = this.parseSumOrSubtr()
+            if (right == null) {
+                this.raise_critical_error(ErrorType.COMP_EXPR_ERR, [])
+            }
+            left = this.getCompExpr(type, left, right)
+        }
+
+        if(this.isTokenCond()) {
+            this.raise_critical_error(ErrorType.COMP_NUM_ERR, [])
+        }
+
+
+        return left
+    }
+
+    // sum_sub = term, {add_op, term};
+    parseSumOrSubtr() {
+        var left: Expression = this.parseMultiplicationOrDivision()
+        if (left == null) {
+            return null
+        }
+
+        var type: TokenType;
+        while(type = this.getTypeIfAdd()) {
+            var right: Expression = this.parseMultiplicationOrDivision()
+            if (right == null) {
+                this.raise_add_error(type)
+            }
+            left = this.getAddExpr(type, left, right)
+        }
+        return left
+    }
+
+    // term = factor, {mult_op, factor};
+    parseMultiplicationOrDivision() {
+        var left: Expression = this.parseNegation()
+        if (left == null) {
+            return null
+        }
+
+        var type: TokenType;
+        while(type = this.getTypeIfMult()) {
+            var right: Expression = this.parseNegation()
+            if (right == null) {
+                this.raise_mult_error(type)
+            }
+            left = this.getMultExpr(type, left, right)
+        }
+        return left
+    }
+
+    // factor = [unar_op], power;
+    parseNegation() {
+        var negation = false
+        var log_negation = false
+        if (this.consumeIf(TokenType.NOT_OP)) {
+            log_negation = true
+        } else if (this.consumeIf(TokenType.MINUS_OP)) {
+                negation = true
+        }
+
+        var expr: Expression = this.parseExponentiation()
+
+        if ((negation || log_negation) && (expr == null)) {
+            this.raise_critical_error(ErrorType.NEG_EXPR_ERR, [])
+        }
+
+        if(negation) {
+            return new Negation(expr)
+        } else if (log_negation) {
+            return new LogicalNegation(expr)
+        } else {
+            return expr
+        }
+    }
+
+    // power = primary, {pow_op, primary};
+    parseExponentiation() {
+        var left: Expression = this.parsePrimary()
+        if (left == null) {
+            return null
+        }
+
+        while(this.consumeIf(TokenType.POW_OP)) {
+            var right: Expression = this.parsePrimary()
+            if (right == null) {
+                this.raise_critical_error(ErrorType.EXP_EXPR_ERR, [])
+            }
+            left = new Exponentiation(left, right)
+        }
+        return left
+    }
+
+    // primary = parenth_expression | constant | obj_access;
+    parsePrimary() {
+        return this.parseObjectAccessStatement()
+               || this.parseConstant()
+               || this.parseParenthExpression()
     }
 
     parseConstant() {
-        console.log('parsuje const')
         if (this.lexer.token.type !== TokenType.INTEGER
             && this.lexer.token.type !== TokenType.DOUBLE
             && this.lexer.token.type !== TokenType.STRING
@@ -447,6 +605,126 @@ export class ParserImp implements Parser {
         return true
     }
 
+    getTypeIfComp(): TokenType {
+        let type: TokenType = this.lexer.token.type;
+        if(!this.consumeIfComp()) {
+            return null
+        }
+        return type
+    }
+
+    consumeIfComp(): boolean {
+        if (!this.isTokenCond()) {
+            return false
+        }
+        this.lexer.next_token()
+        return true
+    }
+
+    isTokenCond(): boolean {
+        if (this.lexer.token.type !== TokenType.EQ_OP
+            && this.lexer.token.type !== TokenType.NEQ_OP
+            && this.lexer.token.type !== TokenType.GRT_OP
+            && this.lexer.token.type !== TokenType.GRT_EQ_OP
+            && this.lexer.token.type !== TokenType.LESS_OP
+            && this.lexer.token.type !== TokenType.LESS_EQ_OP) {
+            return false
+        }
+        return true
+    }
+
+    getCompExpr(type: TokenType, left: Expression, right: Expression) {
+        if (type == TokenType.EQ_OP) {
+            return new EqualComparison(left, right)
+        } else if (type == TokenType.NEQ_OP) {
+            return new NotEqualComparison(left, right)
+        } else if (type == TokenType.GRT_OP) {
+            return new GreaterComparison(left, right)
+        } else if (type == TokenType.GRT_EQ_OP) {
+            return new GreaterEqualComparison(left, right)
+        } else if (type == TokenType.LESS_OP) {
+            return new LesserComparison(left, right)
+        } else if (type == TokenType.LESS_EQ_OP) {
+            return new LesserEqualComparison(left, right)
+        }
+    }
+
+    getTypeIfMult(): TokenType {
+        let type: TokenType = this.lexer.token.type;
+        if(!this.consumeIfMult()) {
+            return null
+        }
+        return type
+    }
+
+    consumeIfMult(): boolean {
+        if (this.lexer.token.type !== TokenType.MULT_OP
+            && this.lexer.token.type !== TokenType.DIV_OP
+            && this.lexer.token.type !== TokenType.DIV_INT_OP
+            && this.lexer.token.type !== TokenType.MOD_OP) {
+            return false
+        }
+        this.lexer.next_token()
+        return true
+    }
+
+    raise_mult_error(type: TokenType) {
+        if (type == TokenType.MULT_OP) {
+            this.raise_critical_error(ErrorType.MULT_EXPR_ERR, [])
+        } else if (type == TokenType.DIV_INT_OP) {
+            this.raise_critical_error(ErrorType.INTDIV_EXPR_ERR, [])
+        } else if (type == TokenType.DIV_OP) {
+            this.raise_critical_error(ErrorType.DIV_EXPR_ERR, [])
+        } else if (type == TokenType.MOD_OP) {
+            this.raise_critical_error(ErrorType.MODULO_EXPR_ERR, [])
+        }
+    }
+
+    getMultExpr(type: TokenType, left: Expression, right: Expression) {
+        if (type == TokenType.MULT_OP) {
+            return new Multiplication(left, right)
+        } else if (type == TokenType.DIV_INT_OP) {
+            return new IntDivision(left, right)
+        } else if (type == TokenType.DIV_OP) {
+            return new Division(left, right)
+        } else if (type == TokenType.MOD_OP) {
+            return new Modulo(left, right)
+        }
+    }
+
+    getTypeIfAdd(): TokenType {
+        let type: TokenType = this.lexer.token.type;
+        if(!this.consumeIfAdd()) {
+            return null
+        }
+        return type
+    }
+
+    consumeIfAdd(): boolean {
+        if (this.lexer.token.type !== TokenType.ADD_OP
+            && this.lexer.token.type !== TokenType.MINUS_OP) {
+            return false
+        }
+        this.lexer.next_token()
+        return true
+    }
+
+    raise_add_error(type: TokenType) {
+        if (type == TokenType.ADD_OP) {
+            this.raise_critical_error(ErrorType.ADD_EXPR_ERR, [])
+        } else if (type == TokenType.MINUS_OP) {
+            this.raise_critical_error(ErrorType.SUB_EXPR_ERR, [])
+        }
+    }
+
+    getAddExpr(type: TokenType, left: Expression, right: Expression) {
+        if (type == TokenType.ADD_OP) {
+            return new Addition(left, right)
+        } else if (type == TokenType.MINUS_OP) {
+            return new Subtraction(left, right)
+        }
+    }
+
     print_warning(warn_type: WarningType, args: string[]): void {
         this.error_handler.print_warning(this.lexer.get_reader(), this.lexer.token.pos, warn_type, args)
     }
@@ -460,11 +738,6 @@ export class ParserImp implements Parser {
         this.print_error(err_type, args);
         this.error_handler.abort(this.lexer.get_reader());
     }
-
-    // print_error_no_code(err_type: ErrorType, args: string[]): void {
-    //     this.error_handler.print_err_mess(ErrorUtils.error_mess[ErrorType.PATH_ERR]);
-    //     this.raised_error = true;
-    // }
 
     did_raise_error(): boolean {
         return this.raised_error;

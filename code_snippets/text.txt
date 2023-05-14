@@ -1,10 +1,4 @@
 func fun(){
-    a = (5);
-    a = (5.5);
-    a = (true);
-    a = (false);
-    a = ("string");
-    a = (abc);
-    a = (null);
-
+    a = 5*((10+15)/10);
+    a = 5*10+15;
 }
