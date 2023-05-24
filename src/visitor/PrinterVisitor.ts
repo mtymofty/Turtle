@@ -11,7 +11,6 @@ import { ParenthExpression } from "../syntax/expression/primary/ParenthExpressio
 import { AssignStatement } from "../syntax/statement/AssignStatement";
 import { MemberAccess } from "../syntax/expression/primary/object_access/MemberAccess";
 import { FunCall } from "../syntax/expression/primary/object_access/FunCall";
-import { Argument } from "../syntax/expression/Argument";
 import { Addition } from "../syntax/expression/additive/Addition";
 import { Negation } from "../syntax/expression/negation/Negation";
 import { Division } from "../syntax/expression/multiplicative/Division";
@@ -203,13 +202,6 @@ export class PrinterVisitor implements Visitor {
         this.indent += this.indent_inc
         acc.left.accept(this)
         acc.right.accept(this)
-        this.indent -= this.indent_inc
-    }
-
-    visitArgument(arg: Argument): void {
-        this.print(`Argument: \n`)
-        this.indent += this.indent_inc
-        arg.expression.accept(this)
         this.indent -= this.indent_inc
     }
 

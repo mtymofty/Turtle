@@ -1,13 +1,12 @@
 import { Visitor } from "../../../../visitor/Visitor";
-import { Statement } from "../../../statement/Statement";
-import { Argument } from "../../Argument";
+import { Expression } from "../../Expression";
 import { ObjectAccess } from "./ObjectAccess";
 
-export class FunCall implements ObjectAccess, Statement {
+export class FunCall implements ObjectAccess {
     fun_name: string;
-    args: Array<Argument>
+    args: Array<Expression>
 
-    constructor(name: string, args: Array<Argument>) {
+    constructor(name: string, args: Array<Expression>) {
         this.fun_name = name;
         this.args = args;
     }

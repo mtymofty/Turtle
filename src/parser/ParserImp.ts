@@ -19,9 +19,7 @@ import { Parser } from "./Parser";
 import { AssignStatement } from "../syntax/statement/AssignStatement";
 import { ObjectAccess } from "../syntax/expression/primary/object_access/ObjectAccess";
 import { MemberAccess } from "../syntax/expression/primary/object_access/MemberAccess";
-import { Argument } from "../syntax/expression/Argument";
 import { FunCall } from "../syntax/expression/primary/object_access/FunCall";
-import { ParenthExpression } from "../syntax/expression/primary/ParenthExpression";
 import { OrExpression } from "../syntax/expression/OrExpression";
 import { Negation } from "../syntax/expression/negation/Negation";
 import { LogicalNegation } from "../syntax/expression/negation/LogicalNegation";
@@ -69,7 +67,6 @@ export class ParserImp implements Parser {
             this.raise_critical_error(ErrorType.INVALID_TOKEN_ERR, [TokenType[this.lexer.token.type]])
         }
 
-        this.lexer.get_reader().abort();
         return new Program(functions)
     }
 
@@ -344,7 +341,7 @@ export class ParserImp implements Parser {
         if(!this.consumeIf(TokenType.L_BRACE_OP)) {
             return new Identifier(name)
         }
-        var args: Argument[] = this.parseArgs()
+        var args: Expression[] = this.parseArgs()
 
         if(!this.consumeIf(TokenType.R_BRACE_OP)) {
             this.print_error(ErrorType.ARGS_RIGHT_BRACE_ERR, [])
@@ -354,9 +351,9 @@ export class ParserImp implements Parser {
     }
 
     // args = expression, {",", expression};
-    parseArgs(): Argument[] {
-        var args: Argument[] = new Array<Argument>();
-        var arg: Argument = this.parseArg();
+    parseArgs(): Expression[] {
+        var args: Expression[] = new Array<Expression>();
+        var arg: Expression = this.parseArg();
 
         if (arg !== null) {
             args.push(arg)
@@ -374,12 +371,12 @@ export class ParserImp implements Parser {
     }
 
     // expression
-    parseArg(): Argument {
+    parseArg(): Expression {
         var arg: Expression = this.parseExpression();
         if (arg == null) {
             return null
         }
-        return new Argument(arg)
+        return arg
     }
 
     // return_statement    = 'return', [expression];
@@ -537,19 +534,26 @@ export class ParserImp implements Parser {
 
     // power = primary, {pow_op, primary};
     parseExponentiation(): Expression {
-        var left: Expression = this.parsePrimary()
-        if (left == null) {
+        var node: Expression = this.parsePrimary()
+        if (node == null) {
             return null
         }
+        var nodes = []
+        nodes.push(node)
 
         while(this.consumeIf(TokenType.POW_OP)) {
-            var right: Expression = this.parsePrimary()
-            if (right == null) {
+            var node: Expression = this.parsePrimary()
+            if (node == null) {
                 this.raise_critical_error(ErrorType.EXP_EXPR_ERR, [])
             }
-            left = new Exponentiation(left, right)
+            nodes.push(node)
         }
-        return left
+        var right = nodes.pop()
+        nodes.reverse().forEach(node => {
+            right = new Exponentiation(node, right)
+
+        });
+        return right
     }
 
     // primary = parenth_expression | constant | obj_access;
@@ -610,7 +614,7 @@ export class ParserImp implements Parser {
             this.print_error(ErrorType.PARENTH_RIGHT_BRACE_ERR, [])
         }
 
-        return new ParenthExpression(expr)
+        return expr
     }
 
     tryAddFunction(functions: Record<string, FunctionDef>, fun_name: string, fun_def: FunctionDef): void {
@@ -630,7 +634,6 @@ export class ParserImp implements Parser {
         }
         parameters.push(param)
     }
-
 
     consumeIf(type: TokenType): boolean {
         if (this.lexer.token.type !== type) {

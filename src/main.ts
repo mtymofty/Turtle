@@ -19,3 +19,4 @@ var program: Program = parser.parse()
 
 var printer: PrinterVisitor = new PrinterVisitor();
 program.accept(printer)
+file_reader.abort()
