@@ -4,7 +4,6 @@ import { ContinueStatement } from "../syntax/statement/ContinueStatement";
 import { FunctionDef } from "../syntax/FunctionDef";
 import { Identifier } from "../syntax/expression/primary/object_access/Identifier";
 import { IfStatement } from "../syntax/statement/IfStatement";
-import { Parameter } from "../syntax/Parameter";
 import { Program } from "../syntax/Program";
 import { ReturnStatement } from "../syntax/statement/ReturnStatement";
 import { UnlessStatement } from "../syntax/statement/UnlessStatement";
@@ -30,8 +29,7 @@ import { LesserComparison } from "../syntax/expression/comparison/LesserComparis
 import { LesserEqualComparison } from "../syntax/expression/comparison/LesserEqualComparison";
 import { EqualComparison } from "../syntax/expression/comparison/EqualComparison";
 import { NotEqualComparison } from "../syntax/expression/comparison/NotEqualComparison";
-import { TrueConstant } from "../syntax/expression/primary/constant/TrueConstant";
-import { FalseConstant } from "../syntax/expression/primary/constant/FalseConstant";
+import { BooleanConstant } from "../syntax/expression/primary/constant/BooleanConstant";
 import { NullConstant } from "../syntax/expression/primary/constant/NullConstant";
 import { StringConstant } from "../syntax/expression/primary/constant/StringConstant";
 import { IntConstant } from "../syntax/expression/primary/constant/IntConstant";
@@ -41,7 +39,6 @@ export interface Visitor {
     indent: number
     visitProgram(node: Program): void;
     visitFunctionDef(node: FunctionDef): void;
-    visitParam(node: Parameter): void;
     visitBlock(node: Block): void;
     visitIfStatement(node: IfStatement): void;
     visitUnlessStatement(node: UnlessStatement): void;
@@ -71,8 +68,7 @@ export interface Visitor {
     visitLesserEqualComparison(node: LesserEqualComparison): void;
     visitEqualComparison(node: EqualComparison): void;
     visitNotEqualComparison(node: NotEqualComparison): void;
-    visitTrueConstant(node: TrueConstant): void;
-    visitFalseConstant(node: FalseConstant): void;
+    visitTrueConstant(node: BooleanConstant): void;
     visitNullConstant(node: NullConstant): void;
     visitStringConstant(node: StringConstant): void;
     visitIntConstant(node: IntConstant): void;

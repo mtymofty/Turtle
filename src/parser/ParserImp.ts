@@ -2,7 +2,6 @@ import { ErrorHandler } from "../error/ErrorHandler";
 import { Lexer } from "../lexer/Lexer";
 import { Block } from "../syntax/Block";
 import { FunctionDef } from "../syntax/FunctionDef";
-import { Parameter } from "../syntax/Parameter";
 import { Program } from "../syntax/Program";
 import { TokenType } from "../token/TokenType";
 import { Statement } from "../syntax/statement/Statement";
@@ -37,8 +36,7 @@ import { GreaterEqualComparison } from "../syntax/expression/comparison/GreaterE
 import { LesserComparison } from "../syntax/expression/comparison/LesserComparison";
 import { LesserEqualComparison } from "../syntax/expression/comparison/LesserEqualComparison";
 import { AndExpression } from "../syntax/expression/AndExpression";
-import { TrueConstant } from "../syntax/expression/primary/constant/TrueConstant";
-import { FalseConstant } from "../syntax/expression/primary/constant/FalseConstant";
+import { BooleanConstant } from "../syntax/expression/primary/constant/BooleanConstant";
 import { NullConstant } from "../syntax/expression/primary/constant/NullConstant";
 import { IntConstant } from "../syntax/expression/primary/constant/IntConstant";
 import { DoubleConstant } from "../syntax/expression/primary/constant/DoubleConstant";
@@ -87,7 +85,7 @@ export class ParserImp implements Parser {
             this.print_error(ErrorType.PARAMS_LEFT_BRACE_ERR, [])
         }
 
-        var fun_params: Array<Parameter> = this.parseParams()
+        var fun_params: Array<Identifier> = this.parseParams()
 
         if(!this.consumeIf(TokenType.R_BRACE_OP)) {
             this.print_error(ErrorType.PARAMS_RIGHT_BRACE_ERR, [])
@@ -104,9 +102,9 @@ export class ParserImp implements Parser {
     }
 
     // params = identifier, {",", identifier}
-    parseParams(): Parameter[]  {
-        var parameters: Parameter[] = new Array<Parameter>();
-        var param: Parameter = this.parseParameter();
+    parseParams(): Identifier[]  {
+        var parameters: Identifier[] = new Array<Identifier>();
+        var param: Identifier = this.parseParameter();
 
         if (param !== null) {
             this.tryAddParam(parameters, param)
@@ -126,12 +124,12 @@ export class ParserImp implements Parser {
     }
 
     // identifier
-    parseParameter(): Parameter {
+    parseParameter(): Identifier {
         if (this.lexer.token.type !== TokenType.IDENTIFIER) {
             return null
         }
         var param_name: string = this.lexer.token.value.toString()
-        return new Parameter(param_name)
+        return new Identifier(param_name)
 
     }
 
@@ -578,11 +576,11 @@ export class ParserImp implements Parser {
 
         if (this.lexer.token.type === TokenType.TRUE_KW) {
             this.lexer.next_token()
-            return new TrueConstant()
+            return new BooleanConstant(true)
         }
         if (this.lexer.token.type === TokenType.FALSE_KW) {
             this.lexer.next_token()
-            return new FalseConstant()
+            return new BooleanConstant(false)
         }
         if (this.lexer.token.type === TokenType.NULL_KW) {
             this.lexer.next_token()
@@ -625,7 +623,7 @@ export class ParserImp implements Parser {
         functions[fun_name] = fun_def
     }
 
-    tryAddParam(parameters: Array<Parameter>, param: Parameter): void {
+    tryAddParam(parameters: Array<Identifier>, param: Identifier): void {
         for(let parameter of parameters){
             if (parameter.name == param.name){
                 this.print_error(ErrorType.PARAM_NAME_ERR, [param.name])

@@ -19,7 +19,6 @@ import { Modulo } from '../src/syntax/expression/multiplicative/Modulo';
 import { Multiplication } from '../src/syntax/expression/multiplicative/Multiplication';
 import { LogicalNegation } from '../src/syntax/expression/negation/LogicalNegation';
 import { Negation } from '../src/syntax/expression/negation/Negation';
-import { ParenthExpression } from '../src/syntax/expression/primary/ParenthExpression';
 import { FunCall } from '../src/syntax/expression/primary/object_access/FunCall';
 import { Identifier } from '../src/syntax/expression/primary/object_access/Identifier';
 import { MemberAccess } from '../src/syntax/expression/primary/object_access/MemberAccess';
@@ -28,8 +27,7 @@ import { IfStatement } from '../src/syntax/statement/IfStatement';
 import { WhileStatement } from '../src/syntax/statement/WhileStatement';
 import { IntConstant } from '../src/syntax/expression/primary/constant/IntConstant';
 import { DoubleConstant } from '../src/syntax/expression/primary/constant/DoubleConstant';
-import { TrueConstant } from '../src/syntax/expression/primary/constant/TrueConstant';
-import { FalseConstant } from '../src/syntax/expression/primary/constant/FalseConstant';
+import { BooleanConstant } from '../src/syntax/expression/primary/constant/BooleanConstant';
 import { NullConstant } from '../src/syntax/expression/primary/constant/NullConstant';
 import { StringConstant } from '../src/syntax/expression/primary/constant/StringConstant';
 
@@ -596,7 +594,7 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
 
     var assign = <AssignStatement>program.functions['fun'].block.statements[0];
-    var const_ = <TrueConstant>assign.right;
+    var const_ = <BooleanConstant>assign.right;
 
 
     expect(Object.keys(program.functions).length).toBe(1);
@@ -612,7 +610,7 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
 
     var assign = <AssignStatement>program.functions['fun'].block.statements[0];
-    var const_ = <FalseConstant>assign.right;
+    var const_ = <BooleanConstant>assign.right;
 
 
     expect(Object.keys(program.functions).length).toBe(1);
@@ -741,7 +739,7 @@ describe('Parser class integration tests:', () => {
     expect(program.functions['fun'].block.statements.length).toBe(1);
     expect(fun.fun_name).toBe('fun');
     expect(fun.args.length).toBe(1);
-    expect(fun.args[0] instanceof TrueConstant).toBe(true);
+    expect(fun.args[0] instanceof BooleanConstant).toBe(true);
     expect(parser.did_raise_error()).toBe(false);
   });
 
@@ -755,9 +753,9 @@ describe('Parser class integration tests:', () => {
     expect(program.functions['fun'].block.statements.length).toBe(1);
     expect(fun.fun_name).toBe('fun');
     expect(fun.args.length).toBe(3);
-    expect(fun.args[0] instanceof TrueConstant).toBe(true);
-    expect(fun.args[1] instanceof TrueConstant).toBe(true);
-    expect(fun.args[2] instanceof TrueConstant).toBe(true);
+    expect(fun.args[0] instanceof BooleanConstant).toBe(true);
+    expect(fun.args[1] instanceof BooleanConstant).toBe(true);
+    expect(fun.args[2] instanceof BooleanConstant).toBe(true);
     expect(parser.did_raise_error()).toBe(false);
   });
 
@@ -771,7 +769,7 @@ describe('Parser class integration tests:', () => {
     expect(program.functions['fun'].block.statements.length).toBe(1);
     expect(fun.fun_name).toBe('fun');
     expect(fun.args.length).toBe(1);
-    expect(fun.args[0] instanceof FalseConstant).toBe(true);
+    expect(fun.args[0] instanceof BooleanConstant).toBe(true);
     expect(parser.did_raise_error()).toBe(false);
   });
 
@@ -785,9 +783,9 @@ describe('Parser class integration tests:', () => {
     expect(program.functions['fun'].block.statements.length).toBe(1);
     expect(fun.fun_name).toBe('fun');
     expect(fun.args.length).toBe(3);
-    expect(fun.args[0] instanceof FalseConstant).toBe(true);
-    expect(fun.args[1] instanceof FalseConstant).toBe(true);
-    expect(fun.args[2] instanceof FalseConstant).toBe(true);
+    expect(fun.args[0] instanceof BooleanConstant).toBe(true);
+    expect(fun.args[1] instanceof BooleanConstant).toBe(true);
+    expect(fun.args[2] instanceof BooleanConstant).toBe(true);
     expect(parser.did_raise_error()).toBe(false);
   });
 
@@ -1615,7 +1613,7 @@ describe('Parser class integration tests:', () => {
     let program = parser.parse()
     let assign = <AssignStatement>program.functions['fun'].block.statements[0];
     let addition = <LogicalNegation>assign.right;
-    let _ = <TrueConstant>addition.expr;
+    let _ = <BooleanConstant>addition.expr;
 
     expect(Object.keys(program.functions).length).toBe(1);
     expect(program.functions['fun'].block.statements.length).toBe(1);

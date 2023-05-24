@@ -1,1 +1,1 @@
-func fun(){   ident=5^10^15; }
+func fun(abc, def){   ident=true + false; }

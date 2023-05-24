@@ -2,7 +2,6 @@ import { Block } from "../syntax/Block";
 import { FunctionDef } from "../syntax/FunctionDef";
 import { Identifier } from "../syntax/expression/primary/object_access/Identifier";
 import { IfStatement } from "../syntax/statement/IfStatement";
-import { Parameter } from "../syntax/Parameter";
 import { Program } from "../syntax/Program";
 import { UnlessStatement } from "../syntax/statement/UnlessStatement";
 import { WhileStatement } from "../syntax/statement/WhileStatement";
@@ -27,8 +26,7 @@ import { LesserComparison } from "../syntax/expression/comparison/LesserComparis
 import { GreaterComparison } from "../syntax/expression/comparison/GreaterComparison";
 import { Modulo } from "../syntax/expression/multiplicative/Modulo";
 import { IntDivision } from "../syntax/expression/multiplicative/IntDivision";
-import { TrueConstant } from "../syntax/expression/primary/constant/TrueConstant";
-import { FalseConstant } from "../syntax/expression/primary/constant/FalseConstant";
+import { BooleanConstant } from "../syntax/expression/primary/constant/BooleanConstant";
 import { DoubleConstant } from "../syntax/expression/primary/constant/DoubleConstant";
 import { IntConstant } from "../syntax/expression/primary/constant/IntConstant";
 import { StringConstant } from "../syntax/expression/primary/constant/StringConstant";
@@ -63,10 +61,6 @@ export class PrinterVisitor implements Visitor {
 
         fun.block.accept(this)
         this.indent -= this.indent_inc
-    }
-
-    visitParam(param: Parameter): void {
-        this.print(`Parameter (${param.name})\n`)
     }
 
     visitBlock(block: Block): void {
@@ -165,12 +159,8 @@ export class PrinterVisitor implements Visitor {
         this.print(`Null Constant: null\n`)
     }
 
-    visitFalseConstant(_: FalseConstant): void {
-        this.print(`False Constant: false\n`)
-    }
-
-    visitTrueConstant(_: TrueConstant): void {
-        this.print(`True Constant: true\n`)
+    visitTrueConstant(constant: BooleanConstant): void {
+        this.print(`Boolean Constant: ${constant.value}\n`)
     }
 
     visitParenthExpression(p_ex: ParenthExpression): void {
