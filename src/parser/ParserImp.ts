@@ -74,28 +74,19 @@ export class ParserImp implements Parser {
             return false
         }
 
-        if (this.lexer.token.type !== TokenType.IDENTIFIER) {
-            this.raise_critical_error(ErrorType.FUN_IDENTIFIER_ERR, [])
-        }
+        this.mustBe(TokenType.IDENTIFIER, ErrorType.FUN_IDENTIFIER_ERR, []);
 
         var fun_name: string = this.lexer.token.value.toString()
         this.lexer.next_token()
 
-        if(!this.consumeIf(TokenType.L_BRACE_OP)) {
-            this.print_error(ErrorType.PARAMS_LEFT_BRACE_ERR, [])
-        }
+        this.shouldBe(TokenType.L_BRACE_OP, ErrorType.PARAMS_LEFT_BRACE_ERR, []);
 
         var fun_params: Array<Identifier> = this.parseParams()
 
-        if(!this.consumeIf(TokenType.R_BRACE_OP)) {
-            this.print_error(ErrorType.PARAMS_RIGHT_BRACE_ERR, [])
-        }
+        this.shouldBe(TokenType.R_BRACE_OP, ErrorType.PARAMS_RIGHT_BRACE_ERR, []);
 
         var fun_block: Block = this.parseBlock(false)
-
-        if (fun_block === null) {
-            this.raise_critical_error(ErrorType.FUN_BLOCK_ERR, [])
-        }
+        this.critErrorIfNull(fun_block, ErrorType.FUN_BLOCK_ERR, [])
 
         this.tryAddFunction(functions, fun_name, new FunctionDef(fun_name, fun_params, fun_block))
         return true
@@ -157,9 +148,7 @@ export class ParserImp implements Parser {
             }
         }
 
-        if(!this.consumeIf(TokenType.R_C_BRACE_OP)) {
-            this.print_error(ErrorType.BLOCK_END_ERR, [])
-        }
+        this.shouldBe(TokenType.R_C_BRACE_OP, ErrorType.BLOCK_END_ERR, []);
 
         return new Block(statements)
     }
@@ -183,10 +172,7 @@ export class ParserImp implements Parser {
             return null
         }
 
-        if(!this.consumeIf(TokenType.TERMINATOR)) {
-            this.print_error(ErrorType.TERMINATOR_ERR, [])
-        }
-
+        this.shouldBe(TokenType.TERMINATOR, ErrorType.TERMINATOR_ERR, []);
         return statement;
     }
 
@@ -199,10 +185,7 @@ export class ParserImp implements Parser {
             return null
         }
 
-        if(!this.consumeIf(TokenType.TERMINATOR)) {
-            this.print_error(ErrorType.TERMINATOR_ERR, [])
-        }
-
+        this.shouldBe(TokenType.TERMINATOR, ErrorType.TERMINATOR_ERR, []);
         return statement;
     }
 
@@ -217,35 +200,22 @@ export class ParserImp implements Parser {
             }
         }
 
-        if(!this.consumeIf(TokenType.L_BRACE_OP)) {
-            this.print_error(ErrorType.IF_LEFT_BRACE_ERR, [])
-        }
+        this.shouldBe(TokenType.L_BRACE_OP, ErrorType.IF_LEFT_BRACE_ERR, []);
 
         var condition: Expression = this.parseExpression();
+        this.critErrorIfNull(condition, ErrorType.IF_COND_ERR, [])
 
-        if (condition == null) {
-            this.raise_critical_error(ErrorType.IF_COND_ERR, [])
-        }
-
-        if(!this.consumeIf(TokenType.R_BRACE_OP)) {
-            this.print_error(ErrorType.IF_RIGHT_BRACE_ERR, [])
-        }
+        this.shouldBe(TokenType.R_BRACE_OP, ErrorType.IF_RIGHT_BRACE_ERR, []);
 
         var if_block: Block = this.parseBlock(false)
-
-        if (if_block == null) {
-            this.raise_critical_error(ErrorType.IF_BLOCK_ERR, [])
-        }
+        this.critErrorIfNull(if_block, ErrorType.IF_BLOCK_ERR, [])
 
         if(!this.consumeIf(TokenType.ELSE_KW)) {
             return new IfStatement(condition, if_block, null)
         }
 
         var else_block: Block = this.parseBlock(false)
-
-        if (else_block == null) {
-            this.raise_critical_error(ErrorType.ELSE_BLOCK_ERR, [])
-        }
+        this.critErrorIfNull(else_block, ErrorType.ELSE_BLOCK_ERR, [])
 
         if (is_unless) {
             return new UnlessStatement(condition, if_block, else_block)
@@ -260,25 +230,15 @@ export class ParserImp implements Parser {
             return null
         }
 
-        if(!this.consumeIf(TokenType.L_BRACE_OP)) {
-            this.print_error(ErrorType.WHILE_LEFT_BRACE_ERR, [])
-        }
+        this.shouldBe(TokenType.L_BRACE_OP, ErrorType.WHILE_LEFT_BRACE_ERR, []);
 
         var condition: Expression = this.parseExpression();
+        this.critErrorIfNull(condition, ErrorType.WHILE_COND_ERR, [])
 
-        if (condition === null) {
-            this.raise_critical_error(ErrorType.WHILE_COND_ERR, [])
-        }
-
-        if(!this.consumeIf(TokenType.R_BRACE_OP)) {
-            this.print_error(ErrorType.WHILE_RIGHT_BRACE_ERR, [])
-        }
+        this.shouldBe(TokenType.R_BRACE_OP, ErrorType.WHILE_RIGHT_BRACE_ERR, []);
 
         var loop_block: Block = this.parseBlock(true)
-
-        if (loop_block === null) {
-            this.raise_critical_error(ErrorType.WHILE_BLOCK_ERR, [])
-        }
+        this.critErrorIfNull(loop_block, ErrorType.WHILE_BLOCK_ERR, [])
 
         return new WhileStatement(condition, loop_block)
     }
@@ -298,10 +258,7 @@ export class ParserImp implements Parser {
         }
 
         var right: Expression = this.parseExpression()
-
-        if (right == null) {
-            this.raise_critical_error(ErrorType.ASSIGN_ERR, [])
-        }
+        this.critErrorIfNull(right, ErrorType.ASSIGN_ERR, [])
 
         if (left instanceof Identifier  || (left instanceof MemberAccess && left.right instanceof Identifier)) {
             return new AssignStatement(left, right)
@@ -319,9 +276,8 @@ export class ParserImp implements Parser {
 
         while(this.consumeIf(TokenType.DOT_OP)) {
             var right: ObjectAccess = this.parseMember()
-            if (right == null) {
-                this.raise_critical_error(ErrorType.OBJ_ACC_ERR, [])
-            }
+            this.critErrorIfNull(right, ErrorType.OBJ_ACC_ERR, [])
+
             left = new MemberAccess(left, right)
         }
         return left
@@ -341,9 +297,7 @@ export class ParserImp implements Parser {
         }
         var args: Expression[] = this.parseArgs()
 
-        if(!this.consumeIf(TokenType.R_BRACE_OP)) {
-            this.print_error(ErrorType.ARGS_RIGHT_BRACE_ERR, [])
-        }
+        this.shouldBe(TokenType.R_BRACE_OP, ErrorType.ARGS_RIGHT_BRACE_ERR, []);
 
         return new FunCall(name, args)
     }
@@ -421,9 +375,7 @@ export class ParserImp implements Parser {
 
         while(this.consumeIf(TokenType.OR_OP)) {
             var right: Expression = this.parseConjunction()
-            if (right == null) {
-                this.raise_critical_error(ErrorType.OR_EXPR_ERR, [])
-            }
+            this.critErrorIfNull(right, ErrorType.OR_EXPR_ERR, [])
             left = new OrExpression(left, right)
         }
         return left
@@ -438,9 +390,7 @@ export class ParserImp implements Parser {
 
         while(this.consumeIf(TokenType.AND_OP)) {
             var right: Expression = this.parseComparison()
-            if (right == null) {
-                this.raise_critical_error(ErrorType.AND_EXPR_ERR, [])
-            }
+            this.critErrorIfNull(right, ErrorType.OR_EXPR_ERR, [])
             left = new AndExpression(left, right)
         }
         return left
@@ -456,9 +406,7 @@ export class ParserImp implements Parser {
         var type: TokenType;
         if(type = this.getTypeIfComp()) {
             var right: Expression = this.parseSumOrSubtr()
-            if (right == null) {
-                this.raise_critical_error(ErrorType.COMP_EXPR_ERR, [])
-            }
+            this.critErrorIfNull(right, ErrorType.COMP_EXPR_ERR, [])
             left = this.getCompExpr(type, left, right)
         }
 
@@ -541,15 +489,12 @@ export class ParserImp implements Parser {
 
         while(this.consumeIf(TokenType.POW_OP)) {
             var node: Expression = this.parsePrimary()
-            if (node == null) {
-                this.raise_critical_error(ErrorType.EXP_EXPR_ERR, [])
-            }
+            this.critErrorIfNull(node, ErrorType.EXP_EXPR_ERR, [])
             nodes.push(node)
         }
         var right = nodes.pop()
         nodes.reverse().forEach(node => {
             right = new Exponentiation(node, right)
-
         });
         return right
     }
@@ -605,13 +550,8 @@ export class ParserImp implements Parser {
         if(!this.consumeIf(TokenType.L_BRACE_OP)) {
             return null
         }
-
         var expr: Expression = this.parseExpression()
-
-        if(!this.consumeIf(TokenType.R_BRACE_OP)) {
-            this.print_error(ErrorType.PARENTH_RIGHT_BRACE_ERR, [])
-        }
-
+        this.shouldBe(TokenType.R_BRACE_OP, ErrorType.PARENTH_RIGHT_BRACE_ERR, []);
         return expr
     }
 
@@ -777,5 +717,23 @@ export class ParserImp implements Parser {
 
     did_raise_error(): boolean {
         return this.raised_error;
+    }
+
+    private mustBe(tok_type: TokenType, err_type: ErrorType, args: string[]) {
+        if (this.lexer.token.type !== tok_type) {
+            this.raise_critical_error(err_type, args);
+        }
+    }
+
+    private shouldBe(tok_type: TokenType, err_type: ErrorType, args: string[]) {
+        if(!this.consumeIf(tok_type)) {
+            this.print_error(err_type, args)
+        }
+    }
+
+    private critErrorIfNull(node: Expression | Statement, err_type: ErrorType, args: string[]) {
+        if (node == null) {
+            this.raise_critical_error(err_type, args)
+        }
     }
 }

@@ -6,7 +6,6 @@ import { Program } from "../syntax/Program";
 import { UnlessStatement } from "../syntax/statement/UnlessStatement";
 import { WhileStatement } from "../syntax/statement/WhileStatement";
 import { Visitor } from "./Visitor";
-import { ParenthExpression } from "../syntax/expression/primary/ParenthExpression";
 import { AssignStatement } from "../syntax/statement/AssignStatement";
 import { MemberAccess } from "../syntax/expression/primary/object_access/MemberAccess";
 import { FunCall } from "../syntax/expression/primary/object_access/FunCall";
@@ -161,13 +160,6 @@ export class PrinterVisitor implements Visitor {
 
     visitTrueConstant(constant: BooleanConstant): void {
         this.print(`Boolean Constant: ${constant.value}\n`)
-    }
-
-    visitParenthExpression(p_ex: ParenthExpression): void {
-        this.print(`Parenthesis Expression: \n`)
-        this.indent += this.indent_inc
-        p_ex.expression.accept(this)
-        this.indent -= this.indent_inc
     }
 
     visitAssignStatement(stmnt: AssignStatement): void {

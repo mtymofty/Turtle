@@ -1,1 +1,3 @@
-func fun(abc, def){   ident=true + false; }
+func fun(abc, def){
+    ident = 5 + 10;
+}

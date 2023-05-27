@@ -8,7 +8,6 @@ import { Program } from "../syntax/Program";
 import { ReturnStatement } from "../syntax/statement/ReturnStatement";
 import { UnlessStatement } from "../syntax/statement/UnlessStatement";
 import { WhileStatement } from "../syntax/statement/WhileStatement";
-import { ParenthExpression } from "../syntax/expression/primary/ParenthExpression";
 import { AssignStatement } from "../syntax/statement/AssignStatement";
 import { FunCall } from "../syntax/expression/primary/object_access/FunCall";
 import { MemberAccess } from "../syntax/expression/primary/object_access/MemberAccess";
@@ -47,7 +46,6 @@ export interface Visitor {
     visitBreak(node: BreakStatement): void;
     visitContinue(node: ContinueStatement): void;
     visitIdentifier(node: Identifier): void;
-    visitParenthExpression(node: ParenthExpression): void;
     visitAssignStatement(node: AssignStatement): void;
     visitFunCall(node: FunCall): void;
     visitMemberAccess(node: MemberAccess): void;
