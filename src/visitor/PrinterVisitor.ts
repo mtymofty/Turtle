@@ -30,6 +30,9 @@ import { DoubleConstant } from "../syntax/expression/primary/constant/DoubleCons
 import { IntConstant } from "../syntax/expression/primary/constant/IntConstant";
 import { StringConstant } from "../syntax/expression/primary/constant/StringConstant";
 import { NullConstant } from "../syntax/expression/primary/constant/NullConstant";
+import { ReturnStatement } from "../syntax/statement/ReturnStatement";
+import { BreakStatement } from "../syntax/statement/BreakStatement";
+import { ContinueStatement } from "../syntax/statement/ContinueStatement";
 
 export class PrinterVisitor implements Visitor {
     indent: number
@@ -51,7 +54,7 @@ export class PrinterVisitor implements Visitor {
     }
 
     visitFunctionDef(fun: FunctionDef): void {
-        this.print(`Function definition (${fun.name}):\n`)
+        this.print(`Function definition [line: ${fun.position.line} col: ${fun.position.col}] (${fun.name}):\n`)
 
         this.indent += this.indent_inc
         fun.parameters.forEach(param => {
@@ -63,7 +66,7 @@ export class PrinterVisitor implements Visitor {
     }
 
     visitBlock(block: Block): void {
-        this.print("Block:\n")
+        this.print(`Block [line: ${block.position.line} col: ${block.position.col}]:\n`)
 
         this.indent += this.indent_inc
         block.statements.forEach(statement => {
@@ -73,7 +76,7 @@ export class PrinterVisitor implements Visitor {
     }
 
     visitIfStatement(statement: IfStatement): void {
-        this.print(`If statement:\n`)
+        this.print(`If statement [line: ${statement.position.line} col: ${statement.position.col}]:\n`)
 
         this.indent += this.indent_inc
         this.visitCondStatement(statement)
@@ -81,7 +84,7 @@ export class PrinterVisitor implements Visitor {
     }
 
     visitUnlessStatement(statement: UnlessStatement): void {
-        this.print(`Unless statement:\n`)
+        this.print(`Unless statement [line: ${statement.position.line} col: ${statement.position.col}]:\n`)
 
         this.indent += this.indent_inc
         this.visitCondStatement(statement)
@@ -108,7 +111,7 @@ export class PrinterVisitor implements Visitor {
     }
 
     visitWhileStatement(statement: WhileStatement): void {
-        this.print(`While statement:\n`)
+        this.print(`While statement [line: ${statement.position.line} col: ${statement.position.col}]:\n`)
 
         this.indent += this.indent_inc
 
@@ -125,45 +128,44 @@ export class PrinterVisitor implements Visitor {
         this.indent -= this.indent_inc
     }
 
-    visitReturn(): void {
-        this.print("Return\n")
+    visitReturn(ret: ReturnStatement): void {
+        this.print(`Return [line: ${ret.position.line} col: ${ret.position.col}]\n`)
     }
 
-    visitBreak(): void {
-        this.print("Break\n")
+    visitBreak(br: BreakStatement): void {
+        this.print(`Break [line: ${br.position.line} col: ${br.position.col}]\n`)
     }
 
-    visitContinue(): void {
-        this.print("Continue\n")
+    visitContinue(cont: ContinueStatement): void {
+        this.print(`Continue [line: ${cont.position.line} col: ${cont.position.col}]\n`)
     }
 
     visitIdentifier(identifier: Identifier): void {
-        this.print(`Identifier: ${identifier.name}\n`)
+        this.print(`Identifier [line: ${identifier.position.line} col: ${identifier.position.col}]: ${identifier.name}\n`)
     }
 
-
     visitDoubleConstant(constant: DoubleConstant): void {
-        this.print(`Double Constant: ${constant.value}\n`)
+        this.print(`Double Constant [line: ${constant.position.line} col: ${constant.position.col}]: ${constant.value}\n`)
     }
 
     visitIntConstant(constant: IntConstant): void {
-        this.print(`Integer Constant: ${constant.value}\n`)
+        this.print(`Integer Constant [line: ${constant.position.line} col: ${constant.position.col}]: ${constant.value}\n`)
     }
 
     visitStringConstant(constant: StringConstant): void {
-        this.print(`String Constant: ${constant.value}\n`)
+        this.print(`String Constant [line: ${constant.position.line} col: ${constant.position.col}]: ${constant.value}\n`)
     }
 
-    visitNullConstant(_: NullConstant): void {
-        this.print(`Null Constant: null\n`)
+    visitNullConstant(null_: NullConstant): void {
+        this.print(`Null Constant [line: ${null_.position.line} col: ${null_.position.col}]: null\n`)
     }
 
     visitTrueConstant(constant: BooleanConstant): void {
-        this.print(`Boolean Constant: ${constant.value}\n`)
+        this.print(`Boolean Constant [line: ${constant.position.line} col: ${constant.position.col}]: ${constant.value}\n`)
     }
 
     visitAssignStatement(stmnt: AssignStatement): void {
-        this.print(`AssignStatement: \n`)
+        this.print(`AssignStatement [line: ${stmnt.position.line} col: ${stmnt.position.col}]: \n`)
         this.indent += this.indent_inc
         stmnt.left.accept(this)
         stmnt.right.accept(this)
@@ -171,7 +173,7 @@ export class PrinterVisitor implements Visitor {
     }
 
     visitFunCall(fun_call: FunCall): void {
-        this.print(`FunCall: ${fun_call.fun_name}\n`)
+        this.print(`FunCall [line: ${fun_call.position.line} col: ${fun_call.position.col}]: ${fun_call.fun_name}\n`)
         this.indent += this.indent_inc
         fun_call.args.forEach(arg => {
             arg.accept(this)
@@ -180,7 +182,7 @@ export class PrinterVisitor implements Visitor {
     }
 
     visitMemberAccess(acc: MemberAccess): void {
-        this.print(`MemberAccess: \n`)
+        this.print(`MemberAccess [line: ${acc.position.line} col: ${acc.position.col}]: \n`)
         this.indent += this.indent_inc
         acc.left.accept(this)
         acc.right.accept(this)
@@ -188,7 +190,7 @@ export class PrinterVisitor implements Visitor {
     }
 
     visitAddition(add: Addition): void {
-        this.print(`Addition: \n`)
+        this.print(`Addition [line: ${add.position.line} col: ${add.position.col}]: \n`)
         this.indent += this.indent_inc
         add.left.accept(this)
         add.right.accept(this)
@@ -196,7 +198,7 @@ export class PrinterVisitor implements Visitor {
     }
 
     visitAndExpression(and: AndExpression): void{
-        this.print(`Conjunction: \n`)
+        this.print(`Conjunction [line: ${and.position.line} col: ${and.position.col}]: \n`)
         this.indent += this.indent_inc
         and.left.accept(this)
         and.right.accept(this)
@@ -204,7 +206,7 @@ export class PrinterVisitor implements Visitor {
     }
 
     visitDivision(div: Division): void{
-        this.print(`Division: \n`)
+        this.print(`Division [line: ${div.position.line} col: ${div.position.col}]: \n`)
         this.indent += this.indent_inc
         div.left.accept(this)
         div.right.accept(this)
@@ -212,7 +214,7 @@ export class PrinterVisitor implements Visitor {
     }
 
     visitMultiplication(mult: Multiplication): void{
-        this.print(`Multiplication: \n`)
+        this.print(`Multiplication [line: ${mult.position.line} col: ${mult.position.col}]: \n`)
         this.indent += this.indent_inc
         mult.left.accept(this)
         mult.right.accept(this)
@@ -220,7 +222,7 @@ export class PrinterVisitor implements Visitor {
     }
 
     visitSubtraction(sub: Subtraction): void{
-        this.print(`Subtraction: \n`)
+        this.print(`Subtraction [line: ${sub.position.line} col: ${sub.position.col}]: \n`)
         this.indent += this.indent_inc
         sub.left.accept(this)
         sub.right.accept(this)
@@ -228,7 +230,7 @@ export class PrinterVisitor implements Visitor {
     }
 
     visitExponentiation(exp: Exponentiation): void{
-        this.print(`Exponentiation: \n`)
+        this.print(`Exponentiation [line: ${exp.position.line} col: ${exp.position.col}]: \n`)
         this.indent += this.indent_inc
         exp.left.accept(this)
         exp.right.accept(this)
@@ -236,14 +238,14 @@ export class PrinterVisitor implements Visitor {
     }
 
     visitLogicalNegation(l_neg: LogicalNegation): void{
-        this.print(`Logical Negation: \n`)
+        this.print(`Logical Negation [line: ${l_neg.position.line} col: ${l_neg.position.col}]: \n`)
         this.indent += this.indent_inc
         l_neg.expr.accept(this)
         this.indent -= this.indent_inc
     }
 
     visitOrExpression(or: OrExpression): void{
-        this.print(`Disjunction: \n`)
+        this.print(`Disjunction [line: ${or.position.line} col: ${or.position.col}]: \n`)
         this.indent += this.indent_inc
         or.left.accept(this)
         or.right.accept(this)
@@ -251,14 +253,14 @@ export class PrinterVisitor implements Visitor {
     }
 
     visitNegation(neg: Negation): void{
-        this.print(`Negation: \n`)
+        this.print(`Negation [line: ${neg.position.line} col: ${neg.position.col}]: \n`)
         this.indent += this.indent_inc
         neg.expr.accept(this)
         this.indent -= this.indent_inc
     }
 
     visitIntDivision(int_div: IntDivision): void{
-        this.print(`Integer Division: \n`)
+        this.print(`Integer Division [line: ${int_div.position.line} col: ${int_div.position.col}]: \n`)
         this.indent += this.indent_inc
         int_div.left.accept(this)
         int_div.right.accept(this)
@@ -266,7 +268,7 @@ export class PrinterVisitor implements Visitor {
     }
 
     visitModulo(mod: Modulo): void{
-        this.print(`Modulo: \n`)
+        this.print(`Modulo [line: ${mod.position.line} col: ${mod.position.col}]: \n`)
         this.indent += this.indent_inc
         mod.left.accept(this)
         mod.right.accept(this)
@@ -274,7 +276,7 @@ export class PrinterVisitor implements Visitor {
     }
 
     visitGreaterComparison(comp: OrExpression): void{
-        this.print(`Greater Comparison: \n`)
+        this.print(`Greater Comparison [line: ${comp.position.line} col: ${comp.position.col}]: \n`)
         this.indent += this.indent_inc
         comp.left.accept(this)
         comp.right.accept(this)
@@ -282,7 +284,7 @@ export class PrinterVisitor implements Visitor {
     }
 
     visitGreaterEqualComparison(comp: GreaterComparison): void{
-        this.print(`Greater or Equal Comparison: \n`)
+        this.print(`Greater or Equal Comparison [line: ${comp.position.line} col: ${comp.position.col}]: \n`)
         this.indent += this.indent_inc
         comp.left.accept(this)
         comp.right.accept(this)
@@ -290,7 +292,7 @@ export class PrinterVisitor implements Visitor {
     }
 
     visitLesserComparison(comp: LesserComparison): void{
-        this.print(`Lesser Comparison: \n`)
+        this.print(`Lesser Comparison [line: ${comp.position.line} col: ${comp.position.col}]: \n`)
         this.indent += this.indent_inc
         comp.left.accept(this)
         comp.right.accept(this)
@@ -298,7 +300,7 @@ export class PrinterVisitor implements Visitor {
     }
 
     visitLesserEqualComparison(comp: LesserEqualComparison): void{
-        this.print(`Lesser or Equal Comparison: \n`)
+        this.print(`Lesser or Equal Comparison [line: ${comp.position.line} col: ${comp.position.col}]: \n`)
         this.indent += this.indent_inc
         comp.left.accept(this)
         comp.right.accept(this)
@@ -306,7 +308,7 @@ export class PrinterVisitor implements Visitor {
     }
 
     visitEqualComparison(comp: EqualComparison): void{
-        this.print(`Equal Comparison: \n`)
+        this.print(`Equal Comparison [line: ${comp.position.line} col: ${comp.position.col}]: \n`)
         this.indent += this.indent_inc
         comp.left.accept(this)
         comp.right.accept(this)
@@ -314,7 +316,7 @@ export class PrinterVisitor implements Visitor {
     }
 
     visitNotEqualComparison(comp: NotEqualComparison): void{
-        this.print(`Not Equal Comparison: \n`)
+        this.print(`Not Equal Comparison [line: ${comp.position.line} col: ${comp.position.col}]: \n`)
         this.indent += this.indent_inc
         comp.left.accept(this)
         comp.right.accept(this)

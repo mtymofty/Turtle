@@ -41,6 +41,7 @@ import { NullConstant } from "../syntax/expression/primary/constant/NullConstant
 import { IntConstant } from "../syntax/expression/primary/constant/IntConstant";
 import { DoubleConstant } from "../syntax/expression/primary/constant/DoubleConstant";
 import { StringConstant } from "../syntax/expression/primary/constant/StringConstant";
+import { Position } from "../source/Position";
 
 export class ParserImp implements Parser {
     lexer: Lexer
@@ -70,6 +71,7 @@ export class ParserImp implements Parser {
 
     // fun_def = 'func', identifier, '(', [params], ')', statement_block;
     parseFunDef(functions: Record<string, FunctionDef>): boolean{
+        let pos = this.lexer.token.pos
         if(!this.consumeIf(TokenType.FUN_KW)) {
             return false
         }
@@ -88,7 +90,7 @@ export class ParserImp implements Parser {
         var fun_block: Block = this.parseBlock(false)
         this.critErrorIfNull(fun_block, ErrorType.FUN_BLOCK_ERR, [])
 
-        this.tryAddFunction(functions, fun_name, new FunctionDef(fun_name, fun_params, fun_block))
+        this.tryAddFunction(functions, fun_name, new FunctionDef(fun_name, fun_params, fun_block, pos))
         return true
     }
 
@@ -116,16 +118,18 @@ export class ParserImp implements Parser {
 
     // identifier
     parseParameter(): Identifier {
+        let pos = this.lexer.token.pos
         if (this.lexer.token.type !== TokenType.IDENTIFIER) {
             return null
         }
         var param_name: string = this.lexer.token.value.toString()
-        return new Identifier(param_name)
+        return new Identifier(param_name, pos)
 
     }
 
     // statement_block = '{', {statement}, '}';
     parseBlock(in_loop: boolean): Block {
+        let pos = this.lexer.token.pos
         if(!this.consumeIf(TokenType.L_C_BRACE_OP)) {
             return null
         }
@@ -150,7 +154,7 @@ export class ParserImp implements Parser {
 
         this.shouldBe(TokenType.R_C_BRACE_OP, ErrorType.BLOCK_END_ERR, []);
 
-        return new Block(statements)
+        return new Block(statements, pos)
     }
 
     // statement = simple_statement, terminator
@@ -193,6 +197,7 @@ export class ParserImp implements Parser {
 	//                ['else', statement_block];
 	// if_kw        = 'if' | 'unless';
     parseIfStatement(): Statement {
+        let pos = this.lexer.token.pos
         if(!this.consumeIf(TokenType.IF_KW)) {
             var is_unless: boolean = true
             if(!this.consumeIf(TokenType.UNLESS_KW)) {
@@ -211,21 +216,22 @@ export class ParserImp implements Parser {
         this.critErrorIfNull(if_block, ErrorType.IF_BLOCK_ERR, [])
 
         if(!this.consumeIf(TokenType.ELSE_KW)) {
-            return new IfStatement(condition, if_block, null)
+            return new IfStatement(condition, if_block, null, pos)
         }
 
         var else_block: Block = this.parseBlock(false)
         this.critErrorIfNull(else_block, ErrorType.ELSE_BLOCK_ERR, [])
 
         if (is_unless) {
-            return new UnlessStatement(condition, if_block, else_block)
+            return new UnlessStatement(condition, if_block, else_block, pos)
         }
-        return new IfStatement(condition, if_block, else_block)
+        return new IfStatement(condition, if_block, else_block, pos)
 
     }
 
     // while_statement = 'while', '(', expression, ')', statement_block
     parseWhileStatement(): Statement {
+        let pos = this.lexer.token.pos
         if(!this.consumeIf(TokenType.WHILE_KW)) {
             return null
         }
@@ -240,7 +246,7 @@ export class ParserImp implements Parser {
         var loop_block: Block = this.parseBlock(true)
         this.critErrorIfNull(loop_block, ErrorType.WHILE_BLOCK_ERR, [])
 
-        return new WhileStatement(condition, loop_block)
+        return new WhileStatement(condition, loop_block, pos)
     }
 
     // obj_access, [assign_statement]
@@ -250,6 +256,7 @@ export class ParserImp implements Parser {
             return null
         }
 
+        let pos = this.lexer.token.pos
         if(!this.consumeIf(TokenType.ASSIGN_OP)) {
             if (left instanceof Identifier || (left instanceof MemberAccess && left.right instanceof Identifier)) {
                 this.raise_critical_error(ErrorType.IDENT_MEM_ACCESS_ERR, [])
@@ -261,7 +268,7 @@ export class ParserImp implements Parser {
         this.critErrorIfNull(right, ErrorType.ASSIGN_ERR, [])
 
         if (left instanceof Identifier  || (left instanceof MemberAccess && left.right instanceof Identifier)) {
-            return new AssignStatement(left, right)
+            return new AssignStatement(left, right, pos)
         } else {
             this.raise_critical_error(ErrorType.FUN_METH_CALL_ERR, [])
         }
@@ -274,17 +281,19 @@ export class ParserImp implements Parser {
             return null
         }
 
+        let pos = this.lexer.token.pos
         while(this.consumeIf(TokenType.DOT_OP)) {
             var right: ObjectAccess = this.parseMember()
             this.critErrorIfNull(right, ErrorType.OBJ_ACC_ERR, [])
 
-            left = new MemberAccess(left, right)
+            left = new MemberAccess(left, right, pos)
         }
         return left
     }
 
     // member = identifier, ['(' [args] ')'];
     parseMember(): ObjectAccess {
+        let pos = this.lexer.token.pos
         if (this.lexer.token.type !== TokenType.IDENTIFIER) {
             return null
         }
@@ -292,14 +301,15 @@ export class ParserImp implements Parser {
         var name: string = this.lexer.token.value.toString()
         this.lexer.next_token()
 
+        let pos2 = this.lexer.token.pos
         if(!this.consumeIf(TokenType.L_BRACE_OP)) {
-            return new Identifier(name)
+            return new Identifier(name, pos)
         }
         var args: Expression[] = this.parseArgs()
 
         this.shouldBe(TokenType.R_BRACE_OP, ErrorType.ARGS_RIGHT_BRACE_ERR, []);
 
-        return new FunCall(name, args)
+        return new FunCall(name, args, pos2)
     }
 
     // args = expression, {",", expression};
@@ -333,32 +343,35 @@ export class ParserImp implements Parser {
 
     // return_statement    = 'return', [expression];
     parseReturnStatement(): Statement {
+        let pos = this.lexer.token.pos
         if (this.lexer.token.type !== TokenType.RET_KW) {
             return null
         }
         this.lexer.next_token()
 
-        return new ReturnStatement();
+        return new ReturnStatement(pos);
     }
 
     // 'break'
     parseBreakStatement(): Statement {
+        let pos = this.lexer.token.pos
         if (this.lexer.token.type !== TokenType.BREAK_KW) {
             return null
         }
         this.lexer.next_token()
 
-        return new BreakStatement();
+        return new BreakStatement(pos);
     }
 
     // 'continue'
     parseContinueStatement(): Statement {
+        let pos = this.lexer.token.pos
         if (this.lexer.token.type !== TokenType.CONTINUE_KW) {
             return null
         }
         this.lexer.next_token()
 
-        return new ContinueStatement();
+        return new ContinueStatement(pos);
     }
 
     // expression = disjunction;
@@ -373,10 +386,11 @@ export class ParserImp implements Parser {
             return null
         }
 
+        let pos = this.lexer.token.pos
         while(this.consumeIf(TokenType.OR_OP)) {
             var right: Expression = this.parseConjunction()
             this.critErrorIfNull(right, ErrorType.OR_EXPR_ERR, [])
-            left = new OrExpression(left, right)
+            left = new OrExpression(left, right, pos)
         }
         return left
     }
@@ -388,10 +402,11 @@ export class ParserImp implements Parser {
             return null
         }
 
+        let pos = this.lexer.token.pos
         while(this.consumeIf(TokenType.AND_OP)) {
             var right: Expression = this.parseComparison()
             this.critErrorIfNull(right, ErrorType.OR_EXPR_ERR, [])
-            left = new AndExpression(left, right)
+            left = new AndExpression(left, right, pos)
         }
         return left
     }
@@ -404,10 +419,11 @@ export class ParserImp implements Parser {
         }
 
         var type: TokenType;
+        let pos = this.lexer.token.pos
         if(type = this.getTypeIfComp()) {
             var right: Expression = this.parseSumOrSubtr()
             this.critErrorIfNull(right, ErrorType.COMP_EXPR_ERR, [])
-            left = this.getCompExpr(type, left, right)
+            left = this.getCompExpr(type, left, right, pos)
         }
 
         if(this.isTokenCond()) {
@@ -425,12 +441,13 @@ export class ParserImp implements Parser {
         }
 
         var type: TokenType;
+        let pos = this.lexer.token.pos
         while(type = this.getTypeIfAdd()) {
             var right: Expression = this.parseMultiplicationOrDivision()
             if (right == null) {
                 this.raise_add_error(type)
             }
-            left = this.getAddExpr(type, left, right)
+            left = this.getAddExpr(type, left, right, pos)
         }
         return left
     }
@@ -443,12 +460,13 @@ export class ParserImp implements Parser {
         }
 
         var type: TokenType;
+        let pos = this.lexer.token.pos
         while(type = this.getTypeIfMult()) {
             var right: Expression = this.parseNegation()
             if (right == null) {
                 this.raise_mult_error(type)
             }
-            left = this.getMultExpr(type, left, right)
+            left = this.getMultExpr(type, left, right, pos)
         }
         return left
     }
@@ -457,6 +475,7 @@ export class ParserImp implements Parser {
     parseNegation(): Expression {
         var negation: boolean = false
         var log_negation: boolean = false
+        let pos = this.lexer.token.pos
         if (this.consumeIf(TokenType.NOT_OP)) {
             log_negation = true
         } else if (this.consumeIf(TokenType.MINUS_OP)) {
@@ -470,9 +489,9 @@ export class ParserImp implements Parser {
         }
 
         if(negation) {
-            return new Negation(expr)
+            return new Negation(expr, pos)
         } else if (log_negation) {
-            return new LogicalNegation(expr)
+            return new LogicalNegation(expr, pos)
         } else {
             return expr
         }
@@ -487,6 +506,7 @@ export class ParserImp implements Parser {
         var nodes = []
         nodes.push(node)
 
+        let pos = this.lexer.token.pos
         while(this.consumeIf(TokenType.POW_OP)) {
             var node: Expression = this.parsePrimary()
             this.critErrorIfNull(node, ErrorType.EXP_EXPR_ERR, [])
@@ -494,7 +514,7 @@ export class ParserImp implements Parser {
         }
         var right = nodes.pop()
         nodes.reverse().forEach(node => {
-            right = new Exponentiation(node, right)
+            right = new Exponentiation(node, right, pos)
         });
         return right
     }
@@ -518,30 +538,31 @@ export class ParserImp implements Parser {
         }
 
         var val = this.lexer.token.value
+        let pos = this.lexer.token.pos
 
         if (this.lexer.token.type === TokenType.TRUE_KW) {
             this.lexer.next_token()
-            return new BooleanConstant(true)
+            return new BooleanConstant(true, pos)
         }
         if (this.lexer.token.type === TokenType.FALSE_KW) {
             this.lexer.next_token()
-            return new BooleanConstant(false)
+            return new BooleanConstant(false, pos)
         }
         if (this.lexer.token.type === TokenType.NULL_KW) {
             this.lexer.next_token()
-            return new NullConstant()
+            return new NullConstant(pos)
         }
         if (this.lexer.token.type === TokenType.INTEGER && typeof val === "number") {
             this.lexer.next_token()
-            return new IntConstant(val)
+            return new IntConstant(val, pos)
         }
         if (this.lexer.token.type === TokenType.DOUBLE && typeof val === "number") {
             this.lexer.next_token()
-            return new DoubleConstant(val)
+            return new DoubleConstant(val, pos)
         }
         if (this.lexer.token.type === TokenType.STRING && typeof val === "string") {
             this.lexer.next_token()
-            return new StringConstant(val)
+            return new StringConstant(val, pos)
         }
     }
 
@@ -609,19 +630,19 @@ export class ParserImp implements Parser {
         return true
     }
 
-    getCompExpr(type: TokenType, left: Expression, right: Expression): Expression {
+    getCompExpr(type: TokenType, left: Expression, right: Expression, pos: Position): Expression {
         if (type == TokenType.EQ_OP) {
-            return new EqualComparison(left, right)
+            return new EqualComparison(left, right, pos)
         } else if (type == TokenType.NEQ_OP) {
-            return new NotEqualComparison(left, right)
+            return new NotEqualComparison(left, right, pos)
         } else if (type == TokenType.GRT_OP) {
-            return new GreaterComparison(left, right)
+            return new GreaterComparison(left, right, pos)
         } else if (type == TokenType.GRT_EQ_OP) {
-            return new GreaterEqualComparison(left, right)
+            return new GreaterEqualComparison(left, right, pos)
         } else if (type == TokenType.LESS_OP) {
-            return new LesserComparison(left, right)
+            return new LesserComparison(left, right, pos)
         } else if (type == TokenType.LESS_EQ_OP) {
-            return new LesserEqualComparison(left, right)
+            return new LesserEqualComparison(left, right, pos)
         }
     }
 
@@ -656,15 +677,15 @@ export class ParserImp implements Parser {
         }
     }
 
-    getMultExpr(type: TokenType, left: Expression, right: Expression): Expression {
+    getMultExpr(type: TokenType, left: Expression, right: Expression, pos: Position): Expression {
         if (type == TokenType.MULT_OP) {
-            return new Multiplication(left, right)
+            return new Multiplication(left, right, pos)
         } else if (type == TokenType.DIV_INT_OP) {
-            return new IntDivision(left, right)
+            return new IntDivision(left, right, pos)
         } else if (type == TokenType.DIV_OP) {
-            return new Division(left, right)
+            return new Division(left, right, pos)
         } else if (type == TokenType.MOD_OP) {
-            return new Modulo(left, right)
+            return new Modulo(left, right, pos)
         }
     }
 
@@ -693,11 +714,11 @@ export class ParserImp implements Parser {
         }
     }
 
-    getAddExpr(type: TokenType, left: Expression, right: Expression): Expression {
+    getAddExpr(type: TokenType, left: Expression, right: Expression, pos: Position): Expression {
         if (type == TokenType.ADD_OP) {
-            return new Addition(left, right)
+            return new Addition(left, right, pos)
         } else if (type == TokenType.MINUS_OP) {
-            return new Subtraction(left, right)
+            return new Subtraction(left, right, pos)
         }
     }
 
