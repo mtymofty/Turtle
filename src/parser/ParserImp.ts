@@ -418,15 +418,15 @@ export class ParserImp implements Parser {
             return null
         }
 
-        var type: TokenType;
+        var type;
         let pos = this.lexer.token.pos
         if(type = this.getTypeIfComp()) {
             var right: Expression = this.parseSumOrSubtr()
             this.critErrorIfNull(right, ErrorType.COMP_EXPR_ERR, [])
-            left = this.getCompExpr(type, left, right, pos)
+            left = new type(left, right, pos)
         }
 
-        if(this.isTokenCond()) {
+        if(this.isTokenComp()) {
             this.raise_critical_error(ErrorType.COMP_NUM_ERR, [])
         }
 
@@ -440,14 +440,14 @@ export class ParserImp implements Parser {
             return null
         }
 
-        var type: TokenType;
+        var types;
         let pos = this.lexer.token.pos
-        while(type = this.getTypeIfAdd()) {
+        while(types = this.getTypesIfAdd()) {
             var right: Expression = this.parseMultiplicationOrDivision()
             if (right == null) {
-                this.raise_add_error(type)
+                this.raise_critical_error(types[1], [])
             }
-            left = this.getAddExpr(type, left, right, pos)
+            left = new types[0](left, right, pos)
         }
         return left
     }
@@ -459,14 +459,14 @@ export class ParserImp implements Parser {
             return null
         }
 
-        var type: TokenType;
+        var types;
         let pos = this.lexer.token.pos
-        while(type = this.getTypeIfMult()) {
+        while(types = this.getTypesIfMult()) {
             var right: Expression = this.parseNegation()
             if (right == null) {
-                this.raise_mult_error(type)
+                this.raise_critical_error(types[1], [])
             }
-            left = this.getMultExpr(type, left, right, pos)
+            left = new types[0](left, right, pos)
         }
         return left
     }
@@ -602,23 +602,7 @@ export class ParserImp implements Parser {
         return true
     }
 
-    getTypeIfComp(): TokenType {
-        let type: TokenType = this.lexer.token.type;
-        if(!this.consumeIfComp()) {
-            return null
-        }
-        return type
-    }
-
-    consumeIfComp(): boolean {
-        if (!this.isTokenCond()) {
-            return false
-        }
-        this.lexer.next_token()
-        return true
-    }
-
-    isTokenCond(): boolean {
+    isTokenComp(): boolean {
         if (this.lexer.token.type !== TokenType.EQ_OP
             && this.lexer.token.type !== TokenType.NEQ_OP
             && this.lexer.token.type !== TokenType.GRT_OP
@@ -630,96 +614,62 @@ export class ParserImp implements Parser {
         return true
     }
 
-    getCompExpr(type: TokenType, left: Expression, right: Expression, pos: Position): Expression {
+    getTypeIfComp() {
+        let type: TokenType = this.lexer.token.type;
         if (type == TokenType.EQ_OP) {
-            return new EqualComparison(left, right, pos)
+            this.lexer.next_token()
+            return EqualComparison
         } else if (type == TokenType.NEQ_OP) {
-            return new NotEqualComparison(left, right, pos)
+            this.lexer.next_token()
+            return NotEqualComparison
         } else if (type == TokenType.GRT_OP) {
-            return new GreaterComparison(left, right, pos)
+            this.lexer.next_token()
+            return GreaterComparison
         } else if (type == TokenType.GRT_EQ_OP) {
-            return new GreaterEqualComparison(left, right, pos)
+            this.lexer.next_token()
+            return GreaterEqualComparison
         } else if (type == TokenType.LESS_OP) {
-            return new LesserComparison(left, right, pos)
+            this.lexer.next_token()
+            return LesserComparison
         } else if (type == TokenType.LESS_EQ_OP) {
-            return new LesserEqualComparison(left, right, pos)
-        }
-    }
-
-    getTypeIfMult(): TokenType {
-        let type: TokenType = this.lexer.token.type;
-        if(!this.consumeIfMult()) {
+            this.lexer.next_token()
+            return LesserEqualComparison
+        } else {
             return null
         }
-        return type
     }
 
-    consumeIfMult(): boolean {
-        if (this.lexer.token.type !== TokenType.MULT_OP
-            && this.lexer.token.type !== TokenType.DIV_OP
-            && this.lexer.token.type !== TokenType.DIV_INT_OP
-            && this.lexer.token.type !== TokenType.MOD_OP) {
-            return false
-        }
-        this.lexer.next_token()
-        return true
-    }
-
-    raise_mult_error(type: TokenType): void {
-        if (type == TokenType.MULT_OP) {
-            this.raise_critical_error(ErrorType.MULT_EXPR_ERR, [])
-        } else if (type == TokenType.DIV_INT_OP) {
-            this.raise_critical_error(ErrorType.INTDIV_EXPR_ERR, [])
-        } else if (type == TokenType.DIV_OP) {
-            this.raise_critical_error(ErrorType.DIV_EXPR_ERR, [])
-        } else if (type == TokenType.MOD_OP) {
-            this.raise_critical_error(ErrorType.MODULO_EXPR_ERR, [])
-        }
-    }
-
-    getMultExpr(type: TokenType, left: Expression, right: Expression, pos: Position): Expression {
-        if (type == TokenType.MULT_OP) {
-            return new Multiplication(left, right, pos)
-        } else if (type == TokenType.DIV_INT_OP) {
-            return new IntDivision(left, right, pos)
-        } else if (type == TokenType.DIV_OP) {
-            return new Division(left, right, pos)
-        } else if (type == TokenType.MOD_OP) {
-            return new Modulo(left, right, pos)
-        }
-    }
-
-    getTypeIfAdd(): TokenType {
+    getTypesIfMult() {
         let type: TokenType = this.lexer.token.type;
-        if(!this.consumeIfAdd()) {
+        if (type == TokenType.MULT_OP) {
+            this.lexer.next_token()
+            return [Multiplication, ErrorType.MULT_EXPR_ERR]
+        } else if (type == TokenType.DIV_INT_OP) {
+            this.lexer.next_token()
+            return [IntDivision, ErrorType.INTDIV_EXPR_ERR]
+        } else if (type == TokenType.DIV_OP) {
+            this.lexer.next_token()
+            return [Division, ErrorType.DIV_EXPR_ERR]
+        } else if (type == TokenType.MOD_OP) {
+            this.lexer.next_token()
+            return [Modulo, ErrorType.MODULO_EXPR_ERR]
+        } else {
             return null
         }
-        return type
     }
 
-    consumeIfAdd(): boolean {
-        if (this.lexer.token.type !== TokenType.ADD_OP
-            && this.lexer.token.type !== TokenType.MINUS_OP) {
-            return false
-        }
-        this.lexer.next_token()
-        return true
-    }
-
-    raise_add_error(type: TokenType) {
+    getTypesIfAdd() {
+        let type: TokenType = this.lexer.token.type;
         if (type == TokenType.ADD_OP) {
-            this.raise_critical_error(ErrorType.ADD_EXPR_ERR, [])
+            this.lexer.next_token()
+            return [Addition, ErrorType.ADD_EXPR_ERR]
         } else if (type == TokenType.MINUS_OP) {
-            this.raise_critical_error(ErrorType.SUB_EXPR_ERR, [])
+            this.lexer.next_token()
+            return [Subtraction, ErrorType.SUB_EXPR_ERR]
+        } else {
+            return null
         }
-    }
 
-    getAddExpr(type: TokenType, left: Expression, right: Expression, pos: Position): Expression {
-        if (type == TokenType.ADD_OP) {
-            return new Addition(left, right, pos)
-        } else if (type == TokenType.MINUS_OP) {
-            return new Subtraction(left, right, pos)
-        }
     }
 
     print_warning(warn_type: WarningType, args: string[]): void {
