@@ -14,7 +14,7 @@ export class LexerImp implements Lexer {
     private reader: Reader;
     private curr_char: string | null = null;
 
-    private token: Token | null = null;
+    token: Token | null = null;
     private curr_token_pos: Position | null = null;
 
     private error_handler: ErrorHandler;
@@ -22,16 +22,15 @@ export class LexerImp implements Lexer {
     private raised_error: boolean = false;
 
     private newline: string | null = null
-    private curr_line_beg: number = 0
 
     private max_ident_len: number = 50;
     private max_str_len: number = 200;
 
-    constructor(reader: Reader, max_ident_len?, max_str_len?) {
+    constructor(reader: Reader, error_handler: ErrorHandler, max_ident_len?, max_str_len?) {
         this.max_ident_len = max_ident_len ? max_ident_len: 50
         this.max_str_len = max_str_len ?  max_str_len: 200
         this.reader = reader;
-        this.error_handler = new ErrorHandler(reader);
+        this.error_handler = error_handler;
         this.curr_char = this.reader.get_char()
         this.handle_eol()
     }
@@ -40,7 +39,10 @@ export class LexerImp implements Lexer {
         this.raised_error_now = false;
 
         while(this.is_char_white()) {
-                this.next_char();
+            if(this.is_char_eol(this.curr_char)){
+                this.reader.curr_line_beg = this.reader.reader_pos
+            }
+            this.next_char();
         }
 
         this.curr_token_pos = new Position(this.reader.curr_pos.pos, this.reader.curr_pos.line, this.reader.curr_pos.col)
@@ -72,24 +74,24 @@ export class LexerImp implements Lexer {
     }
 
     print_error_pos(err_type: ErrorType, args: string[]): void {
-        this.error_handler.print_error(this.curr_pos(), this.curr_line_beg, err_type, args)
+        this.error_handler.print_error(this.reader, this.curr_pos(), err_type, args)
         this.raised_error_now = true;
         this.raised_error = true;
     }
 
     print_warning_pos(warn_type: WarningType, args: string[]): void {
-        this.error_handler.print_warning(this.curr_pos(), this.curr_line_beg, warn_type, args)
+        this.error_handler.print_warning(this.reader, this.curr_pos(), warn_type, args)
     }
 
     print_error_token(err_type: ErrorType, args: string[]): void {
-        this.error_handler.print_error(this.curr_token_pos, this.curr_line_beg, err_type, args)
+        this.error_handler.print_error(this.reader, this.curr_token_pos, err_type, args)
         this.raised_error_now = true;
         this.raised_error = true;
     }
 
     raise_critical_error(err_type: ErrorType, args: string[]): void {
         this.print_error_pos(err_type, args);
-        this.error_handler.abort();
+        this.error_handler.abort(this.reader);
     }
 
     is_char_white(): boolean {
@@ -139,12 +141,13 @@ export class LexerImp implements Lexer {
         } else {
             this.raise_critical_error(ErrorType.NEWLINE_ERR, [])
         }
+
     }
 
     try_build_eof(): boolean {
         if (this.is_char_eof()) {
             this.token = new Token(TokenType.EOF, "", this.curr_token_pos!);
-            this.reader.abort();
+
             return true;
         }
         return false
@@ -266,7 +269,7 @@ export class LexerImp implements Lexer {
         }
         var ident: string = this.curr_char;
         this.next_char();
-        while(is_letter.test(this.curr_char) || this.curr_char == "_") {
+        while(is_letter.test(this.curr_char) || this.curr_char == "_" || is_digit.test(this.curr_char)) {
             if (ident.length !== this.max_ident_len) {
                 ident = ident.concat(this.curr_char)
                 this.next_char();
@@ -274,7 +277,7 @@ export class LexerImp implements Lexer {
                 this.print_error_token(ErrorType.IDENT_LEN_ERR, []);
                 this.token = new Token(TokenType.IDENTIFIER, ident, this.curr_token_pos);
 
-                while(is_letter.test(this.curr_char) || this.curr_char == "_") {
+                while(is_letter.test(this.curr_char) || this.curr_char == "_" || is_digit.test(this.curr_char)) {
                     this.next_char();
                 }
                 return true;
@@ -317,7 +320,7 @@ export class LexerImp implements Lexer {
                     if (this.curr_char in TokenUtils.escapable) {
                         this.curr_char = TokenUtils.escapable[this.curr_char]
                         // @ts-ignore
-                    } else if (this.curr_char != '\n' || this.is_char_eof()){
+                    } else if (this.curr_char == '\n' || this.is_char_eof()){
                         break;
                     } else {
                         this.print_warning_pos(WarningType.STRING_ESC_WARN, [])

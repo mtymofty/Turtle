@@ -6,7 +6,7 @@ import { LexerImp } from "./LexerImp";
 
 export class LexerFilter implements Lexer {
     private lexer: Lexer;
-    private token: Token;
+    token: Token;
 
     constructor(lexer: Lexer) {
         this.lexer = lexer;

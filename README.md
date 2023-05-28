@@ -71,14 +71,6 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
     ...
     }
 
-    else if(condition){     <- wykonaj jeśli poprzedni warunek był fałszywy oraz obecny jest prawdą
-    ...
-    }
-
-    else unless(condition){ <- wykonaj jeśli poprzedni warunek był fałszywy oraz obecny nie jest prawdą
-    ...
-    }
-
     else {                  <- wykonaj jeśli poprzednie warunki były fałszywe
     ...
     }
@@ -87,10 +79,8 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
 
     if(len < 10) {          <- Jeśli len mniejsze od 10
 	    res = true;
-	} else unless(len % 2 == 0) {   <- Jeśli len nie jest podzielne przez 2
-	    res = false;
 	} else {                <- W innym wypadku
-	    res = null;
+	    res = false;
 	}
 
 ### Instrukcje pętli
@@ -112,14 +102,14 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
 
 ### Definiowanie funkcji
 
-    fun name(arg1, arg2 ...){   <- Funkcja posiada nazwę oraz przymuje ustaloną liczb argumentów.
+    func name(arg1, arg2 ...){   <- Funkcja posiada nazwę oraz przymuje ustaloną liczb argumentów.
 	    ...
 	    return data;            <- Funkcja może zwracać dane instrukcją return
     }
    Parametry funkcji przekazywane są przez **wartość**.
 #### Przykłady:
 
-    fun sum(a, b) {
+    func sum(a, b) {
 	    return a + b;
 	}
 
@@ -214,7 +204,7 @@ Konstruktory:
 
 #### Rysowanie kwadratu:
 
-    rysuj_kwadrat(zolw, bok) {
+    func rysuj_kwadrat(zolw, bok) {
 	    i = 0;
 	    while (i<=3) {
 	    	zolw.forward(bok);
@@ -261,9 +251,9 @@ Konstruktory:
     if (a > b < c > d) ...
 
 	Definiowanie funkcji wewnątrz innej funkcji:
-	fun foo() {
+	func foo() {
 	    ...
-	    fun foo_too() {
+	    func foo_too() {
 	    	...
 	    }
 	...
@@ -314,8 +304,8 @@ Konstruktory:
     rel_op          = '>' | '>=' | '<' | '<=' | '==' | '!=';
     add_op          = '+' | '-';
     mult_op         = '*' | '/' | '//' | '%';
-    pow_op          = '^';
     unar_op         = '!' | '-';
+    pow_op          = '^';
 
     terminator      = ';'
 
@@ -324,7 +314,7 @@ Konstruktory:
     program             = {instruction};
     instruction         = fun_def;
 
-    fun_def             = 'fun', identifier, '(', [params], ')', statement_block;
+    fun_def             = 'func', identifier, '(', [params], ')', statement_block;
     statement_block     = '{', {statement}, '}';
 
 	statement           = simple_statement, terminator
@@ -348,20 +338,21 @@ Konstruktory:
 	return_statement    = 'return', [expression];
 
 	if_statement        = if_kw, '(', expression, ')', statement_block,
-	                      {'else', if_kw, '(', expression, ')', statement_block},
 	                      ['else', statement_block];
 	if_kw               = 'if' | 'unless';
 
 	while_statement     = 'while', '(', expression, ')', statement_block
 
-    expression          = conjunction, {or_op, conjunction};
+    expression          = disjunction;
+    disjunction         = conjunction, {or_op, conjunction};
     conjunction         = comparison, {and_op, comparison};
-    comparison          = sum, [rel_op, sum];
-    sum                 = term, {add_op, term};
+    comparison          = sum_sub, [rel_op, sum_sub];
+    sum_sub             = term, {add_op, term};
     term                = factor, {mult_op, factor};
     factor              = [unar_op], power;
-    power              = primary, {pow_op, primary};
+    power               = primary, {pow_op, primary};
     primary             = parenth_expression | constant | obj_access;
+
     parenth_expression  = "(", expression, ")";
     constant            = int | double | string | boolean | null;
 
@@ -370,15 +361,57 @@ Konstruktory:
 Błędy zgłaszane w trakcie analizy nie powodują jej przerwania.
 
 ### Błędy leksykalne
+Rozróżniane jest 11 typów błędów leksera.
 
-**LexerError**: unrecognized token!
-"~abc = 5;" - line 1, col 1
+ERROR - UNEXPECTED EOL WHILE PARSING STRING
+line: 2 col: 17
+    ident = "str
+                ^
 
-**LexerError**: exceeding length of an identifier!
-"abcdefg(...) = 5;" - line 1, col 101
+ERROR - UNEXPECTED EOF WHILE PARSING STRING
+line: 2 col: 17
+    ident = "str
+                ^
 
-**LexerError**: exceeding value of a numeric constant (int)!
-"abc = 2147483648;" - line 1, col 16
+ERROR - EXCEEDING LENGTH OF A STRING!
+line: 2 col: 13
+    ident = "str(...)ing";
+            ^
+
+ERROR - EXCEEDING LENGTH OF AN IDENTIFIER!
+line: 2 col: 13
+    ident = iden(...)t;
+            ^
+
+ERROR - PRECEDING ZERO IN A NUMERIC CONSTANT!
+line: 2 col: 13
+    ident = 05;
+            ^
+
+ERROR - EXCEEDING VALUE OF A NUMERIC CONSTANT (INT)!
+line: 2 col: 13
+    ident = 555(...)5;
+            ^
+
+ERROR - EXCEEDING VALUE OF A NUMERIC CONSTANT (DOUBLE)!
+line: 2 col: 13
+    ident = 5.5(...)5
+            ^
+
+ERROR WHILE PARSING "&&" OPERATOR
+EXPECTED "&" GOT " "
+line: 2 col: 12
+    if (a & b) {
+           ^
+
+ERROR - UNRECOGNIZED TOKEN: "@"
+line: 2 col: 13
+    ident = @5;
+            ^
+
+CRITICAL ERROR - ENCOUNTERED TWO DIFFERENT NEWLINE SIGNS - CORRUPTED FILE
+
+CRITICAL ERROR - NO SUCH FILE OR DIRECTORY
 
 ### Błędy składniowe
 **SyntaxError**: invalid syntax, missing closing bracket!
@@ -494,7 +527,8 @@ Lekser pobiera znaki leniwie, pojedynczo znak po znaku. Odpowiednio skonstruowan
  - COMMA
  - SEMICOL
  - EOF
- - UNRECOGNIZED
+ - EOL (filtrowane między lekserem a parserem)
+ - UNRECOGNIZED (filtrowane między lekserem a parserem)
 
 
 ## Testowanie
