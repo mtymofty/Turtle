@@ -361,15 +361,57 @@ Konstruktory:
 Błędy zgłaszane w trakcie analizy nie powodują jej przerwania.
 
 ### Błędy leksykalne
+Rozróżniane jest 11 typów błędów leksera.
 
-**LexerError**: unrecognized token!
-"~abc = 5;" - line 1, col 1
+ERROR - UNEXPECTED EOL WHILE PARSING STRING
+line: 2 col: 17
+    ident = "str
+                ^
 
-**LexerError**: exceeding length of an identifier!
-"abcdefg(...) = 5;" - line 1, col 101
+ERROR - UNEXPECTED EOF WHILE PARSING STRING
+line: 2 col: 17
+    ident = "str
+                ^
 
-**LexerError**: exceeding value of a numeric constant (int)!
-"abc = 2147483648;" - line 1, col 16
+ERROR - EXCEEDING LENGTH OF A STRING!
+line: 2 col: 13
+    ident = "str(...)ing";
+            ^
+
+ERROR - EXCEEDING LENGTH OF AN IDENTIFIER!
+line: 2 col: 13
+    ident = iden(...)t;
+            ^
+
+ERROR - PRECEDING ZERO IN A NUMERIC CONSTANT!
+line: 2 col: 13
+    ident = 05;
+            ^
+
+ERROR - EXCEEDING VALUE OF A NUMERIC CONSTANT (INT)!
+line: 2 col: 13
+    ident = 555(...)5;
+            ^
+
+ERROR - EXCEEDING VALUE OF A NUMERIC CONSTANT (DOUBLE)!
+line: 2 col: 13
+    ident = 5.5(...)5
+            ^
+
+ERROR WHILE PARSING "&&" OPERATOR
+EXPECTED "&" GOT " "
+line: 2 col: 12
+    if (a & b) {
+           ^
+
+ERROR - UNRECOGNIZED TOKEN: "@"
+line: 2 col: 13
+    ident = @5;
+            ^
+
+CRITICAL ERROR - ENCOUNTERED TWO DIFFERENT NEWLINE SIGNS - CORRUPTED FILE
+
+CRITICAL ERROR - NO SUCH FILE OR DIRECTORY
 
 ### Błędy składniowe
 **SyntaxError**: invalid syntax, missing closing bracket!
