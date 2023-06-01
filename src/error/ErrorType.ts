@@ -48,7 +48,10 @@ export enum ErrorType {
     NEG_EXPR_ERR,
     INTDIV_EXPR_ERR,
     MODULO_EXPR_ERR,
-    COMP_NUM_ERR
+    COMP_NUM_ERR,
+
+    MAIN_FUN_ERR,
+    MAIN_PARAM_ERR
 
 
 }

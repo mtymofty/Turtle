@@ -7,6 +7,7 @@ import { Program } from './syntax/Program';
 import { ErrorHandler } from './error/ErrorHandler';
 import { PrinterVisitor } from './visitor/PrinterVisitor';
 import { Parser } from './parser/Parser';
+import { InterpreterVisitor } from './interpreter/InterpreterVisitor';
 
 
 var file_path: string = process.argv.slice(2)[0];
@@ -19,4 +20,9 @@ var program: Program = parser.parse()
 
 var printer: PrinterVisitor = new PrinterVisitor();
 program.accept(printer)
+
+console.log("\nEXECUTING PROGRAM...\n")
+error_handler.reader = file_reader
+var interpreter = new InterpreterVisitor(error_handler);
+program.accept(interpreter)
 file_reader.abort()

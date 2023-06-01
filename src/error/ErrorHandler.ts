@@ -9,14 +9,17 @@ export class ErrorHandler {
     private warning_color: string;
     private code_color: string;
     private white_color: string = "\x1B[0m";
+    reader: Reader
 
-    constructor(error_col?: string, code_col?: string, warn_col?: string) {
+    constructor(error_col?: string, code_col?: string, warn_col?: string, reader?: Reader) {
         this.error_color = (error_col) ? error_col : "\x1B[31m";
         this.warning_color = (warn_col) ? warn_col : "\x1B[38;5;166m";
         this.code_color = (code_col) ? code_col : "\x1B[33m";
+        this.reader = (reader) ? reader : null;
 	}
 
-    print_error(reader: Reader, pos: Position, error_type: ErrorType, args: string[]): void{
+    print_error(pos: Position, error_type: ErrorType, args: string[], reader?: Reader, ): void{
+        reader = (reader) ? reader : this.reader;
         let code = reader.get_line(reader.curr_line_beg);
         let mess = ErrorUtils.error_mess[error_type];
 
@@ -31,7 +34,8 @@ export class ErrorHandler {
         this.print_code(code, pos, reader.curr_line_beg)
     }
 
-    print_warning(reader: Reader, pos: Position, warn_type: WarningType, args: string[]){
+    print_warning(pos: Position, warn_type: WarningType, args: string[], reader?: Reader, ){
+        reader = (reader) ? reader : this.reader;
         let code = reader.get_line(reader.curr_line_beg);
         let mess = ErrorUtils.warning_mess[warn_type];
 
@@ -77,7 +81,8 @@ export class ErrorHandler {
         return mess;
     }
 
-    raise_self_error(alert_type: string, reader: Reader): void {
+    raise_self_error(alert_type: string, reader?: Reader): void {
+        reader = (reader) ? reader : this.reader;
         try {
             throw new Error(this.error_color + `Error/Warning string formatting doesn't match args number in ErrorHandler: ${alert_type}` + this.white_color);
           }
@@ -87,7 +92,8 @@ export class ErrorHandler {
           }
     }
 
-    abort(reader: Reader): void {
+    abort(reader?: Reader): void {
+        reader = (reader) ? reader : this.reader;
         reader.abort();
         process.exit(0);
     }

@@ -1,10 +1,10 @@
 import { Visitor } from "../visitor/Visitor";
 import { Block } from "./Block";
-import { Visitable } from "../visitor/Visitable";
 import { Identifier } from "./expression/primary/object_access/Identifier";
 import { Position } from "../source/Position";
+import { Callable } from "../semantics/Callable";
 
-export class FunctionDef implements Visitable {
+export class FunctionDef implements Callable {
     name: string
     parameters: Array<Identifier>
     block: Block

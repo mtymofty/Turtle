@@ -349,7 +349,9 @@ export class ParserImp implements Parser {
         }
         this.lexer.next_token()
 
-        return new ReturnStatement(pos);
+        var expr: Expression = this.parseExpression()
+
+        return new ReturnStatement(pos, expr);
     }
 
     // 'break'
@@ -673,11 +675,11 @@ export class ParserImp implements Parser {
     }
 
     print_warning(warn_type: WarningType, args: string[]): void {
-        this.error_handler.print_warning(this.lexer.get_reader(), this.lexer.token.pos, warn_type, args)
+        this.error_handler.print_warning(this.lexer.token.pos, warn_type, args, this.lexer.get_reader())
     }
 
     print_error(err_type: ErrorType, args: string[]): void {
-        this.error_handler.print_error(this.lexer.get_reader(), this.lexer.token.pos, err_type, args)
+        this.error_handler.print_error(this.lexer.token.pos, err_type, args, this.lexer.get_reader())
         this.raised_error = true;
     }
 

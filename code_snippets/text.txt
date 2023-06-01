@@ -1,3 +1,4 @@
-func fun(abc, def){
+func main(){
     ident = 5 + 10;
+    return (ident);
 }

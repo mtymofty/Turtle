@@ -12,6 +12,6 @@ export class BooleanConstant implements Expression {
     }
 
     accept(visitor: Visitor) {
-        visitor.visitTrueConstant(this)
+        visitor.visitBooleanConstant(this)
     }
 }

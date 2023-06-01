@@ -74,17 +74,17 @@ export class LexerImp implements Lexer {
     }
 
     print_error_pos(err_type: ErrorType, args: string[]): void {
-        this.error_handler.print_error(this.reader, this.curr_pos(), err_type, args)
+        this.error_handler.print_error(this.curr_pos(), err_type, args, this.reader)
         this.raised_error_now = true;
         this.raised_error = true;
     }
 
     print_warning_pos(warn_type: WarningType, args: string[]): void {
-        this.error_handler.print_warning(this.reader, this.curr_pos(), warn_type, args)
+        this.error_handler.print_warning(this.curr_pos(), warn_type, args, this.reader)
     }
 
     print_error_token(err_type: ErrorType, args: string[]): void {
-        this.error_handler.print_error(this.reader, this.curr_token_pos, err_type, args)
+        this.error_handler.print_error(this.curr_token_pos, err_type, args, this.reader)
         this.raised_error_now = true;
         this.raised_error = true;
     }

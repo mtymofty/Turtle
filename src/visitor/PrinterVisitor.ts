@@ -33,6 +33,7 @@ import { NullConstant } from "../syntax/expression/primary/constant/NullConstant
 import { ReturnStatement } from "../syntax/statement/ReturnStatement";
 import { BreakStatement } from "../syntax/statement/BreakStatement";
 import { ContinueStatement } from "../syntax/statement/ContinueStatement";
+import { PrintFunction } from "../builtin/PrintFunction";
 
 export class PrinterVisitor implements Visitor {
     indent: number
@@ -129,7 +130,13 @@ export class PrinterVisitor implements Visitor {
     }
 
     visitReturn(ret: ReturnStatement): void {
-        this.print(`Return [line: ${ret.position.line} col: ${ret.position.col}]\n`)
+        this.print(`Return [line: ${ret.position.line} col: ${ret.position.col}]: \n`)
+        if (ret.expression !== null) {
+            this.indent += this.indent_inc
+            ret.expression.accept(this)
+            this.indent -= this.indent_inc
+        }
+
     }
 
     visitBreak(br: BreakStatement): void {
@@ -160,7 +167,7 @@ export class PrinterVisitor implements Visitor {
         this.print(`Null Constant [line: ${null_.position.line} col: ${null_.position.col}]: null\n`)
     }
 
-    visitTrueConstant(constant: BooleanConstant): void {
+    visitBooleanConstant(constant: BooleanConstant): void {
         this.print(`Boolean Constant [line: ${constant.position.line} col: ${constant.position.col}]: ${constant.value}\n`)
     }
 
@@ -321,6 +328,9 @@ export class PrinterVisitor implements Visitor {
         comp.left.accept(this)
         comp.right.accept(this)
         this.indent -= this.indent_inc
+    }
+
+    visitPrintFunction(fun: PrintFunction): void{
     }
 
 
