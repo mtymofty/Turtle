@@ -23,7 +23,7 @@ export class Environment {
     }
 
     find(name: string) {
-        this.context_stack[this.context_stack.length-1].findVar(name)
+        return this.context_stack[this.context_stack.length-1].findVar(name)
     }
 
     store(name: string, val: Value) {

@@ -41,6 +41,7 @@ import { Position } from "../source/Position";
 import { ErrorUtils } from "../error/ErrorUtils";
 import { Callable } from "../semantics/Callable";
 import { Value } from "../semantics/Value";
+import { Expression } from "../syntax/expression/Expression";
 
 export class InterpreterVisitor implements Visitor {
     env: Environment
@@ -49,7 +50,7 @@ export class InterpreterVisitor implements Visitor {
 
     main_fun_name: string = "main"
 
-    last_result: Value = null
+    last_result: number | boolean | string = null
     is_returning: boolean = false
     is_breaking: boolean = false
     is_continuing: boolean = false
@@ -92,16 +93,16 @@ export class InterpreterVisitor implements Visitor {
     }
 
     visitFunctionDef(fun: FunctionDef): void {
-        // this.last_result = null
         fun.block.accept(this)
     }
 
     visitBlock(block: Block): void {
         for (let stmnt of block.statements) {
             stmnt.accept(this)
-            if (this.is_returning || this.is_breaking || this.is_continuing) {
+            if (this.is_returning === true || this.is_breaking === true || this.is_continuing === true) {
                 break
             }
+            this.last_result = null
         }
     }
 
@@ -118,11 +119,10 @@ export class InterpreterVisitor implements Visitor {
     }
 
     visitReturn(ret: ReturnStatement): void {
-        if (ret.expression) {
+        if (ret.expression !== null && ret.expression !== undefined) {
             ret.expression.accept(this)
         }
         this.is_returning = true
-
     }
 
     visitBreak(_: BreakStatement): void {
@@ -134,6 +134,11 @@ export class InterpreterVisitor implements Visitor {
     }
 
     visitIdentifier(ident: Identifier): void {
+        let val: Value = this.env.find(ident.name)
+        if (val === null || val === undefined) {
+            this.raise_crit_err(ErrorType.VAR_UNDEF_ERR, [ident.name], ident.position)
+        }
+        this.last_result = val.value
     }
 
     visitDoubleConstant(cons: DoubleConstant): void {
@@ -160,6 +165,25 @@ export class InterpreterVisitor implements Visitor {
     }
 
     visitFunCall(fun_call: FunCall): void {
+        let callable = this.callables[fun_call.fun_name]
+        if (callable === null || callable === undefined) {
+            this.raise_crit_err(ErrorType.FUN_UNDEF_ERR, [fun_call.fun_name], fun_call.position)
+
+        }
+        let args = this.getArgsAsValue(fun_call.args)
+        if (!this.validateArgs(args, callable.parameters)) {
+            this.raise_crit_err(ErrorType.ARGS_NUM_ERR, [fun_call.fun_name, callable.parameters.length.toString(), args.length.toString()], fun_call.position)
+        }
+
+        this.env.createFunCallContext()
+        for (let i = 0; i < args.length; i++) {
+            this.env.store(callable.parameters[i].name, args[i])
+        }
+
+        callable.accept(this)
+
+        this.env.deleteFunCallContext()
+        this.is_returning = false
     }
 
     visitMemberAccess(acc: MemberAccess): void {
@@ -217,15 +241,31 @@ export class InterpreterVisitor implements Visitor {
     }
 
     visitPrintFunction(fun: PrintFunction): void{
-
+        let print_val = this.env.find(fun.parameters[0].name).value
+        console.log(print_val)
     }
 
-    print_error(err_type: ErrorType, args: string[], pos: Position): void {
-        this.error_handler.print_error(pos, err_type, args)
+    getArgsAsValue(args: Expression[]): Value[] {
+        var val_args: Value[] = []
+        args.forEach(arg => {
+            arg.accept(this)
+            val_args.push(new Value(this.last_result))
+        });
+
+        this.last_result = null
+        return val_args
+    }
+
+    validateArgs(args: Value[], params: Identifier[]): boolean {
+        if (args.length !== params.length) {
+            return false
+        }
+        return true
+
     }
 
     raise_crit_err(err_type: ErrorType, args: string[], pos: Position): void {
-        this.print_error(err_type, args, pos);
+        this.error_handler.print_err_pos(pos, err_type, args)
         this.error_handler.abort();
     }
 

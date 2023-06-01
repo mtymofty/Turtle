@@ -64,6 +64,25 @@ export class ErrorHandler {
         console.log(' '.repeat(pos.pos-line_beg) + '^' + this.white_color);
     }
 
+    print_err_pos(pos: Position, error_type: ErrorType, args: string[], reader?: Reader, ): void{
+        reader = (reader) ? reader : this.reader;
+        let mess = ErrorUtils.error_mess[error_type];
+
+        var occurs: number[] = find_occurances("$", mess)
+        if (args.length !== occurs.length) {
+            this.raise_self_error(ErrorType[error_type], reader);
+        }
+
+        mess = this.insert_args(mess, args, occurs);
+
+        this.print_err_mess(mess)
+        this.print_pos(pos)
+    }
+
+    print_pos(pos: Position):void {
+        console.log(`line: ${pos.line} col: ${pos.col}`);
+    }
+
     insert_args(mess: string, args: string[], occurs: number[]): string {
         var i = 0;
         if (occurs.length) {

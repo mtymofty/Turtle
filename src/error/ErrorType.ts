@@ -51,7 +51,10 @@ export enum ErrorType {
     COMP_NUM_ERR,
 
     MAIN_FUN_ERR,
-    MAIN_PARAM_ERR
+    MAIN_PARAM_ERR,
+    FUN_UNDEF_ERR,
+    ARGS_NUM_ERR,
+    VAR_UNDEF_ERR
 
 
 }

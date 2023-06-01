@@ -12,12 +12,13 @@ export class FunCallContext {
     }
 
     findVar(name: string) {
-        this.scopes.reverse().forEach(scope => {
+        for(var scope of Array.from(this.scopes).reverse()) {
             var val: Value = scope[name]
             if (val !== null && val !== undefined) {
                 return val
             }
-        });
+        }
+        return null
     }
 
     storeVar(name: string, val: Value) {
