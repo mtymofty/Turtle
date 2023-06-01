@@ -1,4 +1,17 @@
 func main(){
-    ident = 5 + 10;
-    return (ident);
+    ident = 10;
+    print(ident);
+
+    a = fun(5, 6, 7, 8);
+    print(a);
+
+    print(ident);
+
+    return
+}
+
+func fun(a, b, c, d){
+    ident = 5;
+    print(ident);
+    return "abc";
 }

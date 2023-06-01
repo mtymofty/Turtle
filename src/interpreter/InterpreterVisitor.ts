@@ -50,7 +50,7 @@ export class InterpreterVisitor implements Visitor {
 
     main_fun_name: string = "main"
 
-    last_result: number | boolean | string = null
+    last_result: number | boolean | string | null = undefined
     is_returning: boolean = false
     is_breaking: boolean = false
     is_continuing: boolean = false
@@ -102,7 +102,7 @@ export class InterpreterVisitor implements Visitor {
             if (this.is_returning === true || this.is_breaking === true || this.is_continuing === true) {
                 break
             }
-            this.last_result = null
+            this.last_result = undefined
         }
     }
 
@@ -135,7 +135,7 @@ export class InterpreterVisitor implements Visitor {
 
     visitIdentifier(ident: Identifier): void {
         let val: Value = this.env.find(ident.name)
-        if (val === null || val === undefined) {
+        if (val === undefined) {
             this.raise_crit_err(ErrorType.VAR_UNDEF_ERR, [ident.name], ident.position)
         }
         this.last_result = val.value
@@ -162,6 +162,21 @@ export class InterpreterVisitor implements Visitor {
     }
 
     visitAssignStatement(stmnt: AssignStatement): void {
+        if(stmnt.left instanceof MemberAccess) {
+        }
+
+        if(stmnt.left instanceof Identifier) {
+            var var_name = <string>stmnt.left.name
+        }
+
+        stmnt.right.accept(this)
+        let val = this.last_result
+
+        this.last_result = undefined
+
+        if(stmnt.left instanceof Identifier) {
+            this.env.store(var_name, new Value(val))
+        }
     }
 
     visitFunCall(fun_call: FunCall): void {
@@ -252,7 +267,7 @@ export class InterpreterVisitor implements Visitor {
             val_args.push(new Value(this.last_result))
         });
 
-        this.last_result = null
+        this.last_result = undefined
         return val_args
     }
 

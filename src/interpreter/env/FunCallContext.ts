@@ -18,7 +18,7 @@ export class FunCallContext {
                 return val
             }
         }
-        return null
+        return undefined
     }
 
     storeVar(name: string, val: Value) {
