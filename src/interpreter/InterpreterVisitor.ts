@@ -220,34 +220,128 @@ export class InterpreterVisitor implements Visitor {
         }
     }
 
-    visitAndExpression(and: AndExpression): void{
-    }
-
     visitDivision(div: Division): void{
+        div.left.accept(this)
+        let left = this.last_result
+
+        div.right.accept(this)
+        let right = this.last_result
+
+        if (right === 0) {
+            this.raise_crit_err(ErrorType.ZERO_DIV_ERR, [], div.position)
+        }
+
+        if(TypeMatching.matchesArithm(left, right)) {
+            this.last_result = Evaluator.evaluateDiv(left, right)
+        } else {
+            this.raise_crit_err(ErrorType.DIV_TYPE_ERR, [TypeMatching.getTypeOf(left), TypeMatching.getTypeOf(right)], div.position)
+        }
     }
 
     visitMultiplication(mult: Multiplication): void{
+        mult.left.accept(this)
+        let left = this.last_result
+
+        mult.right.accept(this)
+        let right = this.last_result
+
+        if(TypeMatching.matchesArithm(left, right)) {
+            this.last_result = Evaluator.evaluateMult(left, right)
+        } else {
+            this.raise_crit_err(ErrorType.MULT_TYPE_ERR, [TypeMatching.getTypeOf(left), TypeMatching.getTypeOf(right)], mult.position)
+        }
     }
 
     visitSubtraction(sub: Subtraction): void{
+        sub.left.accept(this)
+        let left = this.last_result
+
+        sub.right.accept(this)
+        let right = this.last_result
+
+        if(TypeMatching.matchesArithm(left, right)) {
+            this.last_result = Evaluator.evaluateSubtr(left, right)
+        } else {
+            this.raise_crit_err(ErrorType.SUBTR_TYPE_ERR, [TypeMatching.getTypeOf(left), TypeMatching.getTypeOf(right)], sub.position)
+        }
     }
 
     visitExponentiation(exp: Exponentiation): void{
+        exp.left.accept(this)
+        let left = this.last_result
+
+        exp.right.accept(this)
+        let right = this.last_result
+
+        if(TypeMatching.matchesArithm(left, right)) {
+            this.last_result = Evaluator.evaluateExp(left, right)
+        } else {
+            this.raise_crit_err(ErrorType.EXP_TYPE_ERR, [TypeMatching.getTypeOf(left), TypeMatching.getTypeOf(right)], exp.position)
+        }
     }
 
-    visitLogicalNegation(l_neg: LogicalNegation): void{
-    }
+    visitLogicalNegation(neg: LogicalNegation): void{
+        neg.expr.accept(this)
+        let expr = this.last_result
 
-    visitOrExpression(or: OrExpression): void{
+        if(TypeMatching.matchesLogNeg(expr)) {
+            this.last_result = Evaluator.evaluateLogNeg(expr)
+        } else {
+            this.raise_crit_err(ErrorType.LOG_NEG_TYPE_ERR, [TypeMatching.getTypeOf(expr)], neg.position)
+        }
     }
 
     visitNegation(neg: Negation): void{
+        neg.expr.accept(this)
+        let expr = this.last_result
+
+        if(TypeMatching.matchesNeg(expr)) {
+            this.last_result = Evaluator.evaluateNeg(expr)
+        } else {
+            this.raise_crit_err(ErrorType.NEG_TYPE_ERR, [TypeMatching.getTypeOf(expr)], neg.position)
+        }
     }
 
-    visitIntDivision(int_div: IntDivision): void{
+    visitIntDivision(div: IntDivision): void{
+        div.left.accept(this)
+        let left = this.last_result
+
+        div.right.accept(this)
+        let right = this.last_result
+
+        if (right === 0) {
+            this.raise_crit_err(ErrorType.ZERO_DIV_ERR, [], div.position)
+        }
+
+        if(TypeMatching.matchesArithm(left, right)) {
+            this.last_result = Evaluator.evaluateIntDiv(left, right)
+        } else {
+            this.raise_crit_err(ErrorType.INTDIV_TYPE_ERR, [TypeMatching.getTypeOf(left), TypeMatching.getTypeOf(right)], div.position)
+        }
     }
 
     visitModulo(mod: Modulo): void{
+        mod.left.accept(this)
+        let left = this.last_result
+
+        mod.right.accept(this)
+        let right = this.last_result
+
+        if (right === 0) {
+            this.raise_crit_err(ErrorType.ZERO_DIV_ERR, [], mod.position)
+        }
+
+        if(TypeMatching.matchesArithm(left, right)) {
+            this.last_result = Evaluator.evaluateModulo(left, right)
+        } else {
+            this.raise_crit_err(ErrorType.MOD_TYPE_ERR, [TypeMatching.getTypeOf(left), TypeMatching.getTypeOf(right)], mod.position)
+        }
+    }
+
+    visitAndExpression(and: AndExpression): void{
+    }
+
+    visitOrExpression(or: OrExpression): void{
     }
 
     visitGreaterComparison(comp: OrExpression): void{

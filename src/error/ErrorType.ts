@@ -71,7 +71,8 @@ export enum ErrorType {
     GRT_TYPE_ERR,
     GRTEQ_TYPE_ERR,
     LESS_TYPE_ERR,
-    LESSEQ_TYPE_ERR
+    LESSEQ_TYPE_ERR,
+    ZERO_DIV_ERR
 }
 
 export enum WarningType {

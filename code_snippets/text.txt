@@ -12,6 +12,14 @@ func main(){
 
 func fun(a, b, c, d){
     ident = 5 + 10 + 15;
+    ident = 5 - 10 - 15;
+    ident = 5 * 10 * 10;
+    ident = 5 / 10 / 10;
+    ident = 10 ^ 2 ^ 2;
+    ident = 100 // 11;
+    ident = 100 % 11;
+    ident = -5;
+    ident = !true;
     print(ident);
     return "abc";
 }

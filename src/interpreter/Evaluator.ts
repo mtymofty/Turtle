@@ -24,6 +24,7 @@ export class Evaluator {
     }
 
     static evaluateExp(left: any, right: any) {
+        // TODO: HANDLE INFINITY
         return left ** right
     }
 
