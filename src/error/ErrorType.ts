@@ -54,9 +54,24 @@ export enum ErrorType {
     MAIN_PARAM_ERR,
     FUN_UNDEF_ERR,
     ARGS_NUM_ERR,
-    VAR_UNDEF_ERR
-
-
+    VAR_UNDEF_ERR,
+    ADD_TYPE_ERR,
+    SUBTR_TYPE_ERR,
+    DIV_TYPE_ERR,
+    INTDIV_TYPE_ERR,
+    MOD_TYPE_ERR,
+    MULT_TYPE_ERR,
+    EXP_TYPE_ERR,
+    AND_TYPE_ERR,
+    OR_TYPE_ERR,
+    NEG_TYPE_ERR,
+    LOG_NEG_TYPE_ERR,
+    EQ_TYPE_ERR,
+    NEQ_TYPE_ERR,
+    GRT_TYPE_ERR,
+    GRTEQ_TYPE_ERR,
+    LESS_TYPE_ERR,
+    LESSEQ_TYPE_ERR
 }
 
 export enum WarningType {

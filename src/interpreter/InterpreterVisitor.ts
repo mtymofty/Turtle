@@ -42,6 +42,8 @@ import { ErrorUtils } from "../error/ErrorUtils";
 import { Callable } from "../semantics/Callable";
 import { Value } from "../semantics/Value";
 import { Expression } from "../syntax/expression/Expression";
+import { TypeMatching } from "../semantics/TypeMatching";
+import { Evaluator } from "./Evaluator";
 
 export class InterpreterVisitor implements Visitor {
     env: Environment
@@ -205,6 +207,17 @@ export class InterpreterVisitor implements Visitor {
     }
 
     visitAddition(add: Addition): void {
+        add.left.accept(this)
+        let left = this.last_result
+
+        add.right.accept(this)
+        let right = this.last_result
+
+        if(TypeMatching.matchesAdd(left, right)) {
+            this.last_result = Evaluator.evaluateAdd(left, right)
+        } else {
+            this.raise_crit_err(ErrorType.ADD_TYPE_ERR, [TypeMatching.getTypeOf(left), TypeMatching.getTypeOf(right)], add.position)
+        }
     }
 
     visitAndExpression(and: AndExpression): void{

@@ -1,5 +1,19 @@
 export class TypeMatching {
-    // +, -, /, //, %, *, ^
+    // +
+    static matchesAdd(left: any, right: any) {
+        if (typeof(left) === "number" ) {
+            if (typeof(right) === "number") {
+                return true
+            }
+        } else if (typeof(left) === "string") {
+            if (typeof(right) === "string") {
+                return true
+            }
+        }
+        return false
+    }
+
+    // -, /, //, %, *, ^
     static matchesArithm(left: any, right: any) {
         if (typeof(left) === "number") {
             if (typeof(right) === "number") {
@@ -46,4 +60,16 @@ export class TypeMatching {
     }
 
     // &&, || dla dowolnych typów
+
+    static getTypeOf(val: any){
+        if (val == null) {
+            return "null"
+        } else if (Number.isInteger(val)){
+            return "integer"
+        } else if (typeof(val) === "number") {
+            return "double"
+        } else {
+            return typeof(val)
+        }
+    }
 }
