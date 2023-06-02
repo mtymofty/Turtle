@@ -1,17 +1,16 @@
 func main(){
-    a = fun(5, 6, 7, 8);
-    b = Color();
-    c = Pen(true, b);
-    d = Position();
-    e = Turtle(c, d, 100);
-    print(b);
-    print(c);
-    print(d);
-    print(e);
-    return;
+    ops(5, 6, 7, 8);
+    cond();
+    color = Color();
+    pen = Pen(true, color);
+    pos = Position();
+    turt = Turtle(pen, pos, 100);
+
+    print(turt);
+
 }
 
-func fun(a, b, c, d){
+func ops(a, b, c, d){
     ident = 5 + 10 + 15;
     ident = 5 - 10 - 15;
     ident = 5 * 10 * 10;
@@ -31,4 +30,91 @@ func fun(a, b, c, d){
     ident = 5 <= 0;
 
     return "abc";
+}
+
+func cond(){
+    if (true) {
+        # print("true is true");
+    } else {
+        # print("true is false");
+    }
+
+    unless (true) {
+        # print("not true is true");
+    } else {
+        # print("not true is false");
+    }
+
+    if (1) {
+        # print("1 is true");
+    } else {
+        # print("1 is false");
+    }
+
+    unless (1) {
+        # print("not 1 is true");
+    } else {
+        # print("not 1 is false");
+    }
+
+    if (0) {
+        # print("0 is true");
+    } else {
+        # print("0 is false");
+    }
+
+    unless (0) {
+        # print("not 0 is true");
+    } else {
+        # print("not 0 is false");
+    }
+
+    if ("abc") {
+        # print("abc is true");
+    } else {
+        # print("abc is false");
+    }
+
+    unless ("abc") {
+        # print("not abc is true");
+    } else {
+        # print("not abc is false");
+    }
+
+    if (1.1) {
+        # print("1.1 is true");
+    } else {
+        # print("1.1 is false");
+    }
+
+    unless (1.1) {
+        # print("not 1.1 is true");
+    } else {
+        # print("not 1.1 is false");
+    }
+
+    if (false) {
+        # print("false is true");
+    } else {
+        # print("false is false");
+    }
+
+    unless (false) {
+        # print("not false is true");
+    } else {
+        # print("not false is false");
+    }
+
+    if (Color()) {
+        # print("Color() is true");
+    } else {
+        # print("Color() is false");
+    }
+
+    unless (Color()) {
+        # print("not Color() is true");
+    } else {
+        # print("not Color() is false");
+    }
+
 }

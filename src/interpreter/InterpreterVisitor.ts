@@ -37,8 +37,6 @@ import { Environment } from "./env/Environment";
 import { ErrorHandler } from "../error/ErrorHandler";
 import { PrintFunction } from "../builtin/funs/PrintFunction";
 import { ErrorType } from "../error/ErrorType";
-import { Position } from "../source/Position";
-import { ErrorUtils } from "../error/ErrorUtils";
 import { Callable } from "../semantics/Callable";
 import { Value } from "../semantics/Value";
 import { Expression } from "../syntax/expression/Expression";
@@ -98,21 +96,21 @@ export class InterpreterVisitor implements Visitor {
 
     addBuiltinObjects() {
         this.callables["Color"] = new Constructor("Color",
-                               [new Identifier("a", null), new Identifier("r", null), new Identifier("g", null), new Identifier("b", null)],
-                               ["integer", "integer", "integer", "integer"],
-                               Color);
+                                [new Identifier("a", null), new Identifier("r", null), new Identifier("g", null), new Identifier("b", null)],
+                                ["integer", "integer", "integer", "integer"],
+                                Color);
         this.callables["Pen"] = new Constructor("Pen",
-                             [new Identifier("enabled", null), new Identifier("color", null)],
-                             ["boolean", "Color"],
-                             Pen);
+                                [new Identifier("enabled", null), new Identifier("color", null)],
+                                ["boolean", "Color"],
+                                Pen);
         this.callables["Turtle"] = new Constructor("Turtle",
                                 [new Identifier("pen", null), new Identifier("position", null), new Identifier("angle", null)],
                                 ["Pen", "TurtlePosition", "integer"],
                                 Turtle);
         this.callables["Position"] = new Constructor("Position",
-                                        [new Identifier("x", null), new Identifier("y", null)],
-                                        ["integer", "integer"],
-                                        TurtlePosition);
+                                [new Identifier("x", null), new Identifier("y", null)],
+                                ["integer", "integer"],
+                                TurtlePosition);
     }
 
     visitFunctionDef(fun: FunctionDef): void {
@@ -130,12 +128,28 @@ export class InterpreterVisitor implements Visitor {
     }
 
     visitIfStatement(stmnt: IfStatement): void {
+        stmnt.condition.accept(this)
+        this.env.createScope()
+        this.visitCondStatement(stmnt, this.last_result)
+        this.env.deleteScope()
     }
 
     visitUnlessStatement(stmnt: UnlessStatement): void {
+        stmnt.condition.accept(this)
+        this.env.createScope()
+        this.visitCondStatement(stmnt, !this.last_result)
+        this.env.deleteScope()
     }
 
-    visitCondStatement(stmnt: IfStatement | UnlessStatement): void {
+    visitCondStatement(stmnt: IfStatement | UnlessStatement, cond): void {
+        if (cond) {
+            this.last_result = undefined
+            stmnt.true_block.accept(this)
+        } else {
+            if (stmnt.false_block !== null && stmnt.false_block !== undefined) {
+                stmnt.false_block.accept(this)
+            }
+        }
     }
 
     visitWhileStatement(stmnt: WhileStatement): void {

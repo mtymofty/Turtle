@@ -11,7 +11,7 @@ beforeAll(() => {
 describe('Source tests:', () => {
     test('FileReader constructor with valid file_name', () => {
         const reader_constructor = () => {
-            new FileReader("tests/test.txt", new ErrorHandler());
+            new FileReader("tests/test.txt");
         };
 
         expect(reader_constructor).not.toThrow();
@@ -19,7 +19,7 @@ describe('Source tests:', () => {
 
     test('FileReader constructor with invalid file_name', async () => {
         const reader_constructor = () => {
-            new FileReader("invalid_test.txt", new ErrorHandler());
+            new FileReader("invalid_test.txt");
         };
 
         expect(reader_constructor).toThrow();

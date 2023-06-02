@@ -214,6 +214,9 @@ export class ParserImp implements Parser {
         this.critErrorIfNull(if_block, ErrorType.IF_BLOCK_ERR, [])
 
         if(!this.consumeIf(TokenType.ELSE_KW)) {
+            if (is_unless) {
+                return new UnlessStatement(condition, if_block, null, pos)
+            }
             return new IfStatement(condition, if_block, null, pos)
         }
 
