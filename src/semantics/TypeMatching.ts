@@ -1,4 +1,4 @@
-import { Constructor } from "../builtin/constr/Constructor"
+import { Constructor } from "../builtin/obj/Constructor"
 import { Color } from "../builtin/obj/Color"
 import { ObjectInstance } from "../builtin/obj/ObjectInstance"
 import { Pen } from "../builtin/obj/Pen"
@@ -7,6 +7,7 @@ import { TurtlePosition } from "../builtin/obj/TurtlePosition"
 import { ErrorHandler } from "../error/ErrorHandler"
 import { ErrorType } from "../error/ErrorType"
 import { Position } from "../source/Position"
+import { Value } from "./Value"
 
 export class TypeMatching {
     // +
@@ -88,18 +89,19 @@ export class TypeMatching {
         }
     }
 
-    static checkTypes(args, param_types, pos) {
-        for (let i = 0; i < args.length-1; i++) {
-            let arg_type = this.getTypeOf(args[i].value)
-            if (arg_type !== param_types[i]) {
+    static checkTypes(args: Value[], param_types, pos) {
+        if (args.length === 0) {
+            return
+        }
+        var arg_types = args.map(arg => {
+            return this.getTypeOf(arg.value)
+        })
+        for (let i = 0; i < args.length; i++) {
+            if (arg_types[i] !== param_types[i]) {
 
-                this.raise_crit_err(ErrorType.OBJ_CONSTR_ERR, [param_types[i], arg_type], pos);
+                this.raise_crit_err(ErrorType.OBJ_CONSTR_ERR, [param_types.toString(), arg_types.toString()], pos);
             }
-          }
-    }
-
-    static isConstr(object: any): object is Constructor {
-        return 'param_types' in object;
+        }
     }
 
     static raise_crit_err(err_type: ErrorType, args: string[], pos: Position): void {

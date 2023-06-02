@@ -35,11 +35,7 @@ import { BreakStatement } from "../syntax/statement/BreakStatement";
 import { ContinueStatement } from "../syntax/statement/ContinueStatement";
 import { PrintFunction } from "../builtin/funs/PrintFunction";
 import { GreaterEqualComparison } from "../syntax/expression/comparison/GreaterEqualComparison";
-import { Constructor } from "../builtin/constr/Constructor";
-import { ColorConstr } from "../builtin/constr/ColorConstr";
-import { TurtleConstr } from "../builtin/constr/TurtleConstr";
-import { PenConstr } from "../builtin/constr/PenConstr";
-import { TurtlePositionConstr } from "../builtin/constr/TurtlePositionConstr";
+import { Constructor } from "../builtin/obj/Constructor";
 
 export class PrinterVisitor implements Visitor {
     indent: number
@@ -339,16 +335,7 @@ export class PrinterVisitor implements Visitor {
     visitPrintFunction(_: PrintFunction): void{
     }
 
-    visitColorConstr(_: ColorConstr): void{
-    }
-
-    visitPenConstr(_: PenConstr): void{
-    }
-
-    visitTurtleConstr(_: TurtleConstr): void{
-    }
-
-    visitTurtlePositionConstr(_: TurtlePositionConstr): void{
+    visitConstr(_: Constructor): void{
     }
 
 
