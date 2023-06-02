@@ -1,6 +1,7 @@
 import { Color } from "./Color";
+import { ObjectInstance } from "./ObjectInstance";
 
-export class Pen {
+export class Pen implements ObjectInstance {
     enabled: boolean
     color: Color
 

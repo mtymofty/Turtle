@@ -35,7 +35,7 @@ import { ContinueStatement } from "../syntax/statement/ContinueStatement";
 import { Visitor } from "../visitor/Visitor";
 import { Environment } from "./env/Environment";
 import { ErrorHandler } from "../error/ErrorHandler";
-import { PrintFunction } from "../builtin/PrintFunction";
+import { PrintFunction } from "../builtin/funs/PrintFunction";
 import { ErrorType } from "../error/ErrorType";
 import { Position } from "../source/Position";
 import { ErrorUtils } from "../error/ErrorUtils";
@@ -45,6 +45,13 @@ import { Expression } from "../syntax/expression/Expression";
 import { TypeMatching } from "../semantics/TypeMatching";
 import { Evaluator } from "./Evaluator";
 import { GreaterEqualComparison } from "../syntax/expression/comparison/GreaterEqualComparison";
+import { ColorConstr } from "../builtin/constr/ColorConstr";
+import { PenConstr } from "../builtin/constr/PenConstr";
+import { TurtleConstr } from "../builtin/constr/TurtleConstr";
+import { TurtlePositionConstr } from "../builtin/constr/TurtlePositionConstr";
+import { ObjectInstance } from "../builtin/obj/ObjectInstance";
+import { Color } from "../builtin/obj/Color";
+import { Constructor } from "../builtin/constr/Constructor";
 
 export class InterpreterVisitor implements Visitor {
     env: Environment
@@ -52,7 +59,7 @@ export class InterpreterVisitor implements Visitor {
 
     main_fun_name: string = "main"
 
-    last_result: number | boolean | string | null = undefined
+    last_result: number | boolean | string | ObjectInstance | null = undefined
     is_returning: boolean = false
     is_breaking: boolean = false
     is_continuing: boolean = false
@@ -91,6 +98,10 @@ export class InterpreterVisitor implements Visitor {
     }
 
     addBuiltinObjects() {
+        this.callables["Color"] = new ColorConstr();
+        this.callables["Pen"] = new PenConstr();
+        this.callables["Turtle"] = new TurtleConstr();
+        this.callables["TurtlePosition"] = new TurtlePositionConstr();
     }
 
     visitFunctionDef(fun: FunctionDef): void {
@@ -173,6 +184,10 @@ export class InterpreterVisitor implements Visitor {
         stmnt.right.accept(this)
         let val = this.last_result
 
+        if (val === undefined) {
+            val = null
+        }
+
         this.last_result = undefined
 
         if(stmnt.left instanceof Identifier) {
@@ -190,6 +205,10 @@ export class InterpreterVisitor implements Visitor {
         if (!this.validateArgs(args, callable.parameters)) {
             this.raise_crit_err(ErrorType.ARGS_NUM_ERR, [fun_call.fun_name, callable.parameters.length.toString(), args.length.toString()], fun_call.position)
         }
+        if (TypeMatching.isConstr(callable)){
+            TypeMatching.checkTypes(args, callable.param_types, fun_call.position)
+        }
+
 
         this.env.createFunCallContext()
         for (let i = 0; i < args.length; i++) {
@@ -317,6 +336,25 @@ export class InterpreterVisitor implements Visitor {
         console.log(print_val)
     }
 
+    visitColorConstr(constr: ColorConstr): void{
+        var args = []
+        constr.parameters.forEach(param => {
+            args.push(this.env.find(param.name).value)
+
+        });
+
+        this.last_result = new Color(args[0], args[1], args[2], args[3])
+    }
+
+    visitPenConstr(_: PenConstr): void{
+    }
+
+    visitTurtleConstr(_: TurtleConstr): void{
+    }
+
+    visitTurtlePositionConstr(_: TurtlePositionConstr): void{
+    }
+
     getArgsAsValue(args: Expression[]): Value[] {
         var val_args: Value[] = []
         args.forEach(arg => {
@@ -332,6 +370,8 @@ export class InterpreterVisitor implements Visitor {
         if (args.length !== params.length) {
             return false
         }
+
+
         return true
 
     }

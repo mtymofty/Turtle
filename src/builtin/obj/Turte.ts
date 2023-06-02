@@ -1,7 +1,8 @@
+import { ObjectInstance } from "./ObjectInstance";
 import { Pen } from "./Pen";
 import { TurtlePosition } from "./TurtlePosition";
 
-export class Turtle {
+export class Turtle implements ObjectInstance {
     pen: Pen
     position: TurtlePosition
     angle: number //0-359

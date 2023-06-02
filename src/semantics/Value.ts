@@ -1,7 +1,9 @@
-export class Value {
-    value: number | boolean | string = null
+import { ObjectInstance } from "../builtin/obj/ObjectInstance"
 
-    constructor(value: number | boolean | string) {
+export class Value {
+    value: number | boolean | string | ObjectInstance | null = null
+
+    constructor(value: number | boolean | string | ObjectInstance | null) {
         this.value = value
     }
 }

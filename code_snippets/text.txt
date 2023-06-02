@@ -1,5 +1,7 @@
 func main(){
     a = fun(5, 6, 7, 8);
+    b = Color(5, 5, 5, 5);
+    print(b);
     return;
 }
 
@@ -15,17 +17,13 @@ func fun(a, b, c, d){
     ident = !true;
     ident = 5 && 0;
     ident = 5 || 0;
-    ident = 5 == 0;
-    print(ident);
-    ident = 5 != "5";
-    print(ident);
+    ident = 5 == null;
+    ident = 5 != null;
     ident = 5 > 0;
-    print(ident);
     ident = 5 >= 0;
-    print(ident);
     ident = 5 < 0;
-    print(ident);
     ident = 5 <= 0;
     print(ident);
+
     return "abc";
 }

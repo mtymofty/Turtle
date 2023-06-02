@@ -1,4 +1,6 @@
-export class TurtlePosition {
+import { ObjectInstance } from "./ObjectInstance";
+
+export class TurtlePosition implements ObjectInstance {
     x: number
     y: number
 

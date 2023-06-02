@@ -1,4 +1,6 @@
-export class Color {
+import { ObjectInstance } from "./ObjectInstance";
+
+export class Color implements ObjectInstance {
     a: number //0-100
     r: number //0-255
     g: number //0-255

@@ -72,7 +72,8 @@ export enum ErrorType {
     GRTEQ_TYPE_ERR,
     LESS_TYPE_ERR,
     LESSEQ_TYPE_ERR,
-    ZERO_DIV_ERR
+    ZERO_DIV_ERR,
+    OBJ_CONSTR_ERR
 }
 
 export enum WarningType {

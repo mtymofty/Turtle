@@ -33,7 +33,12 @@ import { NullConstant } from "../syntax/expression/primary/constant/NullConstant
 import { StringConstant } from "../syntax/expression/primary/constant/StringConstant";
 import { IntConstant } from "../syntax/expression/primary/constant/IntConstant";
 import { DoubleConstant } from "../syntax/expression/primary/constant/DoubleConstant";
-import { PrintFunction } from "../builtin/PrintFunction";
+import { PrintFunction } from "../builtin/funs/PrintFunction";
+import { ColorConstr } from "../builtin/constr/ColorConstr";
+import { Constructor } from "../builtin/constr/Constructor";
+import { PenConstr } from "../builtin/constr/PenConstr";
+import { TurtleConstr } from "../builtin/constr/TurtleConstr";
+import { TurtlePositionConstr } from "../builtin/constr/TurtlePositionConstr";
 
 export interface Visitor {
     visitProgram(node: Program): void;
@@ -73,4 +78,8 @@ export interface Visitor {
     visitDoubleConstant(node: DoubleConstant): void;
 
     visitPrintFunction(node: PrintFunction): void;
+    visitColorConstr(node: ColorConstr): void;
+    visitPenConstr(node: PenConstr): void;
+    visitTurtleConstr(node: TurtleConstr): void;
+    visitTurtlePositionConstr(node: TurtlePositionConstr): void;
 }
