@@ -45,13 +45,11 @@ import { Position } from "../source/Position";
 
 export class ParserImp implements Parser {
     lexer: Lexer
-    error_handler: ErrorHandler
 
     private raised_error: boolean = false;
 
-    constructor(lexer: Lexer, error_handler: ErrorHandler) {
+    constructor(lexer: Lexer) {
         this.lexer = lexer;
-        this.error_handler = error_handler;
         this.lexer.next_token();
     }
 
@@ -675,17 +673,17 @@ export class ParserImp implements Parser {
     }
 
     print_warning(warn_type: WarningType, args: string[]): void {
-        this.error_handler.print_warning(this.lexer.token.pos, warn_type, args, this.lexer.get_reader())
+        ErrorHandler.print_warning(this.lexer.token.pos, warn_type, args, this.lexer.get_reader())
     }
 
     print_error(err_type: ErrorType, args: string[]): void {
-        this.error_handler.print_error(this.lexer.token.pos, err_type, args, this.lexer.get_reader())
+        ErrorHandler.print_error(this.lexer.token.pos, err_type, args, this.lexer.get_reader())
         this.raised_error = true;
     }
 
     raise_critical_error(err_type: ErrorType, args: string[]): void {
         this.print_error(err_type, args);
-        this.error_handler.abort(this.lexer.get_reader());
+        ErrorHandler.abort(this.lexer.get_reader());
     }
 
     did_raise_error(): boolean {

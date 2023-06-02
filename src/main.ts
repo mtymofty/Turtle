@@ -11,10 +11,9 @@ import { InterpreterVisitor } from './interpreter/InterpreterVisitor';
 
 
 var file_path: string = process.argv.slice(2)[0];
-var error_handler: ErrorHandler = new ErrorHandler()
-var file_reader: Reader = new FileReader(file_path, error_handler)
-var lexer: Lexer = new LexerFilter(new LexerImp(file_reader, error_handler));
-var parser: Parser = new ParserImp(lexer, error_handler);
+var file_reader: Reader = new FileReader(file_path)
+var lexer: Lexer = new LexerFilter(new LexerImp(file_reader));
+var parser: Parser = new ParserImp(lexer);
 
 var program: Program = parser.parse()
 
@@ -22,7 +21,6 @@ var printer: PrinterVisitor = new PrinterVisitor();
 program.accept(printer)
 
 console.log("\nEXECUTING PROGRAM...\n")
-error_handler.reader = file_reader
-var interpreter = new InterpreterVisitor(error_handler);
+var interpreter = new InterpreterVisitor();
 program.accept(interpreter)
 file_reader.abort()

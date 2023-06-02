@@ -20,14 +20,12 @@ export class FileReader implements Reader {
 	curr_line_beg: number = 0;
 	private fd: number;
 	private file_path: string;
-	private error_handler: ErrorHandler;
 	private newline_chars: string[] = ["\n", "\r"]
 
-	constructor(path: string, error_handler: ErrorHandler) {
+	constructor(path: string) {
 		this.file_path = path;
 		this.curr_pos = new Position();
 		this.reader_pos = 0;
-		this.error_handler = error_handler;
 		this.open();
 	}
 
@@ -75,7 +73,7 @@ export class FileReader implements Reader {
 		try {
 			this.fd = fs.openSync(this.file_path, "r");
 		} catch(e) {
-			this.error_handler.print_err_mess(ErrorUtils.error_mess[ErrorType.PATH_ERR]);
+			ErrorHandler.print_err_mess(ErrorUtils.error_mess[ErrorType.PATH_ERR]);
 			process.exit(0);
 		}
 	}

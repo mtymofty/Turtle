@@ -47,7 +47,6 @@ import { Evaluator } from "./Evaluator";
 
 export class InterpreterVisitor implements Visitor {
     env: Environment
-    error_handler: ErrorHandler
     callables: Record<string, Callable> = {}
 
     main_fun_name: string = "main"
@@ -57,8 +56,7 @@ export class InterpreterVisitor implements Visitor {
     is_breaking: boolean = false
     is_continuing: boolean = false
 
-    constructor(error_handler: ErrorHandler, env?: Environment) {
-        this.error_handler = error_handler;
+    constructor(env?: Environment) {
         this.env = (env) ? env : new Environment();
     }
 
@@ -206,18 +204,22 @@ export class InterpreterVisitor implements Visitor {
     visitMemberAccess(acc: MemberAccess): void {
     }
 
-    visitAddition(add: Addition): void {
-        add.left.accept(this)
-        let left = this.last_result
+    private visitTwoArgOp(op, match_type, eval_type, err_type) {
+        op.left.accept(this);
+        let left = this.last_result;
 
-        add.right.accept(this)
-        let right = this.last_result
+        op.right.accept(this);
+        let right = this.last_result;
 
-        if(TypeMatching.matchesAdd(left, right)) {
-            this.last_result = Evaluator.evaluateAdd(left, right)
+        if (match_type(left, right)) {
+            this.last_result = eval_type(left, right);
         } else {
-            this.raise_crit_err(ErrorType.ADD_TYPE_ERR, [TypeMatching.getTypeOf(left), TypeMatching.getTypeOf(right)], add.position)
+            this.raise_crit_err(err_type, [TypeMatching.getTypeOf(left), TypeMatching.getTypeOf(right)], op.position);
         }
+    }
+
+    visitAddition(add: Addition): void {
+        this.visitTwoArgOp(add, TypeMatching.matchesAdd, Evaluator.evaluateAdd, ErrorType.ADD_TYPE_ERR);
     }
 
     visitDivision(div: Division): void{
@@ -387,13 +389,13 @@ export class InterpreterVisitor implements Visitor {
     }
 
     raise_crit_err(err_type: ErrorType, args: string[], pos: Position): void {
-        this.error_handler.print_err_pos(pos, err_type, args)
-        this.error_handler.abort();
+        ErrorHandler.print_err_pos(pos, err_type, args)
+        ErrorHandler.abort();
     }
 
     raise_crit_err_mess(err_type: ErrorType): void {
-        this.error_handler.print_err_mess(ErrorUtils.error_mess[err_type])
-        this.error_handler.abort();
+        ErrorHandler.print_err_mess(ErrorUtils.error_mess[err_type])
+        ErrorHandler.abort();
     }
 
 }
