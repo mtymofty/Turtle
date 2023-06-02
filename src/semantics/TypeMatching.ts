@@ -60,6 +60,9 @@ export class TypeMatching {
     }
 
     // &&, || dla dowolnych typów
+    static matchesLog(_: any) {
+        return true
+    }
 
     static getTypeOf(val: any){
         if (val == null) {

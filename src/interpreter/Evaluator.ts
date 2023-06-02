@@ -1,3 +1,7 @@
+import { ErrorHandler } from "../error/ErrorHandler"
+import { ErrorType } from "../error/ErrorType"
+import { Position } from "../source/Position"
+
 export class Evaluator {
     static evaluateAdd(left: any, right: any) {
         return left + right
@@ -7,11 +11,17 @@ export class Evaluator {
         return left - right
     }
 
-    static evaluateDiv(left: any, right: any) {
+    static evaluateDiv(left: any, right: any, pos: Position) {
+        if (right === 0) {
+            this.raise_crit_err(ErrorType.ZERO_DIV_ERR, [], pos)
+        }
         return left / right
     }
 
-    static evaluateIntDiv(left: any, right: any) {
+    static evaluateIntDiv(left: any, right: any, pos: Position) {
+        if (right === 0) {
+            this.raise_crit_err(ErrorType.ZERO_DIV_ERR, [], pos)
+        }
         return Math.floor(left / right);
     }
 
@@ -29,11 +39,21 @@ export class Evaluator {
     }
 
     static evaluateAnd(left: any, right: any) {
-        return left && right
+        if(left) {
+            if (right) {
+                return true
+            }
+        }
+        return false
     }
 
     static evaluateOr(left: any, right: any) {
-        return left || right
+        if (left) {
+            return true
+        } else if (right) {
+            return true
+        }
+        return false
     }
 
     static evaluateNeg(val: any) {
@@ -64,8 +84,13 @@ export class Evaluator {
         return left < right
     }
 
-    static evaluateGtr(left: any, right: any) {
+    static evaluateGrt(left: any, right: any) {
         return left > right
+    }
+
+    static raise_crit_err(err_type: ErrorType, args: string[], pos: Position): void {
+        ErrorHandler.print_err_pos(pos, err_type, args)
+        ErrorHandler.abort();
     }
 
 

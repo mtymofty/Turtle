@@ -34,6 +34,7 @@ import { ReturnStatement } from "../syntax/statement/ReturnStatement";
 import { BreakStatement } from "../syntax/statement/BreakStatement";
 import { ContinueStatement } from "../syntax/statement/ContinueStatement";
 import { PrintFunction } from "../builtin/PrintFunction";
+import { GreaterEqualComparison } from "../syntax/expression/comparison/GreaterEqualComparison";
 
 export class PrinterVisitor implements Visitor {
     indent: number
@@ -282,7 +283,7 @@ export class PrinterVisitor implements Visitor {
         this.indent -= this.indent_inc
     }
 
-    visitGreaterComparison(comp: OrExpression): void{
+    visitGreaterComparison(comp: GreaterComparison): void{
         this.print(`Greater Comparison [line: ${comp.position.line} col: ${comp.position.col}]: \n`)
         this.indent += this.indent_inc
         comp.left.accept(this)
@@ -290,7 +291,7 @@ export class PrinterVisitor implements Visitor {
         this.indent -= this.indent_inc
     }
 
-    visitGreaterEqualComparison(comp: GreaterComparison): void{
+    visitGreaterEqualComparison(comp: GreaterEqualComparison): void{
         this.print(`Greater or Equal Comparison [line: ${comp.position.line} col: ${comp.position.col}]: \n`)
         this.indent += this.indent_inc
         comp.left.accept(this)
