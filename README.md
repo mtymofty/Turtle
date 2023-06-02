@@ -137,13 +137,11 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
 ### Funkcje wbudowane
 
     print(message)		<- Funkcja służąca do wypisywania w konsoli wiadomości lub danych
-    input(message) 		<- Funkcja przyjmująca dane wejściowe od użytkownika, wypisuje wiadomość i czeka na input
 #### Przykłady:
 
     print("Wiadomość do użytkownika");
     print(100);
     print(true);
-    string = input("Proszę napisać wiadomość: ");
 
 ### Obiekty wbudowane
 
@@ -259,6 +257,14 @@ Konstruktory:
 	...
 	}
 
+    Przypisanie wartości do funkcji:
+    funcall() = 5;
+
+    Wolnostojący identyfikator lub dostęp do atrybutu:
+    ident;
+    obj.attr;
+
+
 
 ## Formalna specyfikacja i składnia EBNF
 
@@ -358,60 +364,60 @@ Konstruktory:
 
 
 ## Obsługa błędów
-Błędy zgłaszane w trakcie analizy nie powodują jej przerwania.
+Błędy obsługiwane są przed moduł ErrorHandler. Same błędy podzielone zostały na trzy kategorie.
 
 ### Błędy leksykalne
 Rozróżniane jest 11 typów błędów leksera.
 
-ERROR - UNEXPECTED EOL WHILE PARSING STRING
-line: 2 col: 17
-    ident = "str
+    ERROR - UNEXPECTED EOL WHILE PARSING STRING
+    line: 2 col: 17
+        ident = "str
+                    ^
+
+    ERROR - UNEXPECTED EOF WHILE PARSING STRING
+    line: 2 col: 17
+        ident = "str
+                    ^
+
+    ERROR - EXCEEDING LENGTH OF A STRING!
+    line: 2 col: 13
+        ident = "str(...)ing";
                 ^
 
-ERROR - UNEXPECTED EOF WHILE PARSING STRING
-line: 2 col: 17
-    ident = "str
+    ERROR - EXCEEDING LENGTH OF AN IDENTIFIER!
+    line: 2 col: 13
+        ident = iden(...)t;
                 ^
 
-ERROR - EXCEEDING LENGTH OF A STRING!
-line: 2 col: 13
-    ident = "str(...)ing";
+    ERROR - PRECEDING ZERO IN A NUMERIC CONSTANT!
+    line: 2 col: 13
+        ident = 05;
+                ^
+
+    ERROR - EXCEEDING VALUE OF A NUMERIC CONSTANT (INT)!
+    line: 2 col: 13
+        ident = 555(...)5;
+                ^
+
+    ERROR - EXCEEDING VALUE OF A NUMERIC CONSTANT (DOUBLE)!
+    line: 2 col: 13
+        ident = 5.5(...)5
+                ^
+
+    ERROR WHILE PARSING "&&" OPERATOR
+    EXPECTED "&" GOT " "
+    line: 2 col: 12
+        if (a & b) {
             ^
 
-ERROR - EXCEEDING LENGTH OF AN IDENTIFIER!
-line: 2 col: 13
-    ident = iden(...)t;
-            ^
+    ERROR - UNRECOGNIZED TOKEN: "@"
+    line: 2 col: 13
+        ident = @5;
+                ^
 
-ERROR - PRECEDING ZERO IN A NUMERIC CONSTANT!
-line: 2 col: 13
-    ident = 05;
-            ^
+    CRITICAL ERROR - ENCOUNTERED TWO DIFFERENT NEWLINE SIGNS - CORRUPTED FILE
 
-ERROR - EXCEEDING VALUE OF A NUMERIC CONSTANT (INT)!
-line: 2 col: 13
-    ident = 555(...)5;
-            ^
-
-ERROR - EXCEEDING VALUE OF A NUMERIC CONSTANT (DOUBLE)!
-line: 2 col: 13
-    ident = 5.5(...)5
-            ^
-
-ERROR WHILE PARSING "&&" OPERATOR
-EXPECTED "&" GOT " "
-line: 2 col: 12
-    if (a & b) {
-           ^
-
-ERROR - UNRECOGNIZED TOKEN: "@"
-line: 2 col: 13
-    ident = @5;
-            ^
-
-CRITICAL ERROR - ENCOUNTERED TWO DIFFERENT NEWLINE SIGNS - CORRUPTED FILE
-
-CRITICAL ERROR - NO SUCH FILE OR DIRECTORY
+    CRITICAL ERROR - NO SUCH FILE OR DIRECTORY
 
 ### Błędy składniowe
 **SyntaxError**: invalid syntax, missing closing bracket!
@@ -453,7 +459,16 @@ line 1, col 1:  "undef_fun();"
 line 1, col 9:  "abc = 5/0;"
 
 ## Sposób uruchomienia, wej./wyj.
-Program będzie uruchamiany przez odpowiedni skrypt, otrzymujący plik tekstowy z zapisanym kodem jako parametr.
+Program uruchamiany jest przy użyciu specjalnego skryptu przyjmującego jako argument plik tekstowy zawierający kod programu.
+
+Możliwe jest włączenie programu przy użytciu dwóch skryptów:
+
+- ***turtle.sh*** - jedynie wykonywany jest kod napisanego programu. Przykładowe uruchomienie:
+
+    ./turtle.sh code_snippets/text.txt
+- ***turtle-test.sh*** - dodatkowo wypisywane na ekran jest drzewo obiektów programu. Przykładowe uruchomienie:
+
+    ./turtle-test.sh code_snippets/text.txt
 
 ## Wymagania
 1. Program będzie w stanie przeanalizować i wykonać poprawnie skonstruowane instrukcje w zdefiniowanym języku.
@@ -473,9 +488,9 @@ Program będzie uruchamiany przez odpowiedni skrypt, otrzymujący plik tekstowy 
 <img title="Graf" alt="Graf modułów" src="https://i.imgur.com/0vBynHX.jpg">
 
 Do **leksera** trafiają szeregowo znaki z kodu źródłowego, które są analizowane leksykalnie i tokenizowane.
-Wyprodukowane tokeny trafiają następnie do **parsera**, który dokonuje analizy składniowej i buduje na ich podstawie drzewo składniowe AST.
+Wyprodukowane tokeny trafiają następnie do **parsera**, który dokonuje analizy składniowej i buduje na ich podstawie drzewo obiektów programu.
 Ostatecznie **interpreter** wykonuje program sprawdzając przy okazji poprawność semantyczną.
-Dodatkowo moduł **obsługi błędów**, komunikujący się z każdym z wymienionych komponentów, będzie odpowiedzialny za informowanie użytkownika o występujących w kodzie błędach.
+Dodatkowo moduł **obsługi błędów**, komunikujący się z każdym z wymienionych komponentów, będzie odpowiedzialny za informowanie użytkownika o występujących w kodzie błędach i w przypadku, gdy zajdzie taka potrzeba - przerwanie wykonania programu.
 
 ### Lekser
 Lekser pobiera znaki leniwie, pojedynczo znak po znaku. Odpowiednio skonstruowane wedle zasad języka ciągi znaków grupowane są w tokeny. W przypadku, gdy niemożliwe jest zidentyfikowanie tokenu lub łamane jest któreś z istniejących zabezpieczeń (np. na wartość stałej liczbowej) wywoływany jest błąd. Nie przerywa to jednak wykonania programu, aby zapewnić bardziej obszerną analizę.
