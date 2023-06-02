@@ -99,13 +99,13 @@ export class TypeMatching {
         for (let i = 0; i < args.length; i++) {
             if (arg_types[i] !== param_types[i]) {
 
-                this.raise_crit_err(ErrorType.OBJ_CONSTR_ERR, [param_types.toString(), arg_types.toString()], pos);
+                ErrorHandler.raise_crit_err(ErrorType.OBJ_CONSTR_ERR, [param_types.toString(), arg_types.toString()], pos);
             }
         }
     }
 
-    static raise_crit_err(err_type: ErrorType, args: string[], pos: Position): void {
-        ErrorHandler.print_err_pos(pos, err_type, args)
-        ErrorHandler.abort();
+    static isObjectInstance(object: any): object is ObjectInstance {
+        return 'validateAttr' in object;
     }
+
 }

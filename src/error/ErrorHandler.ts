@@ -68,8 +68,22 @@ export abstract class ErrorHandler {
         this.print_pos(pos)
     }
 
+    static print_warning_pos(pos: Position, warn_type: WarningType, args: string[], reader?: Reader, ){
+        let mess = ErrorUtils.warning_mess[warn_type];
+
+        var occurs: number[] = find_occurances("$", mess)
+        if (args.length !== occurs.length) {
+            this.raise_self_error(WarningType[warn_type], reader);
+        }
+
+        mess = this.insert_args(mess, args, occurs);
+
+        this.print_warn_mess(mess)
+        this.print_pos(pos)
+    }
+
     static print_pos(pos: Position):void {
-        console.log(`line: ${pos.line} col: ${pos.col}`);
+        console.log(`line: ${pos.line} col: ${pos.col} ${this.white_color}`);
     }
 
     static insert_args(mess: string, args: string[], occurs: number[]): string {
@@ -97,6 +111,20 @@ export abstract class ErrorHandler {
             console.log(e);
             this.abort(reader);
           }
+    }
+
+    static raise_crit_err(err_type: ErrorType, args: string[], pos: Position): void {
+        this.print_err_pos(pos, err_type, args)
+        this.abort();
+    }
+
+    static raise_crit_err_mess(err_type: ErrorType): void {
+        this.print_err_mess(ErrorUtils.error_mess[err_type])
+        this.abort();
+    }
+
+    static print_warning_mess(warn_type: WarningType, args: string[], pos: Position): void {
+        this.print_warning_pos(pos, warn_type, args)
     }
 
     static abort(reader?: Reader): void {

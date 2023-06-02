@@ -3,7 +3,7 @@ func main(){
     b = Color();
     c = Pen(true, b);
     d = Position();
-    e = Turtle(c, d, 10);
+    e = Turtle(c, d, 100);
     print(b);
     print(c);
     print(d);

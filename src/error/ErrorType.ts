@@ -77,5 +77,7 @@ export enum ErrorType {
 }
 
 export enum WarningType {
-    STRING_ESC_WARN
+    STRING_ESC_WARN,
+    COLOR_OPACITY_WARN,
+    COLOR_COL_WARN
 }

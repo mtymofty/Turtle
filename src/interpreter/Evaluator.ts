@@ -13,14 +13,14 @@ export class Evaluator {
 
     static evaluateDiv(left: any, right: any, pos: Position) {
         if (right === 0) {
-            this.raise_crit_err(ErrorType.ZERO_DIV_ERR, [], pos)
+            ErrorHandler.raise_crit_err(ErrorType.ZERO_DIV_ERR, [], pos)
         }
         return left / right
     }
 
     static evaluateIntDiv(left: any, right: any, pos: Position) {
         if (right === 0) {
-            this.raise_crit_err(ErrorType.ZERO_DIV_ERR, [], pos)
+            ErrorHandler.raise_crit_err(ErrorType.ZERO_DIV_ERR, [], pos)
         }
         return Math.floor(left / right);
     }
@@ -87,12 +87,4 @@ export class Evaluator {
     static evaluateGrt(left: any, right: any) {
         return left > right
     }
-
-    static raise_crit_err(err_type: ErrorType, args: string[], pos: Position): void {
-        ErrorHandler.print_err_pos(pos, err_type, args)
-        ErrorHandler.abort();
-    }
-
-
-
 }

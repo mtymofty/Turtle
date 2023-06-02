@@ -74,11 +74,11 @@ export class InterpreterVisitor implements Visitor {
 
         var main_fun = this.callables[this.main_fun_name]
         if (main_fun === null || main_fun === undefined) {
-            this.raise_crit_err_mess(ErrorType.MAIN_FUN_ERR)
+            ErrorHandler.raise_crit_err_mess(ErrorType.MAIN_FUN_ERR)
         }
 
         if (main_fun.parameters.length != 0) {
-            this.raise_crit_err_mess(ErrorType.MAIN_PARAM_ERR)
+            ErrorHandler.raise_crit_err_mess(ErrorType.MAIN_PARAM_ERR)
         }
 
         this.env.createFunCallContext()
@@ -159,7 +159,7 @@ export class InterpreterVisitor implements Visitor {
     visitIdentifier(ident: Identifier): void {
         let val: Value = this.env.find(ident.name)
         if (val === undefined) {
-            this.raise_crit_err(ErrorType.VAR_UNDEF_ERR, [ident.name], ident.position)
+            ErrorHandler.raise_crit_err(ErrorType.VAR_UNDEF_ERR, [ident.name], ident.position)
         }
         this.last_result = val.value
     }
@@ -209,19 +209,19 @@ export class InterpreterVisitor implements Visitor {
     visitFunCall(fun_call: FunCall): void {
         let callable = this.callables[fun_call.fun_name]
         if (callable === null || callable === undefined) {
-            this.raise_crit_err(ErrorType.FUN_UNDEF_ERR, [fun_call.fun_name], fun_call.position)
+            ErrorHandler.raise_crit_err(ErrorType.FUN_UNDEF_ERR, [fun_call.fun_name], fun_call.position)
 
         }
         let args = this.getArgsAsValue(fun_call.args)
 
         if (callable instanceof Constructor){
             if (!this.validateArgsConstr(args, callable.parameters)) {
-                this.raise_crit_err(ErrorType.ARGS_NUM_ERR, [fun_call.fun_name, callable.parameters.length.toString(), args.length.toString()], fun_call.position)
+                ErrorHandler.raise_crit_err(ErrorType.ARGS_NUM_ERR, [fun_call.fun_name, callable.parameters.length.toString(), args.length.toString()], fun_call.position)
             }
             TypeMatching.checkTypes(args, callable.param_types, fun_call.position)
         } else {
             if (!this.validateArgsFun(args, callable.parameters)) {
-                this.raise_crit_err(ErrorType.ARGS_NUM_ERR, [fun_call.fun_name, callable.parameters.length.toString(), args.length.toString()], fun_call.position)
+                ErrorHandler.raise_crit_err(ErrorType.ARGS_NUM_ERR, [fun_call.fun_name, callable.parameters.length.toString(), args.length.toString()], fun_call.position)
             }
         }
 
@@ -231,6 +231,10 @@ export class InterpreterVisitor implements Visitor {
         }
 
         callable.accept(this)
+
+        if (callable instanceof Constructor && TypeMatching.isObjectInstance(this.last_result)){
+            this.last_result.validateAttr(fun_call.position)
+        }
 
         this.env.deleteFunCallContext()
         this.is_returning = false
@@ -249,7 +253,7 @@ export class InterpreterVisitor implements Visitor {
         if (match_type(left, right)) {
             this.last_result = eval_type(left, right);
         } else {
-            this.raise_crit_err(err_type, [TypeMatching.getTypeOf(left), TypeMatching.getTypeOf(right)], op.position);
+            ErrorHandler.raise_crit_err(err_type, [TypeMatching.getTypeOf(left), TypeMatching.getTypeOf(right)], op.position);
         }
     }
 
@@ -260,7 +264,7 @@ export class InterpreterVisitor implements Visitor {
         if(match_type(expr)) {
             this.last_result = eval_type(expr)
         } else {
-            this.raise_crit_err(err_type, [TypeMatching.getTypeOf(expr)], neg.position)
+            ErrorHandler.raise_crit_err(err_type, [TypeMatching.getTypeOf(expr)], neg.position)
         }
     }
 
@@ -272,9 +276,9 @@ export class InterpreterVisitor implements Visitor {
         let right = this.last_result;
 
         if (match_type(left, right)) {
-            this.last_result = eval_type(left, right, op.pos);
+            this.last_result = eval_type(left, right, op.position);
         } else {
-            this.raise_crit_err(err_type, [TypeMatching.getTypeOf(left), TypeMatching.getTypeOf(right)], op.position);
+            ErrorHandler.raise_crit_err(err_type, [TypeMatching.getTypeOf(left), TypeMatching.getTypeOf(right)], op.position);
         }
     }
 
@@ -348,7 +352,8 @@ export class InterpreterVisitor implements Visitor {
 
     visitPrintFunction(fun: PrintFunction): void{
         let print_val = this.env.find(fun.parameters[0].name).value
-        console.log(print_val)
+        let printable = Value.getPrintable(print_val)
+        console.log(printable)
     }
 
     visitConstr(constr: Constructor): void{
@@ -386,16 +391,4 @@ export class InterpreterVisitor implements Visitor {
         return true
 
     }
-
-
-    raise_crit_err(err_type: ErrorType, args: string[], pos: Position): void {
-        ErrorHandler.print_err_pos(pos, err_type, args)
-        ErrorHandler.abort();
-    }
-
-    raise_crit_err_mess(err_type: ErrorType): void {
-        ErrorHandler.print_err_mess(ErrorUtils.error_mess[err_type])
-        ErrorHandler.abort();
-    }
-
 }
