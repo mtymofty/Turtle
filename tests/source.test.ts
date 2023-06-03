@@ -1,5 +1,4 @@
-import { ErrorHandler } from "../src/error/ErrorHandler";
-import { Reader, FileReader, StringReader } from "../src/source/Reader";
+import { FileReader } from "../src/source/Reader";
 
 const mock_exit = jest.spyOn(process, 'exit')
             .mockImplementation((number) => { throw new Error('process.exit: ' + number); });

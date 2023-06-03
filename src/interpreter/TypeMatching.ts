@@ -2,6 +2,7 @@ import { ObjectInstance } from "./builtin/objs/ObjectInstance"
 import { ErrorHandler } from "../error/ErrorHandler"
 import { ErrorType } from "../error/ErrorType"
 import { Value } from "./semantics/Value"
+import { Position } from "../source/Position"
 
 export class TypeMatching {
     // +
@@ -40,9 +41,7 @@ export class TypeMatching {
 
     // >, >=, <, <=
     static matchesComp(left: any, right: any) {
-        if (typeof(left) === typeof(right)) {
-            return true
-        } else if (left === null || right === null) {
+        if (typeof(left) === typeof(right) && typeof(left) === "number") {
             return true
         }
         return false
@@ -65,7 +64,7 @@ export class TypeMatching {
     }
 
     // &&, || dla dowolnych typów
-    static matchesLog(_: any) {
+    static matchesLog(_: any, __: any) {
         return true
     }
 
@@ -83,13 +82,14 @@ export class TypeMatching {
         }
     }
 
-    static checkTypes(args: Value[], param_types, pos) {
+    static checkTypes(args: Value[], param_types: string[], pos: Position) {
         if (args.length === 0) {
             return
         }
         var arg_types = args.map(arg => {
             return this.getTypeOf(arg.value)
         })
+
         for (let i = 0; i < args.length; i++) {
             // special case, when param type is a number, so it takes both integer and double (for example Turtle.angle)
             if (param_types[i] == "number" && (arg_types[i] == "integer" || arg_types[i] == "double")) {
@@ -111,16 +111,17 @@ export class TypeMatching {
     }
 
     static isObjectInstance(object: any){
-        if (typeof(object) !== "object") {
+        if (typeof(object) !== "object" || object == null) {
             return false
         }
         return this.isObjectInstanceInt(object)
     }
 
-    static isObjectInstanceInt(object: any): object is ObjectInstance {
+    private static isObjectInstanceInt(object: any): object is ObjectInstance {
         return 'validateAttr' in object;
     }
 
+    // used for exceptions
     static numType(left: number, right: number) {
         if (this.getTypeOf(left) == "double" || this.getTypeOf(right) == "double"){
             return "double"

@@ -1,5 +1,12 @@
 # TKOM - Turtle
 
+## Cel projektu
+Celem projektu jest zaprojektowanie w pełni funkcjonalnego **interpretera** stworzonego przez siebie języka.
+
+Projekt realizowany jest w ramach przedmiotu Techniki Kompilacji - TKOM.
+
+Opiekunem projektu jest dr inż. Piotr Gawkowski.
+
 ## Opis języka
 Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprzez sterowanie żółwiem potrafiącym rysować różnego rodzaju kształty, o zadanym kolorze i wymiarach.
 
@@ -155,7 +162,7 @@ Metody:
 
 Atrybuty:
  - *pen* - obiekt typu ***Pen***
- - *position* - obiekt typu ***Position***
+ - *position* - obiekt typu ***TurtlePosition***
  - *angle* - kąt pod którym ustawiony jest żółw. Wartość z zakresu 0-359. Kąt zmienia się wedle wskazówek zegara.
 
 Konstruktory:
@@ -174,7 +181,7 @@ Konstruktory:
     Pen() - tworzy obiekt długopisu z domyślnymi atrybutami (piszący i czarny)
     Pen(enabled, color) - tworzy obiekt długopisu z podanymi przez użytkownika atrybutami
 
-***Position*** - obiekt reprezentujący pozycję żółwia.
+***TurtlePosition*** - obiekt reprezentujący pozycję żółwia.
 
 Atrybuty:
  - *x* - współrzędna x żółwia
@@ -547,7 +554,14 @@ Lekser pobiera znaki leniwie, pojedynczo znak po znaku. Odpowiednio skonstruowan
 
 
 ## Testowanie
+Program testowany jest przy użyciu biblioteki JEST.
+
+Uruchomienie komendą **jest**
+
+### Lekser
 Poprawne działanie **leksera** sprawdzanie jest przy użyciu testów jednostkowych weryfikujących wykrywanie pojedynczych tokenów (zarówno poprawnych jak i niepoprawnych). Testy niepoprawne są przeprowadzane między innymi korzystając z typowych błędów, które mogą przydarzyć się podczas pisaniu kodu, np. literówka, lub brak domknięcia cudzysłowia.
+
+Powstało **86** testów leksera.
 
 Dla każdej produkcji **parsera** powstał test sprawdzający jej poprawność.  Dodatkowo przeprowadzone zostały testy dla scenariuszy nieprawidłowych sekwencji tokenów.
 

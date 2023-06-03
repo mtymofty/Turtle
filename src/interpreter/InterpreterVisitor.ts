@@ -109,7 +109,7 @@ export class InterpreterVisitor implements Visitor {
                                 [new Identifier("pen", null), new Identifier("position", null), new Identifier("angle", null)],
                                 ["Pen", "TurtlePosition", "number"],
                                 Turtle);
-        this.callables["Position"] = new Constructor("Position",
+        this.callables["TurtlePosition"] = new Constructor("TurtlePosition",
                                 [new Identifier("x", null), new Identifier("y", null)],
                                 ["integer", "integer"],
                                 TurtlePosition);
