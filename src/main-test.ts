@@ -3,7 +3,7 @@ import { LexerImp } from './lexer/LexerImp';
 import { Lexer } from './lexer/Lexer';
 import { LexerFilter } from './lexer/LexerFilter';
 import { ParserImp } from './parser/ParserImp';
-import { Program } from './syntax/Program';
+import { Program } from './parser/syntax/Program';
 import { PrinterVisitor } from './visitor/PrinterVisitor';
 import { Parser } from './parser/Parser';
 import { InterpreterVisitor } from './interpreter/InterpreterVisitor';

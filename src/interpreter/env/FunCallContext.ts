@@ -1,4 +1,4 @@
-import { Value } from "../../semantics/Value";
+import { Value } from "../semantics/Value";
 
 export class FunCallContext {
     scopes: Array<Record<string, Value>> = []

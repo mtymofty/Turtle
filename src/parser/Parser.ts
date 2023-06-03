@@ -1,4 +1,4 @@
-import { Program } from "../syntax/Program";
+import { Program } from "./syntax/Program";
 
 export interface Parser {
     parse(): Program

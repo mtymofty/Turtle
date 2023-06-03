@@ -1,35 +1,34 @@
-import { ErrorHandler } from '../src/error/ErrorHandler';
 import { LexerImp } from '../src/lexer/LexerImp';
 import { ParserImp } from '../src/parser/ParserImp';
 import { StringReader } from '../src/source/Reader';
-import { AndExpression } from '../src/syntax/expression/AndExpression';
-import { Exponentiation } from '../src/syntax/expression/Exponentiation';
-import { OrExpression } from '../src/syntax/expression/OrExpression';
-import { Addition } from '../src/syntax/expression/additive/Addition';
-import { Subtraction } from '../src/syntax/expression/additive/Subtraction';
-import { EqualComparison } from '../src/syntax/expression/comparison/EqualComparison';
-import { GreaterComparison } from '../src/syntax/expression/comparison/GreaterComparison';
-import { GreaterEqualComparison } from '../src/syntax/expression/comparison/GreaterEqualComparison';
-import { LesserComparison } from '../src/syntax/expression/comparison/LesserComparison';
-import { LesserEqualComparison } from '../src/syntax/expression/comparison/LesserEqualComparison';
-import { NotEqualComparison } from '../src/syntax/expression/comparison/NotEqualComparison';
-import { Division } from '../src/syntax/expression/multiplicative/Division';
-import { IntDivision } from '../src/syntax/expression/multiplicative/IntDivision';
-import { Modulo } from '../src/syntax/expression/multiplicative/Modulo';
-import { Multiplication } from '../src/syntax/expression/multiplicative/Multiplication';
-import { LogicalNegation } from '../src/syntax/expression/negation/LogicalNegation';
-import { Negation } from '../src/syntax/expression/negation/Negation';
-import { FunCall } from '../src/syntax/expression/primary/object_access/FunCall';
-import { Identifier } from '../src/syntax/expression/primary/object_access/Identifier';
-import { MemberAccess } from '../src/syntax/expression/primary/object_access/MemberAccess';
-import { AssignStatement } from '../src/syntax/statement/AssignStatement';
-import { IfStatement } from '../src/syntax/statement/IfStatement';
-import { WhileStatement } from '../src/syntax/statement/WhileStatement';
-import { IntConstant } from '../src/syntax/expression/primary/constant/IntConstant';
-import { DoubleConstant } from '../src/syntax/expression/primary/constant/DoubleConstant';
-import { BooleanConstant } from '../src/syntax/expression/primary/constant/BooleanConstant';
-import { NullConstant } from '../src/syntax/expression/primary/constant/NullConstant';
-import { StringConstant } from '../src/syntax/expression/primary/constant/StringConstant';
+import { AndExpression } from '../src/parser/syntax/expression/AndExpression';
+import { Exponentiation } from '../src/parser/syntax/expression/Exponentiation';
+import { OrExpression } from '../src/parser/syntax/expression/OrExpression';
+import { Addition } from '../src/parser/syntax/expression/additive/Addition';
+import { Subtraction } from '../src/parser/syntax/expression/additive/Subtraction';
+import { EqualComparison } from '../src/parser/syntax/expression/comparison/EqualComparison';
+import { GreaterComparison } from '../src/parser/syntax/expression/comparison/GreaterComparison';
+import { GreaterEqualComparison } from '../src/parser/syntax/expression/comparison/GreaterEqualComparison';
+import { LesserComparison } from '../src/parser/syntax/expression/comparison/LesserComparison';
+import { LesserEqualComparison } from '../src/parser/syntax/expression/comparison/LesserEqualComparison';
+import { NotEqualComparison } from '../src/parser/syntax/expression/comparison/NotEqualComparison';
+import { Division } from '../src/parser/syntax/expression/multiplicative/Division';
+import { IntDivision } from '../src/parser/syntax/expression/multiplicative/IntDivision';
+import { Modulo } from '../src/parser/syntax/expression/multiplicative/Modulo';
+import { Multiplication } from '../src/parser/syntax/expression/multiplicative/Multiplication';
+import { LogicalNegation } from '../src/parser/syntax/expression/negation/LogicalNegation';
+import { Negation } from '../src/parser/syntax/expression/negation/Negation';
+import { FunCall } from '../src/parser/syntax/expression/primary/object_access/FunCall';
+import { Identifier } from '../src/parser/syntax/expression/primary/object_access/Identifier';
+import { MemberAccess } from '../src/parser/syntax/expression/primary/object_access/MemberAccess';
+import { AssignStatement } from '../src/parser/syntax/statement/AssignStatement';
+import { IfStatement } from '../src/parser/syntax/statement/IfStatement';
+import { WhileStatement } from '../src/parser/syntax/statement/WhileStatement';
+import { IntConstant } from '../src/parser/syntax/expression/primary/constant/IntConstant';
+import { DoubleConstant } from '../src/parser/syntax/expression/primary/constant/DoubleConstant';
+import { BooleanConstant } from '../src/parser/syntax/expression/primary/constant/BooleanConstant';
+import { NullConstant } from '../src/parser/syntax/expression/primary/constant/NullConstant';
+import { StringConstant } from '../src/parser/syntax/expression/primary/constant/StringConstant';
 
 const mock_exit = jest.spyOn(process, 'exit')
             .mockImplementation((number) => { throw new Error('process.exit: ' + number); });
@@ -165,7 +164,7 @@ describe('Parser class integration tests:', () => {
     expect(parser.did_raise_error()).toBe(true);
   });
 
-  test('16. Parser should succesfully parse ReturnStatement inside a function block', () => {
+  test('16. Parser should succesfully parse empty ReturnStatement inside a function block', () => {
     var lexer = new LexerImp(new StringReader("func fun(){   return;   }"))
     var parser: ParserImp = new ParserImp(lexer);
     let program = parser.parse()
@@ -1752,4 +1751,23 @@ describe('Parser class integration tests:', () => {
   expect(parse).toThrow();
   expect(mock_exit).toHaveBeenCalledWith(0);
   });
+
+  test('120. Parser should succesfully parse simple ReturnStatement inside a function block', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   return 5;   }"))
+    var parser: ParserImp = new ParserImp(lexer);
+    let program = parser.parse()
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
+  test('121. Parser should succesfully parse compound ReturnStatement inside a function block', () => {
+    var lexer = new LexerImp(new StringReader("func fun(){   return (10-20^5);   }"))
+    var parser: ParserImp = new ParserImp(lexer);
+    let program = parser.parse()
+    expect(Object.keys(program.functions).length).toBe(1);
+    expect(program.functions['fun'].block.statements.length).toBe(1);
+    expect(parser.did_raise_error()).toBe(false);
+  });
+
 });

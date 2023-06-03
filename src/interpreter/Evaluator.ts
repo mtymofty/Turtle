@@ -1,6 +1,6 @@
 import { ErrorHandler } from "../error/ErrorHandler"
 import { ErrorType, WarningType } from "../error/ErrorType"
-import { TypeMatching } from "../semantics/TypeMatching"
+import { TypeMatching } from "./semantics/TypeMatching"
 import { Position } from "../source/Position"
 
 export class Evaluator {

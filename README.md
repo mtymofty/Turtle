@@ -401,7 +401,7 @@ Rozróżniane jest 11 typów błędów leksera.
 
     ERROR - EXCEEDING VALUE OF A NUMERIC CONSTANT (DOUBLE)!
     line: 2 col: 13
-        ident = 5.5(...)5
+        ident = 5(...)5.5(...)5
                 ^
 
     ERROR WHILE PARSING "&&" OPERATOR
@@ -463,7 +463,7 @@ Program uruchamiany jest przy użyciu specjalnego skryptu przyjmującego jako ar
 
 Możliwe jest włączenie programu przy użytciu dwóch skryptów:
 
-- ***turtle.sh*** - jedynie wykonywany jest kod napisanego programu. Przykładowe uruchomienie:
+- ***turtle.sh*** - wykonywany jest jedynie kod napisanego programu. Przykładowe uruchomienie:
 
     ./turtle.sh code_snippets/text.txt
 - ***turtle-test.sh*** - dodatkowo wypisywane na ekran jest drzewo obiektów programu. Przykładowe uruchomienie:
@@ -542,13 +542,15 @@ Lekser pobiera znaki leniwie, pojedynczo znak po znaku. Odpowiednio skonstruowan
  - COMMA
  - SEMICOL
  - EOF
- - EOL (filtrowane między lekserem a parserem)
+ - COMMENT (filtrowane między lekserem a parserem)
  - UNRECOGNIZED (filtrowane między lekserem a parserem)
 
 
 ## Testowanie
-Poprawne działanie **leksera** sprawdzanie będzie przy użyciu testów jednostkowych weryfikujących wykrywanie pojedynczych tokenów (zarówno poprawnych jak i niepoprawnych). Testy niepoprawne będą przeprowadzane między innymi korzystając z typowych błędów, które mogą przydarzyć się podczas pisaniu kodu, np. literówka, lub brak domknięcia cudzysłowia.
+Poprawne działanie **leksera** sprawdzanie jest przy użyciu testów jednostkowych weryfikujących wykrywanie pojedynczych tokenów (zarówno poprawnych jak i niepoprawnych). Testy niepoprawne są przeprowadzane między innymi korzystając z typowych błędów, które mogą przydarzyć się podczas pisaniu kodu, np. literówka, lub brak domknięcia cudzysłowia.
 
-Dla każdej produkcji **parsera** powstanie test jednostkowy sprawdzający jej poprawność.  Dodatkowo przeprowadzone zostaną testy dla scenariuszy nieprawidłowych sekwencji tokenów.
+Dla każdej produkcji **parsera** powstał test sprawdzający jej poprawność.  Dodatkowo przeprowadzone zostały testy dla scenariuszy nieprawidłowych sekwencji tokenów.
 
-**Interpreter** będzie sprawdzany będzie poprzez testowanie pełnego potoku przetwarzania na podstawie łańcucha znaków lub pliku wejściowego.
+**Interpreter** sprawdzany jest poprzez testowanie pełnego potoku przetwarzania na podstawie łańcucha znaków lub pliku wejściowego.
+
+Inne moduły aplikacji, takie jak: **Reader**, **TypeMatching**, **Evaluator** oraz **inne** testowane były przy użyciu testów jednostkowych.

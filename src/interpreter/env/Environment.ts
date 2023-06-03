@@ -1,4 +1,4 @@
-import { Value } from "../../semantics/Value";
+import { Value } from "../semantics/Value";
 import { FunCallContext } from "./FunCallContext";
 
 export class Environment {
