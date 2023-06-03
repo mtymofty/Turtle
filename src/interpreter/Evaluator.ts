@@ -27,6 +27,9 @@ export class Evaluator {
     }
 
     static evaluateModulo(left: any, right: any, pos: Position) {
+        if (right === 0) {
+            ErrorHandler.raise_crit_err(ErrorType.ZERO_DIV_ERR, [], pos)
+        }
         return Evaluator.checkOverflow(left % right, TypeMatching.numType(left, right), pos)
     }
 
@@ -94,7 +97,7 @@ export class Evaluator {
                 val = Number.MAX_SAFE_INTEGER * Math.sign(val)
                 ErrorHandler.print_warning_mess(WarningType.INT_OVERFLOW_WARN, [], pos)
             } else {
-                val = Number.MAX_SAFE_INTEGER * Math.sign(val) + 0.0
+                val = Number.MAX_SAFE_INTEGER * Math.sign(val) * 1.0
                 ErrorHandler.print_warning_mess(WarningType.DOUBLE_OVERFLOW_WARN, [], pos)
             }
         }
