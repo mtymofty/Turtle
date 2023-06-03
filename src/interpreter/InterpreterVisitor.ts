@@ -60,6 +60,7 @@ export class InterpreterVisitor implements Visitor {
     is_returning: boolean = false
     is_breaking: boolean = false
     is_continuing: boolean = false
+    in_loop: boolean = false
 
     constructor(env?: Environment) {
         this.env = (env) ? env : new Environment();
@@ -120,9 +121,16 @@ export class InterpreterVisitor implements Visitor {
     visitBlock(block: Block): void {
         for (let stmnt of block.statements) {
             stmnt.accept(this)
+
+            if(this.in_loop === false && (this.is_breaking === true || this.is_continuing === true)){
+                ErrorHandler.raise_crit_err(ErrorType.BREAK_CONT_ERR, [], stmnt.position)
+            }
+
             if (this.is_returning === true || this.is_breaking === true || this.is_continuing === true) {
                 break
             }
+
+
             this.last_result = undefined
         }
     }
@@ -153,6 +161,31 @@ export class InterpreterVisitor implements Visitor {
     }
 
     visitWhileStatement(stmnt: WhileStatement): void {
+        stmnt.condition.accept(this)
+
+        this.env.createScope()
+        this.in_loop = true
+        while(this.last_result) {
+            this.last_result = undefined
+            stmnt.loop_block.accept(this)
+
+            if (this.is_continuing == true) {
+                this.is_continuing = false
+                stmnt.condition.accept(this)
+                continue
+            }
+            if (this.is_breaking == true) {
+                this.is_breaking = false
+                break
+            }
+            if (this.is_returning == true) {
+                break
+            }
+            stmnt.condition.accept(this)
+        }
+
+        this.in_loop = false
+        this.env.deleteScope()
     }
 
     visitReturn(ret: ReturnStatement): void {

@@ -73,7 +73,8 @@ export enum ErrorType {
     LESS_TYPE_ERR,
     LESSEQ_TYPE_ERR,
     ZERO_DIV_ERR,
-    OBJ_CONSTR_ERR
+    OBJ_CONSTR_ERR,
+    BREAK_CONT_ERR
 }
 
 export enum WarningType {

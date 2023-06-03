@@ -41,7 +41,6 @@ import { NullConstant } from "../syntax/expression/primary/constant/NullConstant
 import { IntConstant } from "../syntax/expression/primary/constant/IntConstant";
 import { DoubleConstant } from "../syntax/expression/primary/constant/DoubleConstant";
 import { StringConstant } from "../syntax/expression/primary/constant/StringConstant";
-import { Position } from "../source/Position";
 
 export class ParserImp implements Parser {
     lexer: Lexer
@@ -159,7 +158,7 @@ export class ParserImp implements Parser {
     //             | compound_statement
     parseStatement(): Statement {
         return this.parseIfStatement() || this.parseWhileStatement()
-               || this.parseSimpleStatement()
+               || this.parseSimpleStatement() || this.parseSimpleInLoopStatement()
     }
 
     parseInsideLoopStatement(): Statement {
