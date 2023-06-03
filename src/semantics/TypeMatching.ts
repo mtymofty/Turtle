@@ -104,7 +104,14 @@ export class TypeMatching {
         }
     }
 
-    static isObjectInstance(object: any): object is ObjectInstance {
+    static isObjectInstance(object: any){
+        if (typeof(object) !== "object") {
+            return false
+        }
+        return this.isObjectInstanceInt(object)
+    }
+
+    static isObjectInstanceInt(object: any): object is ObjectInstance {
         return 'validateAttr' in object;
     }
 

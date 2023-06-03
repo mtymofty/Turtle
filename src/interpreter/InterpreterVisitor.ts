@@ -49,6 +49,7 @@ import { Constructor } from "../builtin/obj/Constructor";
 import { Pen } from "../builtin/obj/Pen";
 import { Turtle } from "../builtin/obj/Turte";
 import { TurtlePosition } from "../builtin/obj/TurtlePosition";
+import { Position } from "../source/Position";
 
 export class InterpreterVisitor implements Visitor {
     env: Environment
@@ -280,6 +281,7 @@ export class InterpreterVisitor implements Visitor {
         callable.accept(this)
 
         if (callable instanceof Constructor && TypeMatching.isObjectInstance(this.last_result)){
+            //@ts-ignore - typescript nie wykrywa sprawdzenia czy last_result jest obiektem
             this.last_result.validateAttr(fun_call.position)
         }
 
@@ -288,6 +290,47 @@ export class InterpreterVisitor implements Visitor {
     }
 
     visitMemberAccess(acc: MemberAccess): void {
+        acc.left.accept(this)
+        if (acc.right instanceof Identifier) {
+            if(!TypeMatching.isObjectInstance(this.last_result)) {
+                ErrorHandler.raise_crit_err(ErrorType.OBJ_MEM_ACC_ERR, [TypeMatching.getTypeOf(this.last_result)], acc.left.position);
+            } else {
+                //@ts-ignore - typescript nie wykrywa sprawdzenia czy last_result jest obiektem
+                var right_mem_getter = this.last_result.attr[acc.right.name];
+                if (right_mem_getter === undefined) {
+                    ErrorHandler.raise_crit_err(ErrorType.OBJ_PROP_ERR, [acc.right.name, TypeMatching.getTypeOf(this.last_result)], acc.right.position);
+                }
+                this.last_result = right_mem_getter()
+            }
+        } else if (acc.right instanceof FunCall) {
+            this.visitMethCall(acc.right, acc.left.position)
+        }
+    }
+
+    visitMethCall(method_call: FunCall, pos: Position): void {
+        if(!TypeMatching.isObjectInstance(this.last_result)) {
+            ErrorHandler.raise_crit_err(ErrorType.OBJ_MEM_ACC_ERR, [TypeMatching.getTypeOf(this.last_result)], pos);
+        } else {
+            //@ts-ignore
+            var method_attr = this.last_result.methods[method_call.fun_name];
+            if (method_attr === undefined) {
+                ErrorHandler.raise_crit_err(ErrorType.OBJ_METH_ERR, [method_call.fun_name, TypeMatching.getTypeOf(this.last_result)], method_call.position);
+            }
+        }
+
+        let args = this.getArgsAsValue(method_call.args)
+
+        if (!this.validateArgsFun(args, method_attr[1])) {
+            ErrorHandler.raise_crit_err(ErrorType.ARGS_NUM_ERR, [method_call.fun_name, method_attr[1].length.toString(), args.length.toString()], method_call.position)
+        }
+
+        TypeMatching.checkTypes(args, method_attr[1], method_call.position)
+
+        var arg_values = args.map(arg => {
+            return arg.value
+        })
+
+        this.last_result = method_attr[0](...arg_values)
     }
 
     private visitTwoArgOp(op, match_type, eval_type, err_type) {
@@ -428,7 +471,6 @@ export class InterpreterVisitor implements Visitor {
             return false
         }
         return true
-
     }
 
     validateArgsConstr(args: Value[], params: Identifier[]): boolean {
@@ -436,6 +478,12 @@ export class InterpreterVisitor implements Visitor {
             return false
         }
         return true
+    }
 
+    validateArgsMeth(args: Value[], params: Identifier[]): boolean {
+        if (args.length !== params.length) {
+            return false
+        }
+        return true
     }
 }

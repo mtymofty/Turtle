@@ -17,11 +17,11 @@ export class Turtle implements ObjectInstance {
         ["angle"]: this.getAngle.bind(this)
     }
 
-    methods = {
-        ["forward"]: this.forward.bind(this),
-        ["left"]: this.left.bind(this),
-        ["right"]: this.right.bind(this),
-        ["rotate"]: this.rotate.bind(this)
+    methods: Record<string, [Function, Array<string>]>= {
+        ["forward"]: [this.forward.bind(this), ["integer"]],
+        ["left"]: [this.left.bind(this), []],
+        ["right"]: [this.right.bind(this), []],
+        ["rotate"]: [this.rotate.bind(this), ["integer"]]
     }
 
 
@@ -48,7 +48,8 @@ export class Turtle implements ObjectInstance {
     }
 
     rotate(angle: number) {
-        this.angle = (this.angle + angle) % 360
+        this.angle = this.angle + angle
+        this.validateAttr(null)
     }
 
     validateAttr(_: Position): void {
