@@ -492,7 +492,7 @@ describe('Lexer class tests:', () => {
     var lexer = new LexerImp(new StringReader("9007199254740991.9007199254740992"))
     let token = lexer.next_token()
     expect(token.type).toBe(TokenType.DOUBLE);
-    expect(token.value).toBe(9007199254740991.900719925474099);
+    expect(token.value).toBe(9007199254740991.0);
     expect(lexer.did_raise_error()).toBe(true);
   });
 

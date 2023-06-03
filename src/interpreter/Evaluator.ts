@@ -1,41 +1,41 @@
 import { ErrorHandler } from "../error/ErrorHandler"
-import { ErrorType } from "../error/ErrorType"
+import { ErrorType, WarningType } from "../error/ErrorType"
+import { TypeMatching } from "../semantics/TypeMatching"
 import { Position } from "../source/Position"
 
 export class Evaluator {
-    static evaluateAdd(left: any, right: any) {
-        return left + right
+    static evaluateAdd(left: any, right: any, pos: Position) {
+        return Evaluator.checkOverflow(left + right, TypeMatching.numType(left, right), pos)
     }
 
-    static evaluateSubtr(left: any, right: any) {
-        return left - right
+    static evaluateSubtr(left: any, right: any, pos: Position) {
+        return Evaluator.checkOverflow(left - right, TypeMatching.numType(left, right), pos)
     }
 
     static evaluateDiv(left: any, right: any, pos: Position) {
         if (right === 0) {
             ErrorHandler.raise_crit_err(ErrorType.ZERO_DIV_ERR, [], pos)
         }
-        return left / right
+        return Evaluator.checkOverflow(left / right, TypeMatching.numType(left, right), pos)
     }
 
     static evaluateIntDiv(left: any, right: any, pos: Position) {
         if (right === 0) {
             ErrorHandler.raise_crit_err(ErrorType.ZERO_DIV_ERR, [], pos)
         }
-        return Math.floor(left / right);
+        return Evaluator.checkOverflow(Math.floor(left / right), TypeMatching.numType(left, right), pos)
     }
 
-    static evaluateModulo(left: any, right: any) {
-        return left % right
+    static evaluateModulo(left: any, right: any, pos: Position) {
+        return Evaluator.checkOverflow(left % right, TypeMatching.numType(left, right), pos)
     }
 
-    static evaluateMult(left: any, right: any) {
-        return left * right
+    static evaluateMult(left: any, right: any, pos: Position) {
+        return Evaluator.checkOverflow(left * right, TypeMatching.numType(left, right), pos)
     }
 
-    static evaluateExp(left: any, right: any) {
-        // TODO: HANDLE INFINITY
-        return left ** right
+    static evaluateExp(left: any, right: any, pos: Position) {
+        return Evaluator.checkOverflow(left ** right, TypeMatching.numType(left, right), pos)
     }
 
     static evaluateAnd(left: any, right: any) {
@@ -86,5 +86,19 @@ export class Evaluator {
 
     static evaluateGrt(left: any, right: any) {
         return left > right
+    }
+
+    static checkOverflow(val: number, type: string, pos: Position) {
+        if (val > Number.MAX_SAFE_INTEGER || val < Number.MIN_SAFE_INTEGER) {
+            if(type == "integer") {
+                val = Number.MAX_SAFE_INTEGER * Math.sign(val)
+                ErrorHandler.print_warning_mess(WarningType.INT_OVERFLOW_WARN, [], pos)
+            } else {
+                val = Number.MAX_SAFE_INTEGER * Math.sign(val) + 0.0
+                ErrorHandler.print_warning_mess(WarningType.DOUBLE_OVERFLOW_WARN, [], pos)
+            }
+        }
+        return val
+
     }
 }

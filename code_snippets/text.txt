@@ -3,14 +3,28 @@ func main(){
 
     # cond();
 
-    # color = Color();
-    # pen = Pen(true, color);
-    # pos = Position();
-    # turt = Turtle(pen, pos, 100);
+    color = Color();
+    pen = Pen(true, color);
+    pos = Position();
+    turt = Turtle(pen, pos, 100);
 
-    id = loop();
-    print(id);
+    # id = loop();
+    # print(id);
 
+    # print(turt);
+    # turt.rotate(100);
+    # print(turt);
+    # b = turt.pen.color;
+    # print(b);
+
+}
+
+func ret5(){
+    return 5;
+}
+
+func ret4(){
+    return 4;
 }
 
 func ops(a, b, c, d){

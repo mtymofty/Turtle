@@ -19,7 +19,7 @@ export class Value {
             printable = printable.concat(`${TypeMatching.getTypeOf(value)} {\n`)
 
             for (const attr_name in value.attr) {
-                printable = printable.concat(`  ${attr_name}: ${Value.getPrintableInternal(value.attr[attr_name]())}\n`)
+                printable = printable.concat(`  ${attr_name}: ${Value.getPrintableInternal(value.attr[attr_name].getter())}\n`)
             }
 
             printable = printable.concat(`}\n`)

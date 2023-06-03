@@ -78,11 +78,14 @@ export enum ErrorType {
     OBJ_PROP_ERR,
     OBJ_METH_ERR,
     OBJ_MEM_ACC_ERR,
-    OBJ_METH_CALL_ERR
+    OBJ_METH_CALL_ERR,
+    OBJ_ASSIGN_ERR
 }
 
 export enum WarningType {
     STRING_ESC_WARN,
     COLOR_OPACITY_WARN,
-    COLOR_COL_WARN
+    COLOR_COL_WARN,
+    INT_OVERFLOW_WARN,
+    DOUBLE_OVERFLOW_WARN
 }

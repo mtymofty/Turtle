@@ -233,11 +233,14 @@ export class InterpreterVisitor implements Visitor {
     }
 
     visitAssignStatement(stmnt: AssignStatement): void {
-        if(stmnt.left instanceof MemberAccess) {
+        if(stmnt.left instanceof MemberAccess && stmnt.left.right instanceof Identifier) {
+            stmnt.left.left.accept(this)
+            var obj = this.last_result
+            var var_name = stmnt.left.right.name
         }
 
         if(stmnt.left instanceof Identifier) {
-            var var_name = <string>stmnt.left.name
+            var var_name = stmnt.left.name
         }
 
         stmnt.right.accept(this)
@@ -248,6 +251,25 @@ export class InterpreterVisitor implements Visitor {
         }
 
         this.last_result = undefined
+
+        if(stmnt.left instanceof MemberAccess && TypeMatching.isObjectInstance(obj)) {
+            //@ts-ignore typescript nie wykrywa sprawdzenia typu obj
+            var setter = obj.attr[var_name].setter;
+            if (setter === undefined) {
+                ErrorHandler.raise_crit_err(ErrorType.OBJ_PROP_ERR, [var_name, TypeMatching.getTypeOf(obj)], stmnt.left.position);
+            }
+            //@ts-ignore
+            TypeMatching.checkAssignType(val, obj.attr[var_name].type, var_name, stmnt.right.position)
+
+            //@ts-ignore
+            obj.attr[var_name].setter(val)
+
+            //@ts-ignore
+            obj.validateAttr(stmnt.right.position)
+        }
+
+
+
 
         if(stmnt.left instanceof Identifier) {
             this.env.store(var_name, new Value(val))
@@ -296,7 +318,7 @@ export class InterpreterVisitor implements Visitor {
                 ErrorHandler.raise_crit_err(ErrorType.OBJ_MEM_ACC_ERR, [TypeMatching.getTypeOf(this.last_result)], acc.left.position);
             } else {
                 //@ts-ignore - typescript nie wykrywa sprawdzenia czy last_result jest obiektem
-                var right_mem_getter = this.last_result.attr[acc.right.name];
+                var right_mem_getter = this.last_result.attr[acc.right.name].getter;
                 if (right_mem_getter === undefined) {
                     ErrorHandler.raise_crit_err(ErrorType.OBJ_PROP_ERR, [acc.right.name, TypeMatching.getTypeOf(this.last_result)], acc.right.position);
                 }
@@ -341,7 +363,7 @@ export class InterpreterVisitor implements Visitor {
         let right = this.last_result;
 
         if (match_type(left, right)) {
-            this.last_result = eval_type(left, right);
+            this.last_result = eval_type(left, right, op.position);
         } else {
             ErrorHandler.raise_crit_err(err_type, [TypeMatching.getTypeOf(left), TypeMatching.getTypeOf(right)], op.position);
         }
@@ -358,26 +380,12 @@ export class InterpreterVisitor implements Visitor {
         }
     }
 
-    private visitDivs(op, match_type, eval_type, err_type) {
-        op.left.accept(this);
-        let left = this.last_result;
-
-        op.right.accept(this);
-        let right = this.last_result;
-
-        if (match_type(left, right)) {
-            this.last_result = eval_type(left, right, op.position);
-        } else {
-            ErrorHandler.raise_crit_err(err_type, [TypeMatching.getTypeOf(left), TypeMatching.getTypeOf(right)], op.position);
-        }
-    }
-
     visitAddition(add: Addition): void {
         this.visitTwoArgOp(add, TypeMatching.matchesAdd, Evaluator.evaluateAdd, ErrorType.ADD_TYPE_ERR);
     }
 
     visitDivision(div: Division): void{
-        this.visitDivs(div, TypeMatching.matchesArithm, Evaluator.evaluateDiv, ErrorType.DIV_TYPE_ERR);
+        this.visitTwoArgOp(div, TypeMatching.matchesArithm, Evaluator.evaluateDiv, ErrorType.DIV_TYPE_ERR);
     }
 
     visitMultiplication(mult: Multiplication): void{
@@ -401,11 +409,11 @@ export class InterpreterVisitor implements Visitor {
     }
 
     visitIntDivision(div: IntDivision): void{
-        this.visitDivs(div, TypeMatching.matchesArithm, Evaluator.evaluateIntDiv, ErrorType.INTDIV_TYPE_ERR);
+        this.visitTwoArgOp(div, TypeMatching.matchesArithm, Evaluator.evaluateIntDiv, ErrorType.INTDIV_TYPE_ERR);
     }
 
     visitModulo(mod: Modulo): void{
-        this.visitDivs(mod, TypeMatching.matchesArithm, Evaluator.evaluateModulo, ErrorType.MOD_TYPE_ERR);
+        this.visitTwoArgOp(mod, TypeMatching.matchesArithm, Evaluator.evaluateModulo, ErrorType.MOD_TYPE_ERR);
     }
 
     visitAndExpression(and: AndExpression): void{

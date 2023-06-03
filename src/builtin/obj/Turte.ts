@@ -12,9 +12,18 @@ export class Turtle implements ObjectInstance {
     max_angle: number = 359
 
     attr = {
-        ["pen"]: this.getPen.bind(this),
-        ["position"]: this.getPosition.bind(this),
-        ["angle"]: this.getAngle.bind(this)
+        ["pen"]:
+                    {getter: this.getPen.bind(this),
+                     setter: this.setPen.bind(this),
+                     type: "Pen"},
+        ["position"]:
+                    {getter: this.getPosition.bind(this),
+                     setter: this.setPosition.bind(this),
+                     type: "TurtlePosition"},
+        ["angle"]:
+                    {getter: this.getAngle.bind(this),
+                     setter: this.setAngle.bind(this),
+                     type: "integer"},
     }
 
     methods: Record<string, [Function, Array<string>]>= {
@@ -64,11 +73,23 @@ export class Turtle implements ObjectInstance {
         return this.pen;
     }
 
+    setPen(pen: Pen) {
+        this.pen = pen;
+    }
+
     getPosition() {
         return this.position;
     }
 
+    setPosition(pos:TurtlePosition) {
+        this.position = pos;
+    }
+
     getAngle() {
         return this.angle;
+    }
+
+    setAngle(angle: number) {
+        this.angle = angle
     }
 }

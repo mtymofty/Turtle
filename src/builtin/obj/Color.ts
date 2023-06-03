@@ -15,10 +15,21 @@ export class Color implements ObjectInstance {
     max_rgb: number = 255
 
     attr = {
-        ["a"]: this.getA.bind(this),
-        ["r"]: this.getR.bind(this),
-        ["g"]: this.getG.bind(this),
-        ["b"]: this.getB.bind(this)
+        ["a"]: {getter: this.getA.bind(this),
+                setter: this.setA.bind(this),
+                type: "integer"},
+
+        ["r"]: {getter: this.getR.bind(this),
+                setter: this.setR.bind(this),
+                type: "integer"},
+
+        ["g"]: {getter: this.getG.bind(this),
+                setter: this.setG.bind(this),
+                type: "integer"},
+
+        ["b"]: {getter: this.getB.bind(this),
+                setter: this.setB.bind(this),
+                type: "integer"},
     }
 
     methods = {}
@@ -75,5 +86,21 @@ export class Color implements ObjectInstance {
 
     getB(){
         return this.b
+    }
+
+    setA(a: number){
+        this.a = a
+    }
+
+    setR(r: number){
+        this.r = r
+    }
+
+    setG(g: number){
+        this.g = g
+    }
+
+    setB(b: number){
+        this.b = b
     }
 }

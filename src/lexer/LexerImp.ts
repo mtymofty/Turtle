@@ -231,7 +231,7 @@ export class LexerImp implements Lexer {
                         this.next_char();
                     }
                     this.print_error_token(ErrorType.DOUBLE_EXC_VAL_ERR, []);
-                    this.token = new Token(TokenType.DOUBLE, value=(value + fraction/Math.pow(10, num_of_decimals)), this.curr_token_pos);
+                    this.token = new Token(TokenType.DOUBLE, value=(value + 0.0), this.curr_token_pos);
                     return true;
                 }
                 this.next_char();

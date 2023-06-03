@@ -7,8 +7,14 @@ export class Pen implements ObjectInstance {
     color: Color
 
     attr = {
-        ["enabled"]: this.getEnabled.bind(this),
-        ["color"]: this.getColor.bind(this)
+        ["enabled"]:
+                    {getter: this.getEnabled.bind(this),
+                    setter: this.setEnabled.bind(this),
+                    type: "boolean"},
+        ["color"]:
+                    {getter: this.getColor.bind(this),
+                     setter: this.setColor.bind(this),
+                     type: "Color"},
     }
 
     methods = {}
@@ -24,7 +30,15 @@ export class Pen implements ObjectInstance {
         return this.enabled
     }
 
+    setEnabled(enabled: boolean){
+        this.enabled = enabled;
+    }
+
     getColor(){
         return this.color
+    }
+
+    setColor(color: Color){
+        this.color = color
     }
 }

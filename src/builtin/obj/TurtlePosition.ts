@@ -6,8 +6,12 @@ export class TurtlePosition implements ObjectInstance {
     y: number
 
     attr = {
-        ["x"]: this.getX.bind(this),
-        ["y"]: this.getY.bind(this)
+        ["x"]: {getter: this.getX.bind(this),
+                setter: this.setX.bind(this),
+                type: "integer"},
+        ["y"]: {getter: this.getY.bind(this),
+                setter: this.setY.bind(this),
+                type: "integer"},
     }
 
     methods = {}
@@ -26,5 +30,13 @@ export class TurtlePosition implements ObjectInstance {
 
     getY(){
         return this.y
+    }
+
+    setX(x: number){
+        this.x = x
+    }
+
+    setY(y: number){
+        this.y = y
     }
 }

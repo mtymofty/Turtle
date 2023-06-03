@@ -104,6 +104,12 @@ export class TypeMatching {
         }
     }
 
+    static checkAssignType(arg, param_type, var_name, pos) {
+        if (this.getTypeOf(arg) !== param_type) {
+            ErrorHandler.raise_crit_err(ErrorType.OBJ_ASSIGN_ERR, [param_type, var_name, this.getTypeOf(arg)], pos);
+        }
+    }
+
     static isObjectInstance(object: any){
         if (typeof(object) !== "object") {
             return false
@@ -113,6 +119,14 @@ export class TypeMatching {
 
     static isObjectInstanceInt(object: any): object is ObjectInstance {
         return 'validateAttr' in object;
+    }
+
+    static numType(left: number, right: number) {
+        if (this.getTypeOf(left) == "double" || this.getTypeOf(right) == "double"){
+            return "double"
+        } else {
+            return "integer"
+        }
     }
 
 }
