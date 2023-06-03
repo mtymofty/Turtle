@@ -1,13 +1,7 @@
-import { Constructor } from "../builtin/objs/Constructor"
-import { Color } from "../builtin/objs/Color"
-import { ObjectInstance } from "../builtin/objs/ObjectInstance"
-import { Pen } from "../builtin/objs/Pen"
-import { Turtle } from "../builtin/objs/Turte"
-import { TurtlePosition } from "../builtin/objs/TurtlePosition"
-import { ErrorHandler } from "../../error/ErrorHandler"
-import { ErrorType } from "../../error/ErrorType"
-import { Position } from "../../source/Position"
-import { Value } from "./Value"
+import { ObjectInstance } from "./builtin/objs/ObjectInstance"
+import { ErrorHandler } from "../error/ErrorHandler"
+import { ErrorType } from "../error/ErrorType"
+import { Value } from "./semantics/Value"
 
 export class TypeMatching {
     // +
@@ -97,14 +91,20 @@ export class TypeMatching {
             return this.getTypeOf(arg.value)
         })
         for (let i = 0; i < args.length; i++) {
+            // special case, when param type is a number, so it takes both integer and double (for example Turtle.angle)
+            if (param_types[i] == "number" && (arg_types[i] == "integer" || arg_types[i] == "double")) {
+                continue
+            }
             if (arg_types[i] !== param_types[i]) {
-
                 ErrorHandler.raise_crit_err(ErrorType.OBJ_CONSTR_ERR, [param_types.toString(), arg_types.toString()], pos);
             }
         }
     }
 
     static checkAssignType(arg, param_type, var_name, pos) {
+        if (param_type == "number" && (this.getTypeOf(arg) == "integer" || this.getTypeOf(arg) == "double")) {
+            return
+        }
         if (this.getTypeOf(arg) !== param_type) {
             ErrorHandler.raise_crit_err(ErrorType.OBJ_ASSIGN_ERR, [param_type, var_name, this.getTypeOf(arg)], pos);
         }
@@ -128,5 +128,4 @@ export class TypeMatching {
             return "integer"
         }
     }
-
 }

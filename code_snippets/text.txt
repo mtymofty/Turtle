@@ -17,14 +17,26 @@ func main(){
     # b = turt.pen.color;
     # print(b);
 
+    print(turt);
+    change_turt(turt);
+    turt.pen.color.a = 66;
+    print(turt);
+    print(color);
+
+    i = 5;
+    print(i);
+    change_i(i);
+    print(i);
+
+
 }
 
-func ret5(){
-    return 5;
+func change_turt(turt){
+    turt.angle = 69;
 }
 
-func ret4(){
-    return 4;
+func change_i(i){
+    i = 69;
 }
 
 func ops(a, b, c, d){

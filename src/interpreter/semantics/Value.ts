@@ -1,5 +1,5 @@
 import { ObjectInstance } from "../builtin/objs/ObjectInstance"
-import { TypeMatching } from "./TypeMatching"
+import { TypeMatching } from "../TypeMatching"
 
 export class Value {
     value: number | boolean | string | ObjectInstance | null = null

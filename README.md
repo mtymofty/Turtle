@@ -9,7 +9,7 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
 ### Operator przypisania
 
     a = b;                  <- Inicjalizacja zmiennej
-   Język jest **słabo** oraz **dynamicznie** typowany. Wszystkie zmienne są **mutowalne**.
+   Język jest **słabo** oraz **dynamicznie** typowany. Typy proste są **niemutowalne**, a typy obiektowe - **mutowalne**.
 
 #### Przykłady:
 
@@ -106,7 +106,7 @@ Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprz
 	    ...
 	    return data;            <- Funkcja może zwracać dane instrukcją return
     }
-   Parametry funkcji przekazywane są przez **wartość**.
+   Parametry funkcji przekazywane są przez **wartość**, gdy argument jest typu prostego lub **referencję**, gdy argument jest typu obiektowego.
 #### Przykłady:
 
     func sum(a, b) {

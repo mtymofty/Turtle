@@ -23,7 +23,7 @@ export class Turtle implements ObjectInstance {
         ["angle"]:
                     {getter: this.getAngle.bind(this),
                      setter: this.setAngle.bind(this),
-                     type: "integer"},
+                     type: "number"},
     }
 
     methods: Record<string, [Function, Array<string>]>= {

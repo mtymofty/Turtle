@@ -40,7 +40,7 @@ import { ErrorType } from "../error/ErrorType";
 import { Callable } from "./semantics/Callable";
 import { Value } from "./semantics/Value";
 import { Expression } from "../parser/syntax/expression/Expression";
-import { TypeMatching } from "./semantics/TypeMatching";
+import { TypeMatching } from "./TypeMatching";
 import { Evaluator } from "./Evaluator";
 import { GreaterEqualComparison } from "../parser/syntax/expression/comparison/GreaterEqualComparison";
 import { ObjectInstance } from "./builtin/objs/ObjectInstance";
@@ -107,7 +107,7 @@ export class InterpreterVisitor implements Visitor {
                                 Pen);
         this.callables["Turtle"] = new Constructor("Turtle",
                                 [new Identifier("pen", null), new Identifier("position", null), new Identifier("angle", null)],
-                                ["Pen", "TurtlePosition", "integer"],
+                                ["Pen", "TurtlePosition", "number"],
                                 Turtle);
         this.callables["Position"] = new Constructor("Position",
                                 [new Identifier("x", null), new Identifier("y", null)],
@@ -254,15 +254,13 @@ export class InterpreterVisitor implements Visitor {
 
         if(stmnt.left instanceof MemberAccess && TypeMatching.isObjectInstance(obj)) {
             //@ts-ignore typescript nie wykrywa sprawdzenia typu obj
-            var setter = obj.attr[var_name].setter;
-            if (setter === undefined) {
+            var obj_attr = obj.attr[var_name];
+            if (obj_attr === undefined) {
                 ErrorHandler.raise_crit_err(ErrorType.OBJ_PROP_ERR, [var_name, TypeMatching.getTypeOf(obj)], stmnt.left.position);
             }
-            //@ts-ignore
-            TypeMatching.checkAssignType(val, obj.attr[var_name].type, var_name, stmnt.right.position)
+            TypeMatching.checkAssignType(val, obj_attr.type, var_name, stmnt.right.position)
 
-            //@ts-ignore
-            obj.attr[var_name].setter(val)
+            obj_attr.setter(val)
 
             //@ts-ignore
             obj.validateAttr(stmnt.right.position)
@@ -318,11 +316,11 @@ export class InterpreterVisitor implements Visitor {
                 ErrorHandler.raise_crit_err(ErrorType.OBJ_MEM_ACC_ERR, [TypeMatching.getTypeOf(this.last_result)], acc.left.position);
             } else {
                 //@ts-ignore - typescript nie wykrywa sprawdzenia czy last_result jest obiektem
-                var right_mem_getter = this.last_result.attr[acc.right.name].getter;
-                if (right_mem_getter === undefined) {
+                var right_mem_attr = this.last_result.attr[acc.right.name];
+                if (right_mem_attr === undefined) {
                     ErrorHandler.raise_crit_err(ErrorType.OBJ_PROP_ERR, [acc.right.name, TypeMatching.getTypeOf(this.last_result)], acc.right.position);
                 }
-                this.last_result = right_mem_getter()
+                this.last_result = right_mem_attr.getter()
             }
         } else if (acc.right instanceof FunCall) {
             this.visitMethCall(acc.right, acc.left.position)
