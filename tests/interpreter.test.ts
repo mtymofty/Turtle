@@ -318,13 +318,17 @@ test('28. ERROR - Passing too many args to object constructor', () => {
     expect(exec).toThrow();
   });
 
-test('29. Passing wrong type of args to an object constructor', () => {
+test('29. ERROR - Passing wrong type of args to an object constructor', () => {
     var lexer = new LexerImp(new StringReader("func main() { return Color(100, 255, 255, true)}"));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
+
+    const exec = () => {
+      program.accept(interpreter);
+    };
+
+    expect(exec).toThrow();
   });
 
 test('30. ERROR - Passing illigal values of args to object constructor', () => {
@@ -495,6 +499,7 @@ test('40. ERROR - Object property assignment of wrong type', () => {
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
+
     const exec = () => {
       program.accept(interpreter);
     };
@@ -502,76 +507,146 @@ test('40. ERROR - Object property assignment of wrong type', () => {
     expect(exec).toThrow();
   });
 
-test('41. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('41. ERROR - accesing property of primitive type variable', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    var = 5;
+    var.prop = 10;
+    return;
+  }`));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
+
+    const exec = () => {
+      program.accept(interpreter);
+    };
+
+    expect(exec).toThrow();
   });
 
-test('42. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('42. ERROR - accesing method of primitive type variable', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    var = 5;
+    var.prop();
+    return;
+  }`));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
+
+    const exec = () => {
+      program.accept(interpreter);
+    };
+
+    expect(exec).toThrow();
   });
 
-test('43. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('43. Primitive type variables are not mutable in funcall', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    var = 5
+    fun(5)
+    return var;
+  }
+  func fun(num) {
+    num = 10
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(5);
   });
 
-test('44. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('44. Variables are accessed from correct function context', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    var = 5
+
+    res = fun(20)
+    return res;
+  }
+  func fun(var) {
+    return var
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(20);
   });
 
-test('45. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('45. Objects are mutable in funcall', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    obj = Color()
+
+    fun(obj)
+    return obj.a;
+  }
+  func fun(obj) {
+    obj.a = 5
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(5);
   });
 
-test('46. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('46. Assigning object to variable by reference', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    obj = Color()
+    obj2 = obj
+
+    obj.a = 50
+    obj2.a = 5;
+
+    return (obj.a==obj2.a) && (obj.a==5);
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(true);
   });
 
-test('47. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('47. Assigning primitive type constant to variable by value', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    var = 500
+    var2 = var
+
+    var = 50
+    var2 = 5;
+
+    return (var != var2) && (var==50);
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(true);
   });
 
-test('48. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('48. ERROR - Calling non-existant function', () => {
+    var lexer = new LexerImp(new StringReader("func main() { fun() }"));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
+    const exec = () => {
+      program.accept(interpreter);
+    };
+
+    expect(exec).toThrow();
   });
 
 test('49. ', () => {

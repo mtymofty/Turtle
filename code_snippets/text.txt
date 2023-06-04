@@ -20,12 +20,16 @@ func main(){
     # turt2 = turt;
     # print(turt2);
 
-    print(turt);
+    # print(turt);
     # change_turt(turt);
-    turt.pen.color.a = true;
-    print(turt);
+    # turt.pen.color.a = 66;
+    # print(turt);
     # print(turt2);
     # print(color);
+
+    var = 5;
+    var.prop = 10;
+    print(var);
 
 }
 

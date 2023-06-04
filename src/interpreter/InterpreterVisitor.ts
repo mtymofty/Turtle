@@ -237,6 +237,9 @@ export class InterpreterVisitor implements Visitor {
     visitAssignStatement(stmnt: AssignStatement): void {
         if(stmnt.left instanceof MemberAccess && stmnt.left.right instanceof Identifier) {
             stmnt.left.left.accept(this)
+            if(!TypeMatching.isObjectInstance(this.last_result)) {
+                ErrorHandler.raise_crit_err(ErrorType.OBJ_MEM_ACC_ERR, [TypeMatching.getTypeOf(this.last_result)], stmnt.left.left.position);
+            }
             var obj = this.last_result
             var var_name = stmnt.left.right.name
         }
