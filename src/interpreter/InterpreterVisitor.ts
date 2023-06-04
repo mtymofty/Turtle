@@ -192,6 +192,8 @@ export class InterpreterVisitor implements Visitor {
     visitReturn(ret: ReturnStatement): void {
         if (ret.expression !== null && ret.expression !== undefined) {
             ret.expression.accept(this)
+        } else {
+            this.last_result = null;
         }
         this.is_returning = true
     }

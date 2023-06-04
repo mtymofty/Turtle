@@ -565,6 +565,6 @@ Powstało **86** testów leksera.
 
 Dla każdej produkcji **parsera** powstał test sprawdzający jej poprawność.  Dodatkowo przeprowadzone zostały testy dla scenariuszy nieprawidłowych sekwencji tokenów.
 
-**Interpreter** sprawdzany jest poprzez testowanie pełnego potoku przetwarzania na podstawie łańcucha znaków lub pliku wejściowego.
+**Interpreter** sprawdzany jest poprzez testowanie pełnego potoku przetwarzania na podstawie łańcucha znaków.
 
 Inne moduły aplikacji, takie jak: **Reader**, **TypeMatching**, **Evaluator** oraz **inne** testowane były przy użyciu testów jednostkowych.

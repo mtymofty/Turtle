@@ -1,5 +1,5 @@
 func main(){
-    ops(5, 6, 7, 8);
+    # ops(5, 6, 7, 8);
 
     # cond();
 
@@ -17,25 +17,18 @@ func main(){
     # b = turt.pen.color;
     # print(b);
 
-    turt2 = turt;
-    print(turt2);
+    # turt2 = turt;
+    # print(turt2);
 
     print(turt);
-    change_turt(turt);
-    turt.pen.color.a = 66;
+    # change_turt(turt);
+    turt.pen.color.a = true;
     print(turt);
-    print(turt2);
-    print(color);
-
-    i = 5;
-    print(i);
-    change_i(i);
-    print(i);
-
-    a = 999;
-
+    # print(turt2);
+    # print(color);
 
 }
+
 
 func change_turt(turt){
     turt.angle = 69;
