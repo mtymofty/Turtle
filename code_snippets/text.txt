@@ -1,41 +1,37 @@
 func main(){
-    # ops(5, 6, 7, 8);
+    ops(5, 6, 7, 8);
 
-    # cond();
+    cond();
 
     color = Color();
     pen = Pen(true, color);
     pos = TurtlePosition();
     turt = Turtle(pen, pos, 100);
 
-    # id = loop();
-    # print(id);
+    id = loop();
+    print(id);
 
-    # print(turt);
-    # turt.rotate(100);
-    # print(turt);
-    # b = turt.pen.color;
-    # print(b);
+    print(turt);
+    turt.rotate(100);
+    print(turt);
+    b = turt.pen.color;
+    print(b);
 
-    # turt2 = turt;
-    # print(turt2);
+    turt2 = turt;
+    print(turt2);
 
-    # print(turt);
-    # change_turt(turt);
-    # turt.pen.color.a = 66;
-    # print(turt);
-    # print(turt2);
-    # print(color);
-
-    var = 5;
-    var.prop = 10;
-    print(var);
+    print(turt);
+    change_turt(turt);
+    turt.pen.color.a = 66;
+    print(turt);
+    print(turt2);
+    print(color);
 
 }
 
 
 func change_turt(turt){
-    turt.angle = 69;
+    turt.angle = 60;
 }
 
 func change_i(i){
@@ -67,89 +63,91 @@ func ops(a, b, c, d){
 
 func cond(){
     if (true) {
-        # print("true is true");
+        print("true is true");
     } else {
-        # print("true is false");
+        print("true is false");
     }
 
     unless (true) {
-        # print("not true is true");
+        print("not true is true");
     } else {
-        # print("not true is false");
+        print("not true is false");
     }
 
     if (1) {
-        # print("1 is true");
+        print("1 is true");
     } else {
-        # print("1 is false");
+        print("1 is false");
     }
 
     unless (1) {
-        # print("not 1 is true");
+        print("not 1 is true");
     } else {
-        # print("not 1 is false");
+        print("not 1 is false");
     }
 
     if (0) {
-        # print("0 is true");
+        print("0 is true");
     } else {
-        # print("0 is false");
+        print("0 is false");
     }
 
     unless (0) {
-        # print("not 0 is true");
+        print("not 0 is true");
     } else {
-        # print("not 0 is false");
+        print("not 0 is false");
     }
 
     if ("abc") {
-        # print("abc is true");
+        print("abc is true");
     } else {
-        # print("abc is false");
+        print("abc is false");
     }
 
     unless ("abc") {
-        # print("not abc is true");
+        print("not abc is true");
     } else {
-        # print("not abc is false");
+        print("not abc is false");
     }
 
     if (1.1) {
-        # print("1.1 is true");
+        print("1.1 is true");
     } else {
-        # print("1.1 is false");
+        print("1.1 is false");
     }
 
     unless (1.1) {
-        # print("not 1.1 is true");
+        print("not 1.1 is true");
     } else {
-        # print("not 1.1 is false");
+        print("not 1.1 is false");
     }
 
     if (false) {
-        # print("false is true");
+        print("false is true");
     } else {
-        # print("false is false");
+        print("false is false");
     }
 
     unless (false) {
-        # print("not false is true");
+        print("not false is true");
     } else {
-        # print("not false is false");
+        print("not false is false");
     }
 
     if (Color()) {
-        # print("Color() is true");
+        print("Color() is true");
     } else {
-        # print("Color() is false");
+        print("Color() is false");
     }
 
     unless (Color()) {
-        # print("not Color() is true");
+        print("not Color() is true");
     } else {
-        # print("not Color() is false");
+        print("not Color() is false");
     }
 }
+
+
 
 func loop(){
     i = 1;

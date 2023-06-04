@@ -12,12 +12,12 @@ import { FunCall } from "../parser/syntax/expression/primary/object_access/FunCa
 import { Addition } from "../parser/syntax/expression/additive/Addition";
 import { Negation } from "../parser/syntax/expression/negation/Negation";
 import { Division } from "../parser/syntax/expression/multiplicative/Division";
-import { AndExpression } from "../parser/syntax/expression/AndExpression";
+import { AndExpression } from "../parser/syntax/expression/logical/AndExpression";
 import { Multiplication } from "../parser/syntax/expression/multiplicative/Multiplication";
 import { Subtraction } from "../parser/syntax/expression/additive/Subtraction";
 import { Exponentiation } from "../parser/syntax/expression/Exponentiation";
 import { LogicalNegation } from "../parser/syntax/expression/negation/LogicalNegation";
-import { OrExpression } from "../parser/syntax/expression/OrExpression";
+import { OrExpression } from "../parser/syntax/expression/logical/OrExpression";
 import { NotEqualComparison } from "../parser/syntax/expression/comparison/NotEqualComparison";
 import { EqualComparison } from "../parser/syntax/expression/comparison/EqualComparison";
 import { LesserEqualComparison } from "../parser/syntax/expression/comparison/LesserEqualComparison";

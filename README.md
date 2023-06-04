@@ -1,4 +1,5 @@
 # TKOM - Turtle
+Autor: Maciej Tymoftyjewicz
 
 ## Cel projektu
 Celem projektu jest zaprojektowanie w pełni funkcjonalnego **interpretera** stworzonego przez siebie języka.
@@ -10,13 +11,24 @@ Opiekunem projektu jest dr inż. Piotr Gawkowski.
 ## Opis języka
 Język programowania **Turtle** umożliwia interaktywne tworzenie obrazów poprzez sterowanie żółwiem potrafiącym rysować różnego rodzaju kształty, o zadanym kolorze i wymiarach.
 
+Język jest **słabo** oraz **dynamicznie** typowany. Typy proste są **niemutowalne**, a typy obiektowe - **mutowalne**.
+
+## Typy danych:
+
+    integer - reprezentuje liczbę całkowitą
+    double - reprezentuje liczbę niecałkowitą
+    null - reprezentuje brak wartości
+    boolean - reprezentuje wartośc logiczną: prawda lub fałsz
+    string - reprezentuje ciąg znaków
+
+W języku występują także typy złożone, obiekty wbudowane *Turtle*, *Color*, *Pen* oraz *TurtlePosition*
+
 
 ## Dozwolone konstrukcje językowe
 
 ### Operator przypisania
 
     a = b;                  <- Inicjalizacja zmiennej
-   Język jest **słabo** oraz **dynamicznie** typowany. Typy proste są **niemutowalne**, a typy obiektowe - **mutowalne**.
 
 #### Przykłady:
 
@@ -371,99 +383,205 @@ Konstruktory:
 
 
 ## Obsługa błędów
-Błędy obsługiwane są przed moduł ErrorHandler. Same błędy podzielone zostały na trzy kategorie.
+Błędy obsługiwane są przed moduł **ErrorHandler**. Same błędy podzielone zostały na trzy kategorie: *Warning*, *Error* oraz *Critical Error*
 
-### Błędy leksykalne
-Rozróżniane jest 11 typów błędów leksera.
+Schemat komunikatu o błędzie:
+
+    {TYP BŁĘDU} - {KOMUNIKAT}
+    line: X col: Y
+    {linia kodu}
+        ^               <- znak wskazujący na miejsce błędu
+
+Przykład komunikatu o błędzie:
 
     ERROR - UNEXPECTED EOL WHILE PARSING STRING
     line: 2 col: 17
         ident = "str
                     ^
 
+
+### Błędy leksykalne
+Rozróżniane jest 12 typów błędów leksera.
+
+    ERROR - UNEXPECTED EOL WHILE PARSING STRING
+
     ERROR - UNEXPECTED EOF WHILE PARSING STRING
-    line: 2 col: 17
-        ident = "str
-                    ^
 
     ERROR - EXCEEDING LENGTH OF A STRING!
-    line: 2 col: 13
-        ident = "str(...)ing";
-                ^
 
     ERROR - EXCEEDING LENGTH OF AN IDENTIFIER!
-    line: 2 col: 13
-        ident = iden(...)t;
-                ^
 
     ERROR - PRECEDING ZERO IN A NUMERIC CONSTANT!
-    line: 2 col: 13
-        ident = 05;
-                ^
 
     ERROR - EXCEEDING VALUE OF A NUMERIC CONSTANT (INT)!
-    line: 2 col: 13
-        ident = 555(...)5;
-                ^
 
     ERROR - EXCEEDING VALUE OF A NUMERIC CONSTANT (DOUBLE)!
-    line: 2 col: 13
-        ident = 5(...)5.5(...)5
-                ^
 
     ERROR WHILE PARSING "&&" OPERATOR
     EXPECTED "&" GOT " "
-    line: 2 col: 12
-        if (a & b) {
-            ^
 
     ERROR - UNRECOGNIZED TOKEN: "@"
-    line: 2 col: 13
-        ident = @5;
-                ^
 
     CRITICAL ERROR - ENCOUNTERED TWO DIFFERENT NEWLINE SIGNS - CORRUPTED FILE
 
     CRITICAL ERROR - NO SUCH FILE OR DIRECTORY
 
+    WARNING - TRIED TO ESCAPE UNESCAPABLE CHARACTER
+
 ### Błędy składniowe
-**SyntaxError**: invalid syntax, missing closing bracket!
-line 1, col 9:  "abc = (5;"
+Rozróżniane jest 39 typów błędów parsera.
 
-**SyntaxError**: invalid syntax, missing semicolon!
-line 1, col 8:  "abc = 5"
+    CRITICAL ERROR - EXPECTED FUNCTION DEFINITION, GOT IDENTIFIER
 
-**SyntaxError**: invalid syntax, encountered unexpected loop statement while parsing expression!
-line 1, col 7:  "abc = while(True);"
+    ERROR - EXPECTED LEFT BRACE OF FUNCTION PARAMETERS LIST "("
 
-**SyntaxError**: invalid syntax, missing opening bracket!
-line 1, col 5:  "for i=0; i<5; i++) {"
+    ERROR - EXPECTED RIGHT BRACE OF FUNCTION PARAMETERS LIST ")"
 
-**SyntaxError**: invalid syntax, cannot compare more than two objects in one expression!
-line 1, col 11:  "if (a > b < c > d) {"
+    CRITICAL ERROR - EXPECTED FUNCTION BLOCK
 
-**SyntaxError**: invalid syntax, cannot define a function inside a function!
-line 15, col 1:  "fun foo_too(){"
+    CRITICAL ERROR - EXPECTED FUNCTION IDENTIFIER
+
+    ERROR - EXPECTED FUNCTION PARAMETER NAME
+
+    ERROR - DUPLICATE FUNCTION PARAMETER NAME "param"
+
+    ERROR - DUPLICATE FUNCTION NAME "fun"
+
+    ERROR - EXPECTED RIGHT BRACE OF FUNCTION BLOCK "}"
+
+    ERROR - EXPECTED STATEMENT TERMINATOR ";"
+
+    ERROR - EXPECTED LEFT BRACE OF IF/UNLESS CONDITION "("
+
+    CRITICAL ERROR - EXPECTED IF/UNLESS STATEMENT CONDITION
+
+    ERROR - EXPECTED RIGHT BRACE OF IF/UNLESS CONDITION ")"
+
+    CRITICAL ERROR - EXPECTED IF/UNLESS BLOCK
+
+    CRITICAL ERROR - EXPECTED ELSE BLOCK
+
+    ERROR - EXPECTED LEFT BRACE OF WHILE CONDITION "("
+
+    CRITICAL ERROR - EXPECTED WHILE STATEMENT CONDITION
+
+    ERROR - EXPECTED RIGHT BRACE OF WHILE CONDITION ")"
+
+    CRITICAL ERROR - EXPECTED WHILE BLOCK
+
+    CRITICAL ERROR - STANDALONE IDENTIFIER OR MEMBER ACCESS
+
+    CRITICAL ERROR - EXPECTED EXPRESSION WHILE PARSING ASSIGNMENT
+
+    CRITICAL ERROR - ASSIGN OPERATOR CANNOT BE USED ON A FUNCALL
+
+    ERROR - EXPECTED FUNCTION ARGUMENT
+
+    ERROR - EXPECTED RIGHT BRACE OF FUNCTION ARGUMENTS LIST ")"
+
+    ERROR - EXPECTED MEMBER NAME WHILE PARSING OBJECT MEMBER ACCESS
+
+    ERROR - EXPECTED RIGHT BRACE WHILE PARSING PARENTH EXPRESSION ")"
+
+    CRITICAL ERROR - EXPECTED EXPRESSION WHILE PARSING DISJUNCTION
+
+    CRITICAL ERROR - EXPECTED EXPRESSION WHILE PARSING ADDITION
+
+    CRITICAL ERROR - EXPECTED EXPRESSION WHILE PARSING CONJUNCTION
+
+    CRITICAL ERROR - EXPECTED EXPRESSION WHILE PARSING DIVISION
+
+    CRITICAL ERROR - EXPECTED EXPRESSION WHILE PARSING MULTIPLICATION
+
+    CRITICAL ERROR - EXPECTED EXPRESSION WHILE PARSING COMPARISON
+
+    CRITICAL ERROR - EXPECTED EXPRESSION WHILE PARSING SUBTRACTION
+
+    CRITICAL ERROR - EXPECTED EXPRESSION WHILE PARSING EXPONENTIATION
+
+    CRITICAL ERROR - EXPECTED EXPRESSION WHILE PARSING NEGATION
+
+    CRITICAL ERROR - EXPECTED EXPRESSION WHILE PARSING INTEGER DIVISION
+
+    CRITICAL ERROR - EXPECTED EXPRESSION WHILE PARSING MODULO OPERATION
+
+    CRITICAL ERROR - ENCOUNTERED TOO MANY COMPARISONS IN SINGLE STATEMENT
 
 ### Błędy semantyczne
 
-**TypeError**: unsupported operand type!
-line 1, col 12:  "abc = True + "str";"
+    CRITICAL ERROR - MISSING MAIN FUNCTION DEFINITION
 
-**TypeError**: unsupported operand type!
-line 1, col 11:  "abc = "str" ** 2;"
+    CRITICAL ERROR - MAIN FUNCTION CANNOT HAVE PARAMETERS
 
-**TypeError**: invalid number of arguments for a function!
-line 10, col 22:  "two_arg_fun(first_arg);"
+    CRITICAL ERROR - FUNCTION "fun" IS NOT DEFINED
 
-**NameError**: variable name is not defined!
-line 1, col 7:  "abc = undef_var;"
+    CRITICAL ERROR - FUNCTION "fun" TAKES EXACTLY 5 ARGUMENTS, 2 GIVEN
 
-**NameError**: function name is not defined!
-line 1, col 1:  "undef_fun();"
+    CRITICAL ERROR - VARIABLE "var" IS NOT DEFINED
 
-**ZeroDivisionError**: cannot divide by zero!
-line 1, col 9:  "abc = 5/0;"
+    CRITICAL ERROR - ADDITION IS NOT SUPPORTED FOR TYPES integer AND boolean
+
+    CRITICAL ERROR - SUBTRACTION IS NOT SUPPORTED FOR TYPES integer AND boolean
+
+    CRITICAL ERROR - DIVISION IS NOT SUPPORTED FOR TYPES integer AND boolean
+
+    CRITICAL ERROR - INTEGER DIVISION IS NOT SUPPORTED FOR integer AND boolean
+
+    CRITICAL ERROR - MODULO IS NOT SUPPORTED FOR TYPES integer AND boolean
+
+    CRITICAL ERROR - MULTIPLICATION IS NOT SUPPORTED FOR TYPES integer AND boolean
+
+    CRITICAL ERROR - EXPONENTIATION IS NOT SUPPORTED FOR TYPES integer AND boolean
+
+    // Operacje AND oraz OR są możliwe dla każdego obecnie istniejącego typu danych, jednak w wypadku, gdyby w przyszłości dodany został typ, dla którego by tak nie było - istnieje taki błąd.
+    CRITICAL ERROR - CONJUNCTION IS NOT SUPPORTED FOR TYPES X AND Y
+
+    CRITICAL ERROR - DISJUNCTION IS NOT SUPPORTED FOR TYPES X AND Y
+
+    CRITICAL ERROR - NEGATION IS NOT SUPPORTED FOR TYPE $
+
+    CRITICAL ERROR - LOGICAL NEGATION IS NOT SUPPORTED FOR TYPE $
+
+    CRITICAL ERROR - "EQUAL" COMPARISON IS NOT SUPPORTED FOR TYPES $ AND $
+
+    CRITICAL ERROR - "NOT EQUAL" COMPARISON IS NOT SUPPORTED FOR TYPES $ AND $
+
+    CRITICAL ERROR - "GREATER" COMPARISON IS NOT SUPPORTED FOR TYPES $ AND $
+
+    CRITICAL ERROR - "GREATER OR EQUAL" COMPARISON IS NOT SUPPORTED FOR TYPES $ AND $
+
+    CRITICAL ERROR - "LESSER" COMPARISON IS NOT SUPPORTED FOR TYPES $ AND $
+
+    CRITICAL ERROR - "LESSER OR EQUAL" COMPARISON IS NOT SUPPORTED FOR TYPES $ AND $
+
+    CRITICAL ERROR - DIVISION BY ZERO!
+
+    CRITICAL ERROR - EXPECTED TYPES [$] IN OBJECT CONSTRUCTOR. GOT ARGUMENTS OF TYPES [$]
+
+    CRITICAL ERROR - BREAK AND CONTINUE STATEMENT ARE ONLY LEGAL INSIDE A LOOP
+
+    CRITICAL ERROR - PROPERTY '$' DOESN'T EXIST ON TYPE '$'
+
+    CRITICAL ERROR - METHOD '$' DOESN'T EXIST ON TYPE '$'
+
+    CRITICAL ERROR - PRIMITIVE OBJECT TYPE '$' DOESN'T HAVE ANY PROPERTIES
+
+    CRITICAL ERROR - PRIMITIVE OBJECT TYPE '$' DOESN'T HAVE ANY PROPERTIES
+
+    CRITICAL ERROR - EXPECTED TYPE '$' IN '$' PROPERTY ASSIGNMENT. GOT ARGUMENT OF TYPE '$'
+
+    CRITICAL ERROR - ENCOUNTERED REDEFINITION OF BUILTIN FUNCTION $!
+
+    CRITICAL ERROR - ENCOUNTERED REDEFINITION OF BUILTIN CONSTRUCTOR $!
+
+    WARNING - COLOR OPACITY EXCEEDED VALUE LIMIT (0-100). SETTING TO $
+
+    WARNING - COLOR $ COMPONENT EXCEEDED VALUE LIMIT (0-255). SETTING TO $
+
+    WARNING - ENCOUNTERED INT OVERFLOW! SETTING TO MAX INTEGER VALUE.
+
+    WARNING - ENCOUNTERED DOUBLE OVERFLOW! SETTING TO MAX DOUBLE VALUE.
+
 
 ## Sposób uruchomienia, wej./wyj.
 Program uruchamiany jest przy użyciu specjalnego skryptu przyjmującego jako argument plik tekstowy zawierający kod programu.
@@ -477,22 +595,58 @@ Możliwe jest włączenie programu przy użytciu dwóch skryptów:
 
     ./turtle-test.sh code_snippets/text.txt
 
-## Wymagania
+## Analiza wymagań
 1. Program będzie w stanie przeanalizować i wykonać poprawnie skonstruowane instrukcje w zdefiniowanym języku.
+
+    **Realizacja**: Zaimplementowane zostały lekser, parser oraz interpreter skutecznie analizujące i wykonujące kod napisany w zdefiniowanym języku.
+
 2. Język będzie umożliwiał rysowanie kształtów w wyświetlanym dla użytkownika oknie.
-3. Możliwa będzie modyfikacja:
+
+    **Realizacja**: Wbudowane w język metody obiektu *Turtle* pozwalają na rysowanie linii na płótnie, wyświetlanym użytkownikowi w oknie przeglądarki.
+
+2. Możliwa będzie modyfikacja:
    - koloru linii
    - długości linii
    - kierunku (kąta) rysowania
    - pozycji, z której rozpoczyna się rysowanie
-4. Program będzie informował użytkownika o pomyłkach w kodzie pod postacią komunikatu o błędzie. Ponadto przekazana zostanie użytkownikowi informacja o miejscu wystąpienia błędu (linia oraz kolumna) wraz z zawierającą go częścią kodu.
-5. Zaimplementowane będą mechanizmy zabezpieczające przed błędami, takie jak maksymalna długość tokenu, graniczne wartości stałych liczbowych i maksymalna długość łańcucha znaków.
-6. Możliwe będzie zatrzymanie wykonania programu przy użyciu skrótu klawiszowego.
-7. Program uniemożliwi zdefiniowanie dwóch funkcji o tych samych nazwach.
-8. Zmienne definiowane w języku będą miały określony zasięg (scope): globalny, lokalny, blokowy
+
+    **Realizacja**: Wbudowane obiekty posiadają atrybuty pozwalające na modyfikację cech rysowanych linii.
+
+3. Program będzie informował użytkownika o pomyłkach w kodzie pod postacią komunikatu o błędzie. Ponadto przekazana zostanie użytkownikowi informacja o miejscu wystąpienia błędu (linia oraz kolumna) wraz z zawierającą go częścią kodu.
+
+    **Realizacja**: Każdy błąd popełniony przez użytkownika w pisaniu kodu wyświetlany jest mu w postaci ostrzeżenia lub błędu (czasem krytycznego). Każdy rodzaj błędu ma zdefiniowany specjalny komunikat, a błędy, z którymi powiązana jest pozycja w kodzie, przesyłane są użytkownikowi wraz z informacją o ich pozycji w kodzie (linia oraz kolumna), możliwie wraz z kodem linii w której doszło do błędu.
+
+4. Zaimplementowane będą mechanizmy zabezpieczające przed błędami, takie jak maksymalna długość tokenu, graniczne wartości stałych liczbowych i maksymalna długość łańcucha znaków.
+
+    **Realizacja**: Analizator leksykalny posiada zdefiniowane maksymalne wartości liczbowe integer i double, graniczną długość ciągu znaków oraz identyfikatora. W przypadku ich przekroczenia zgłaszany jest błąd, a nadmiarowe części tych struktur są ignorowane.
+
+5. Możliwe będzie zatrzymanie wykonania programu przy użyciu skrótu klawiszowego.
+
+    **Realizacja**: Wykonanie programu można przerwa przy użyciu skrótu klawiszowego CTRL+C.
+
+6. Program uniemożliwi zdefiniowanie dwóch funkcji o tych samych nazwach.
+
+    **Realizacja**: Zdefiniowanie dwóch funkcji o tej samej nazwie, lub funkcji o nazwie tożsamej z nazwą funkcji wbudowanej (lub konstruktora obiektu) wywołuje błąd.
+
+7. Zmienne definiowane w języku będą miały określony kontekst oraz zasięg.
+
+    **Realizacja**: Każda funkcja w języku posiada swój własny kontekst w ramach którego definiowane są zmienne. Będąc w jednym kontekście, niemożliwy jest dostęp do zmiennych z innego (poprzedniego, nadrzędnego) kontekstu. Dodatkowo każdy blok wyrażeń (blok pętli while, bloki struktur if/unless oraz blok funkcyjny) ma własny zasięg zmiennych. W przypadku zasięgu możliwy jest dostęp do zmiennych definiowanych w ramach poprzednich (nadrzędnych) zasięgów, jednak granicę stanowi kontekst funkcji. Innymi słowy, będąc przykładowo w pętli while można dostać się do wartości zdefiniowanych wcześniej poza nią, jednak tylko w granicy danej funkcji.
+
+8.  Będzoe istnieć możliwość ewaluacji "short-circuit" operacji logicznych.
+
+    **Realizacja**: Zaimplementowana ewaluacja operacji logicznych AND oraz OR pozwala na zoptymalizowane wyliczanie ich wartości. Ewaluacja operandów odbywa się od lewej do prawej. W przypadku gdy wartość ewaluacji jednego z nich jest wystarczająca do uznania poprawności wyrażenia, dalsze operandy nie są ewaluowane.
+
+    W przypadku operatora OR, jeśli lewy operand "jest prawdziwy", jest to wystarczające do stwierdzenia, że całe wyrażenie jest prawdziwe. Za to w przypadku operatora AND, jeśli lewy operand "jest fałszywy", oznacza to, że całe wyrażenie jest fałszywe.
+
+9.  Język będzie wspierać UTF-8
+
+    **Realizacja**: Stworzony Reader źródła tekstu obsługuje czytanie znaków w formacie UTF-8 i jest w stanie je poprawnie przekazać do leksera.
+
 
 ## Sposób realizacji
-<img title="Graf" alt="Graf modułów" src="https://i.imgur.com/0vBynHX.jpg">
+Poniżej znajduje się graf zależności najważniejszych modułów systemu.
+
+<img title="Graf" alt="Graf modułów" src="assets/diagram.png">
 
 Do **leksera** trafiają szeregowo znaki z kodu źródłowego, które są analizowane leksykalnie i tokenizowane.
 Wyprodukowane tokeny trafiają następnie do **parsera**, który dokonuje analizy składniowej i buduje na ich podstawie drzewo obiektów programu.
@@ -500,10 +654,11 @@ Ostatecznie **interpreter** wykonuje program sprawdzając przy okazji poprawnoś
 Dodatkowo moduł **obsługi błędów**, komunikujący się z każdym z wymienionych komponentów, będzie odpowiedzialny za informowanie użytkownika o występujących w kodzie błędach i w przypadku, gdy zajdzie taka potrzeba - przerwanie wykonania programu.
 
 ### Lekser
-Lekser pobiera znaki leniwie, pojedynczo znak po znaku. Odpowiednio skonstruowane wedle zasad języka ciągi znaków grupowane są w tokeny. W przypadku, gdy niemożliwe jest zidentyfikowanie tokenu lub łamane jest któreś z istniejących zabezpieczeń (np. na wartość stałej liczbowej) wywoływany jest błąd. Nie przerywa to jednak wykonania programu, aby zapewnić bardziej obszerną analizę.
+Lekser pobiera znaki leniwie, pojedynczo znak po znaku. Odpowiednio skonstruowane wedle zasad języka ciągi znaków grupowane są w tokeny. W przypadku, gdy niemożliwe jest zidentyfikowanie tokenu lub łamane jest któreś z istniejących zabezpieczeń (np. na wartość stałej liczbowej) wywoływany jest błąd. W zależności od krytyczności błędu, może być możliwe kontynuowanie wykonania programu, aby zapewnić bardziej obszerną analizę.
 
-#### Typy tokenów
+Lekser komunikuje się z modułem **Reader** w celu czytania znaków z pliku, **ErrorHandler** aby zgłaszać błędy, **Token** aby dokonywać tokenizacji oraz **Misc** do przeprowadzania pomniejszych operacji, takich jak np. użycie wyrażeń regularnych.
 
+##### Typy tokenów
  - IDENTIFIER
  - INT
  - DOUBLE
@@ -552,19 +707,69 @@ Lekser pobiera znaki leniwie, pojedynczo znak po znaku. Odpowiednio skonstruowan
  - COMMENT (filtrowane między lekserem a parserem)
  - UNRECOGNIZED (filtrowane między lekserem a parserem)
 
+### Parser
+Analizator składniowy wykorzystując **Lekser** dostaje po kolei kolejne tokeny otrzymane w ramach tokenizacji. Sprawdza on poprawność składniową sekwencji tokenów oraz na ich podstawie buduje zgodne z gramatyką drzewo obiektów reprezentujących poszczególne konstrukcje językowe. Dokonuje również kilka dodatkowych akcji semantycznych. Możliwe błędy występujące w trakcie analizy są zgłaszane do **ErrorHandlera** i przedstawiane użytkownikowi.
+
+#### Konstrukcje językowe z przypisanymi typami obiektów
+- Program (Program)
+- Definicja funkcji (FunctionDef)
+- Blok (Block)
+- Wyrażenia (Expression)
+  - Addytywne (Additive)
+    - Dodawanie (Addition)
+    - Odejmowanie (Subtraction)
+  - Komparatywne
+    - Równość (EqualComparison)
+    - Nierówność (NotEqualComparison)
+    - Większość (GreaterComparison)
+    - Większość-Równość (GreaterEqualComparison)
+    - Mniejszość (LesserComparison)
+    - Mniejszość-Równość (LesserEqualComparison)
+  - Multiplikatywne
+    - Dzielenie (Division)
+    - Dzielenia całkowitoliczbowe (IntDivision)
+    - Modulo
+    - Mnożenie (Multiplication)
+  - Negacje
+    - Negacja (Negation)
+    - Logiczna negacja (LogicalNegation)
+  - Podstawowe
+    - Stałe
+      - Logiczna (BooleanConstant)
+      - Całkowitoliczbowa (IntConstant)
+      - Niecałkowitoliczbowa (DoubleConstant)
+      - Null (NullConstant)
+      - Ciąg znaków (StringConstant)
+    - Dostęp do pól obiektów (ObjectAcccess)
+  - Logiczne
+    - Koniunkcja (AndExpression)
+    - Alternatywa (OrExpression)
+  - Potęgowanie (Exponentiation)
+- Statementy (Statement)
+  - Przypisanie (AssignmentStatement)
+  - Break (BreakStatement)
+  - Continue (ContinueStatement)
+  - If (IfStatement)
+  - Unless (UnlessStatement)
+  - Return (ReturnStatement)
+  - While (WhileStatement)
+
+### Interpreter
+Po pełnej analizie składniowej kodu, interpreter zaczyna wykonywać kod, przy czym sprawdza również poprawność semantyczną wygenerowanych struktur składniowych. Dokonuje niejawnych konwersji typów, sprawdza poprawności typów, legalność operacji oraz korekty wartości zmiennych. Błędy zgłaszane przez interpreter w trakcie wykonania są krytyczne i przerywają wykonanie programu.
+
+Interpreter komunikuje się z modułem **Environment** w celu zarządzania zasięgiem oraz kontekstem, **TypeMatching** do sprawdzania poprawności typów, **Evaluator** żeby obliczać wartości operacji.
 
 ## Testowanie
 Program testowany jest przy użyciu biblioteki JEST.
+Powstały łącznie **483** testy działania poszczególnych modułów aplikacji.
 
 Uruchomienie komendą **jest**
 
 ### Lekser
 Poprawne działanie **leksera** sprawdzanie jest przy użyciu testów jednostkowych weryfikujących wykrywanie pojedynczych tokenów (zarówno poprawnych jak i niepoprawnych). Testy niepoprawne są przeprowadzane między innymi korzystając z typowych błędów, które mogą przydarzyć się podczas pisaniu kodu, np. literówka, lub brak domknięcia cudzysłowia.
 
-Powstało **86** testów leksera.
-
 Dla każdej produkcji **parsera** powstał test sprawdzający jej poprawność.  Dodatkowo przeprowadzone zostały testy dla scenariuszy nieprawidłowych sekwencji tokenów.
 
-**Interpreter** sprawdzany jest poprzez testowanie pełnego potoku przetwarzania na podstawie łańcucha znaków.
+**Interpreter** sprawdzany jest poprzez testowanie pełnego potoku przetwarzania na podstawie łańcucha znaków. Sprawdzone zostały wszystkie legalne konstrukcje językowe, typowe sytuacje błędne, sposoby wykonywania kodu i dostępu do zmiennych itd.
 
-Inne moduły aplikacji, takie jak: **Reader**, **TypeMatching**, **Evaluator** oraz **inne** testowane były przy użyciu testów jednostkowych.
+Inne moduły aplikacji, takie jak: **Reader**, **TypeMatching**, **Evaluator** oraz **Misc** testowane były przy użyciu testów jednostkowych.

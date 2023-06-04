@@ -9,4 +9,8 @@ export class TestInterpreter extends InterpreterVisitor {
     calls() {
         return this.callables
     }
+
+    env_() {
+        return this.env
+    }
 }

@@ -15,7 +15,7 @@ beforeAll(() => {
 describe('Interpreter integration tests:', () => {
   test('1. Constructor test', () => {
     var interpreter = new TestInterpreter();
-    expect(interpreter.env).not.toBe(null);
+    expect(interpreter.env_()).not.toBe(null);
   });
 
 test('2. Adding bultin functions and objects', () => {
@@ -64,7 +64,7 @@ test('4. ERROR - Missing main function', () => {
     expect(exec).toThrow();
   });
 
-test('5. ERROR- Main function with parameters', () => {
+test('5. ERROR - Main function with parameters', () => {
     var lexer = new LexerImp(new StringReader("func main(param) { return; }"));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
@@ -331,7 +331,7 @@ test('29. ERROR - Passing wrong type of args to an object constructor', () => {
     expect(exec).toThrow();
   });
 
-test('30. ERROR - Passing illigal values of args to object constructor', () => {
+test('30. Passing illigal values of args to object constructor', () => {
     var lexer = new LexerImp(new StringReader("func main() { return Color(100, 255, 255, 1000).b}"));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
@@ -390,7 +390,7 @@ test('33. Object parametrized constructor test', () => {
     expect(res.b).toBe(40);
   });
 
-test('34. ERROR- assigning value to non-existant property', () => {
+test('34. ERROR - Assigning value to non-existant property', () => {
   var lexer = new LexerImp(new StringReader(`
   func main() {
     obj = Color();
@@ -649,474 +649,624 @@ test('48. ERROR - Calling non-existant function', () => {
     expect(exec).toThrow();
   });
 
-test('49. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('49. Simple IF Statement, with constant condition', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    if (1) {
+      return 1;
+    }
+    return 0;
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(1);
   });
 
-test('50. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('50. Simple IF Statement, with comparison condition', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    if (1>0) {
+      return 1;
+    }
+    return 0;
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(1);
   });
 
-test('51. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('51. Simple IF Statement, with compound arithmetic condition', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    if (5+5-5 == 5) {
+      return 1;
+    }
+    return 0;
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(1);
   });
 
-test('52. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('52. Simple IF Statement, with identifier condition', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    var = 1;
+    if (var) {
+      return 1;
+    }
+    return 0;
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(1);
   });
 
-test('53. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('53. IF-ELSE Statement, with true condition', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    var = 1;
+    if (var) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(1);
   });
 
-test('54. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('54. IF-ELSE Statement, with false condition', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    var = null;
+    if (var) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(0);
   });
 
-test('55. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('55. Simple UNLESS Statement, with true condition', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    var = true;
+    unless (var) {
+      return 1;
+    }
+
+    return 0;
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(0);
   });
 
-test('56. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('56. UNLESS-ELSE Statement, with true condition', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    var = true;
+    unless (var) {
+      return 1;
+    } else {
+      return 0
+    }
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(0);
   });
 
-test('57. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('57. Simple UNLESS Statement, with false condition', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    var = false;
+    unless (var) {
+      return 1;
+    }
+
+    return 0;
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(1);
   });
 
-test('58. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('58. UNLESS-ELSE Statement, with false condition', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    var = null;
+    unless (var) {
+      return 1;
+    } else {
+      return 0
+    }
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(1);
   });
 
-test('59. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('59. Assignment of void function return value', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    var = fun(5+5);
+    return var;
+
+  }
+  func fun(param) {
+    return;
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(null);
   });
 
-test('60. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('60. Recursion test', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    param = 0;
+    var = fun(param);
+    return var;
+
+  }
+  func fun(param) {
+    param = param + 1;
+    if (param != 5) {
+      return fun(param);
+    }
+    return param;
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(5);
   });
 
-test('61. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('61. Alternation of object property in other object', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    color_var = Color(50, 50, 50, 50);
+    pen = Pen(true, color_var);
+
+    pen.color.r = 100;
+    return color_var.r;
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(100);
   });
 
-test('62. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('62. Compound division by zero', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    var = 5 / (100 + (200*0.1*(-1)) - 80)
+    return var;
+  }
+  `));
+    var parser = new ParserImp(lexer);
+    let program = parser.parse();
+    var interpreter = new TestInterpreter();
+
+    const exec = () => {
+      program.accept(interpreter);
+    };
+
+    expect(exec).toThrow();
+  });
+
+test('63. Simple while loop', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    i = 0;
+    while(i<5) {
+      i = i+1;
+    }
+    return i;
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(5);
   });
 
-test('63. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('64. Break in while loop', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    i = 0;
+    while(i<5) {
+      i = i+1;
+      if (i==3) {
+        break;
+      }
+    }
+    return i;
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(3);
   });
 
-test('64. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('65. Continue in while loop.', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    loop_num = 0;
+    i = 0;
+    while(i<5) {
+      i = i+1;
+      if (i==3) {
+        continue
+      }
+      loop_num = loop_num+1;
+    }
+    return (i-1==loop_num);
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(true);
   });
 
-test('65. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('66. Return in while loop', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    i = 0;
+    while(i<5) {
+      i = i+1;
+      if (i==3) {
+        return 100;
+      }
+    }
+    return 0;
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(100);
   });
 
-test('66. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('67. Statements after return are not executed.', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    var = 10
+    return var;
+    var = 20;
+    return var;
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(10);
   });
 
-test('67. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('68. Nested while loops', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    i = 0;
+    inner_loop_count = 0;
+    outer_loop_count = 0;
+    while(i<5) {
+      i = i+1;
+      while(i<2) {
+        i = i+0.1;
+        inner_loop_count = inner_loop_count+1
+      }
+      outer_loop_count = outer_loop_count+1
+    }
+    return (inner_loop_count==10 && outer_loop_count==4);
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(true);
   });
 
-test('68. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+
+test('69. Nested if statements', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    res = null;
+    i = 0;
+    if(i==0) {
+      i = i+1;
+      if(i==0) {
+        res = 1000;
+      } else {
+        res = 2000;
+      }
+    }
+    return res
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(2000);
   });
 
-test('69. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('70. Accesing variables from previous scope', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    var = 5;
+    res = 0;
+    if(true) {
+      res = var;
+    }
+    return res
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    expect(interpreter.result()).toBe(5);
   });
 
-test('70. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('71. ERROR - Accessing local variable after leaving the scope', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    var = 5;
+    if(true) {
+      res = var;
+    }
+    return res
+  }
+  `));
+    var parser = new ParserImp(lexer);
+    let program = parser.parse();
+    var interpreter = new TestInterpreter();
+    const exec = () => {
+      program.accept(interpreter);
+    };
+
+    expect(exec).toThrow();
+  });
+
+test('72. ERROR - Accesing variable from previous function context.', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    var = 5;
+    fun();
+  }
+
+  func fun() {
+    loc_var = var;
+  }
+  `));
+    var parser = new ParserImp(lexer);
+    let program = parser.parse();
+    var interpreter = new TestInterpreter();
+    const exec = () => {
+      program.accept(interpreter);
+    };
+
+    expect(exec).toThrow();
+  });
+
+test('73. ERROR - Accesing variable after leaving function context', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    var = 5;
+    fun();
+    return loc_var;
+  }
+
+  func fun() {
+    loc_var = var;
+  }
+  `));
+    var parser = new ParserImp(lexer);
+    let program = parser.parse();
+    var interpreter = new TestInterpreter();
+    const exec = () => {
+      program.accept(interpreter);
+    };
+
+    expect(exec).toThrow();
+  });
+
+test('74. ERROR - Redefinition of builtin function', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+  }
+
+  func print() {
+  }
+  `));
+    var parser = new ParserImp(lexer);
+    let program = parser.parse();
+    var interpreter = new TestInterpreter();
+    const exec = () => {
+      program.accept(interpreter);
+    };
+
+    expect(exec).toThrow();
+  });
+
+test('75. ERROR - Redefinition of builtin object constructor', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+  }
+
+  func Pen() {
+  }
+  `));
+    var parser = new ParserImp(lexer);
+    let program = parser.parse();
+    var interpreter = new TestInterpreter();
+    const exec = () => {
+      program.accept(interpreter);
+    };
+
+    expect(exec).toThrow();
+  });
+
+test('76. Short circuit OR operation', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    obj = Color(0, 0, 0, 0);
+    if (fun_left(obj) || fun_right(obj)) {}
+    return obj;
+  }
+
+  func fun_left(obj) {
+    obj.a = 100;
+    return true;
+  }
+
+  func fun_right(obj) {
+    obj.r = 100;
+    return true;
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    var res = <Color>(interpreter.result())
+
+    expect(res.a).toBe(100);
+    expect(res.r).not.toBe(100);
   });
 
-test('71. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('77. Short circuit AND operation', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    obj = Color(0, 0, 0, 0);
+    if (fun_left(obj) && fun_right(obj)) {}
+    return obj;
+  }
+
+  func fun_left(obj) {
+    obj.a = 100;
+    return false;
+  }
+
+  func fun_right(obj) {
+    obj.r = 100;
+    return true;
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    var res = <Color>(interpreter.result())
+
+    expect(res.a).toBe(100);
+    expect(res.r).not.toBe(100);
   });
 
-test('72. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('78. Non-Short circuit OR operation sideeffects', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    obj = Color(0, 0, 0, 0);
+    if (fun_left(obj) || fun_right(obj)) {}
+    return obj;
+  }
+
+  func fun_left(obj) {
+    obj.a = 100;
+    return false;
+  }
+
+  func fun_right(obj) {
+    obj.r = 100;
+    return true;
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    var res = <Color>(interpreter.result())
+
+    expect(res.a).toBe(100);
+    expect(res.r).toBe(100);
   });
 
-test('73. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
+test('79. Non-Short circuit AND operation sideeffects', () => {
+  var lexer = new LexerImp(new StringReader(`
+  func main() {
+    obj = Color(0, 0, 0, 0);
+    if (fun_left(obj) && fun_right(obj)) {}
+    return obj;
+  }
+
+  func fun_left(obj) {
+    obj.a = 100;
+    return true;
+  }
+
+  func fun_right(obj) {
+    obj.r = 100;
+    return true;
+  }
+  `));
     var parser = new ParserImp(lexer);
     let program = parser.parse();
     var interpreter = new TestInterpreter();
     program.accept(interpreter);
-    expect(true).toBe(true);
+    var res = <Color>(interpreter.result())
+
+    expect(res.a).toBe(100);
+    expect(res.r).toBe(100);
   });
-
-test('74. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('75. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('76. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('77. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('78. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('79. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('80. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('81. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('82. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('83. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('84. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('85. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('86. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('87. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('88. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('89. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('90. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('91. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('92. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('93. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('94. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('95. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('96. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('97. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('98. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('99. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-test('100. ', () => {
-    var lexer = new LexerImp(new StringReader("func main() { return }"));
-    var parser = new ParserImp(lexer);
-    let program = parser.parse();
-    var interpreter = new TestInterpreter();
-    program.accept(interpreter);
-    expect(true).toBe(true);
-  });
-
-
-
 });

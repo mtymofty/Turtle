@@ -11,12 +11,12 @@ import { FunCall } from "../parser/syntax/expression/primary/object_access/FunCa
 import { Addition } from "../parser/syntax/expression/additive/Addition";
 import { Negation } from "../parser/syntax/expression/negation/Negation";
 import { Division } from "../parser/syntax/expression/multiplicative/Division";
-import { AndExpression } from "../parser/syntax/expression/AndExpression";
+import { AndExpression } from "../parser/syntax/expression/logical/AndExpression";
 import { Multiplication } from "../parser/syntax/expression/multiplicative/Multiplication";
 import { Subtraction } from "../parser/syntax/expression/additive/Subtraction";
 import { Exponentiation } from "../parser/syntax/expression/Exponentiation";
 import { LogicalNegation } from "../parser/syntax/expression/negation/LogicalNegation";
-import { OrExpression } from "../parser/syntax/expression/OrExpression";
+import { OrExpression } from "../parser/syntax/expression/logical/OrExpression";
 import { NotEqualComparison } from "../parser/syntax/expression/comparison/NotEqualComparison";
 import { EqualComparison } from "../parser/syntax/expression/comparison/EqualComparison";
 import { LesserEqualComparison } from "../parser/syntax/expression/comparison/LesserEqualComparison";
@@ -52,16 +52,16 @@ import { TurtlePosition } from "./builtin/objs/TurtlePosition";
 import { Position } from "../source/Position";
 
 export class InterpreterVisitor implements Visitor {
-    env: Environment
-    callables: Record<string, Callable> = {}
+    protected env: Environment
+    protected callables: Record<string, Callable> = {}
 
-    main_fun_name: string = "main"
+    protected main_fun_name: string = "main"
 
-    last_result: number | boolean | string | ObjectInstance | null = undefined
-    is_returning: boolean = false
-    is_breaking: boolean = false
-    is_continuing: boolean = false
-    in_loop: boolean = false
+    protected last_result: number | boolean | string | ObjectInstance | null = undefined
+    protected is_returning: boolean = false
+    protected is_breaking: boolean = false
+    protected is_continuing: boolean = false
+    protected in_loop: boolean = false
 
     constructor(env?: Environment) {
         this.env = (env) ? env : new Environment();
@@ -86,17 +86,29 @@ export class InterpreterVisitor implements Visitor {
 
     }
 
-    addFunctions(prog: Program) {
+    private addFunctions(prog: Program) {
         for (const fun_name in prog.functions) {
             this.callables[fun_name] = prog.functions[fun_name];
         }
     }
 
-    addBuiltinFunctions() {
+    private addBuiltinFunctions() {
+        var defin = null;
+        if(defin = this.callables["print"]){
+            ErrorHandler.raise_crit_err(ErrorType.BUILDIN_FUN_REDEF_ERR, [defin.name], defin.position)
+        }
         this.callables["print"] = new PrintFunction();
     }
 
-    addBuiltinObjects() {
+    private addBuiltinObjects() {
+        var defin = null;
+        if((defin = this.callables["Color"] ) ||
+            (defin = this.callables["Pen"]) ||
+            (defin = this.callables["Turtle"]) ||
+            (defin = this.callables["TurtlePosition"])){
+            ErrorHandler.raise_crit_err(ErrorType.BUILDIN_CONST_REDEF_ERR, [defin.name], defin.position)
+        }
+
         this.callables["Color"] = new Constructor("Color",
                                 [new Identifier("a", null), new Identifier("r", null), new Identifier("g", null), new Identifier("b", null)],
                                 ["integer", "integer", "integer", "integer"],
@@ -150,7 +162,7 @@ export class InterpreterVisitor implements Visitor {
         this.env.deleteScope()
     }
 
-    visitCondStatement(stmnt: IfStatement | UnlessStatement, cond): void {
+    private visitCondStatement(stmnt: IfStatement | UnlessStatement, cond): void {
         if (cond) {
             this.last_result = undefined
             stmnt.true_block.accept(this)
@@ -332,7 +344,7 @@ export class InterpreterVisitor implements Visitor {
         }
     }
 
-    visitMethCall(method_call: FunCall, pos: Position): void {
+    private visitMethCall(method_call: FunCall, pos: Position): void {
         if(!TypeMatching.isObjectInstance(this.last_result)) {
             ErrorHandler.raise_crit_err(ErrorType.OBJ_MEM_ACC_ERR, [TypeMatching.getTypeOf(this.last_result)], pos);
         } else {
@@ -420,11 +432,49 @@ export class InterpreterVisitor implements Visitor {
     }
 
     visitAndExpression(and: AndExpression): void{
-        this.visitTwoArgOp(and, TypeMatching.matchesLog, Evaluator.evaluateAnd, ErrorType.AND_TYPE_ERR);
+        and.left.accept(this);
+        let left = this.last_result;
+
+        if (TypeMatching.matchesLog(left, true)) {
+            this.last_result = Evaluator.evaluateAnd(left, true);
+            if(this.last_result == false) {
+                return
+            }
+        } else {
+            ErrorHandler.raise_crit_err(ErrorType.AND_TYPE_ERR, [TypeMatching.getTypeOf(left), "any"], and.position);
+        }
+
+        and.right.accept(this);
+        let right = this.last_result;
+
+        if (TypeMatching.matchesLog(left, right)) {
+            this.last_result = Evaluator.evaluateAnd(left, right);
+        } else {
+            ErrorHandler.raise_crit_err(ErrorType.AND_TYPE_ERR, [TypeMatching.getTypeOf(left), TypeMatching.getTypeOf(right)], and.position);
+        }
     }
 
     visitOrExpression(or: OrExpression): void{
-        this.visitTwoArgOp(or, TypeMatching.matchesLog, Evaluator.evaluateOr, ErrorType.OR_TYPE_ERR);
+        or.left.accept(this);
+        let left = this.last_result;
+
+        if (TypeMatching.matchesLog(left, false)) {
+            this.last_result = Evaluator.evaluateOr(left, false);
+            if(this.last_result == true) {
+                return
+            }
+        } else {
+            ErrorHandler.raise_crit_err(ErrorType.OR_TYPE_ERR, [TypeMatching.getTypeOf(left), "any"], or.position);
+        }
+
+        or.right.accept(this);
+        let right = this.last_result;
+
+        if (TypeMatching.matchesLog(left, right)) {
+            this.last_result = Evaluator.evaluateOr(left, right);
+        } else {
+            ErrorHandler.raise_crit_err(ErrorType.OR_TYPE_ERR, [TypeMatching.getTypeOf(left), TypeMatching.getTypeOf(right)], or.position);
+        }
     }
 
     visitGreaterComparison(comp: GreaterComparison): void{
@@ -466,7 +516,7 @@ export class InterpreterVisitor implements Visitor {
         this.last_result = new constr.obj_type(...args)
     }
 
-    getArgsAsValue(args: Expression[]): Value[] {
+    private getArgsAsValue(args: Expression[]): Value[] {
         var val_args: Value[] = []
         args.forEach(arg => {
             arg.accept(this)
@@ -477,22 +527,15 @@ export class InterpreterVisitor implements Visitor {
         return val_args
     }
 
-    validateArgsFun(args: Value[], params: Identifier[]): boolean {
+    private validateArgsFun(args: Value[], params: Identifier[]): boolean {
         if (args.length !== params.length) {
             return false
         }
         return true
     }
 
-    validateArgsConstr(args: Value[], params: Identifier[]): boolean {
+    private validateArgsConstr(args: Value[], params: Identifier[]): boolean {
         if (args.length !== params.length && args.length !== 0) {
-            return false
-        }
-        return true
-    }
-
-    validateArgsMeth(args: Value[], params: Identifier[]): boolean {
-        if (args.length !== params.length) {
             return false
         }
         return true

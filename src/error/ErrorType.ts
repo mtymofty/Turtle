@@ -79,7 +79,9 @@ export enum ErrorType {
     OBJ_METH_ERR,
     OBJ_MEM_ACC_ERR,
     OBJ_METH_CALL_ERR,
-    OBJ_ASSIGN_ERR
+    OBJ_ASSIGN_ERR,
+    BUILDIN_FUN_REDEF_ERR,
+    BUILDIN_CONST_REDEF_ERR
 }
 
 export enum WarningType {

@@ -1,8 +1,8 @@
-import { Position } from "../../../source/Position";
-import { Visitor } from "../../../visitor/Visitor";
-import { Expression } from "./Expression";
+import { Position } from "../../../../source/Position";
+import { Visitor } from "../../../../visitor/Visitor";
+import { Expression } from "../Expression";
 
-export class OrExpression implements Expression {
+export class AndExpression implements Expression {
     left: Expression;
     right: Expression;
     position: Position;
@@ -14,6 +14,6 @@ export class OrExpression implements Expression {
     }
 
     accept(visitor: Visitor) {
-        visitor.visitOrExpression(this)
+        visitor.visitAndExpression(this)
     }
 }

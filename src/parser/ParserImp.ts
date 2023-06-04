@@ -19,7 +19,7 @@ import { AssignStatement } from "./syntax/statement/AssignStatement";
 import { ObjectAccess } from "./syntax/expression/primary/object_access/ObjectAccess";
 import { MemberAccess } from "./syntax/expression/primary/object_access/MemberAccess";
 import { FunCall } from "./syntax/expression/primary/object_access/FunCall";
-import { OrExpression } from "./syntax/expression/OrExpression";
+import { OrExpression } from "./syntax/expression/logical/OrExpression";
 import { Negation } from "./syntax/expression/negation/Negation";
 import { LogicalNegation } from "./syntax/expression/negation/LogicalNegation";
 import { Exponentiation } from "./syntax/expression/Exponentiation";
@@ -35,7 +35,7 @@ import { GreaterComparison } from "./syntax/expression/comparison/GreaterCompari
 import { GreaterEqualComparison } from "./syntax/expression/comparison/GreaterEqualComparison";
 import { LesserComparison } from "./syntax/expression/comparison/LesserComparison";
 import { LesserEqualComparison } from "./syntax/expression/comparison/LesserEqualComparison";
-import { AndExpression } from "./syntax/expression/AndExpression";
+import { AndExpression } from "./syntax/expression/logical/AndExpression";
 import { BooleanConstant } from "./syntax/expression/primary/constant/BooleanConstant";
 import { NullConstant } from "./syntax/expression/primary/constant/NullConstant";
 import { IntConstant } from "./syntax/expression/primary/constant/IntConstant";

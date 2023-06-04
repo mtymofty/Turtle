@@ -1,9 +1,9 @@
 import { LexerImp } from '../src/lexer/LexerImp';
 import { ParserImp } from '../src/parser/ParserImp';
 import { StringReader } from '../src/source/Reader';
-import { AndExpression } from '../src/parser/syntax/expression/AndExpression';
+import { AndExpression } from '../src/parser/syntax/expression/logical/AndExpression';
 import { Exponentiation } from '../src/parser/syntax/expression/Exponentiation';
-import { OrExpression } from '../src/parser/syntax/expression/OrExpression';
+import { OrExpression } from '../src/parser/syntax/expression/logical/OrExpression';
 import { Addition } from '../src/parser/syntax/expression/additive/Addition';
 import { Subtraction } from '../src/parser/syntax/expression/additive/Subtraction';
 import { EqualComparison } from '../src/parser/syntax/expression/comparison/EqualComparison';
