@@ -8,12 +8,12 @@ export class Value {
         this.value = value
     }
 
-    static getPrintable(value: number | boolean | string | ObjectInstance | null) {
+    static getPrintable(value: number | boolean | string | ObjectInstance | null): string {
         if (typeof(value) === "number"
         ||  typeof(value) === "boolean"
         ||  typeof(value) === "string"
         ||  value === null) {
-            return value
+            return `${value}`
         } else {
             var printable = ""
             printable = printable.concat(`${TypeMatching.getTypeOf(value)} {\n`)

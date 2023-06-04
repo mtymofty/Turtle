@@ -16,7 +16,6 @@ var lexer: Lexer = new LexerFilter(new LexerImp(file_reader));
 var parser: Parser = new ParserImp(lexer);
 var program: Program = parser.parse()
 
-console.log(5%0)
 
 var interpreter = new InterpreterVisitor();
 program.accept(interpreter)
