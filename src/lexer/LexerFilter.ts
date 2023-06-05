@@ -2,7 +2,6 @@ import { Reader } from "../source/Reader";
 import { Token } from "../token/Token";
 import { TokenType } from "../token/TokenType";
 import { Lexer } from "./Lexer";
-import { LexerImp } from "./LexerImp";
 
 export class LexerFilter implements Lexer {
     private lexer: Lexer;
