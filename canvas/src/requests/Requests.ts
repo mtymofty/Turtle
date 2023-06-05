@@ -1,6 +1,6 @@
 import { Line } from "../types/Line";
 
-let BACK_URL = "http://localhost:8080";
+let BACK_URL = "http://localhost:8181";
 
 function fetchGet(url: string) {
     return fetch(BACK_URL + url, {
@@ -20,12 +20,12 @@ async function handleResponse(response: Response) {
 
     if (response.status === 200)
         return { res: json };
-    return { err: "Nieudane zapytanie." };
+    return { err: json };
 }
 
 
 export class Requests {
-    static async lines(): Promise<GenericResponse<any>> {
+    static async lines(): Promise<GenericResponse<Line[]>> {
         const response = await fetchGet("")
         return handleResponse(response);
     }

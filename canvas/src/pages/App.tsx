@@ -6,6 +6,7 @@ import { Line } from "../types/Line";
 export function App() {
   const ref = useRef<HTMLCanvasElement>(null)
   const [lines, setLines] = useState<any>(null);
+  const [received, setReceived] = useState<boolean>(false);
 
   useEffect(() => {
    Requests.lines().then(res => {
@@ -14,27 +15,31 @@ export function App() {
       }
       else if (res.res) {
          setLines(res.res);
+         setReceived(true)
       }
    });
 
 
-    if (ref.current && lines) {
+    if (ref.current && received) {
       var ctx = ref.current.getContext('2d')
-      for (let i = 0; i < lines.length; i++) {
-        drawLine(ctx, lines[i]);
-      }
+
+      lines.forEach( (line: Line) => {
+        drawLine(ctx, line);
+    });
+
     }
-  })
+  }, [received])
 
   function drawLine(ctx: CanvasRenderingContext2D | null, line: Line) {
     if(!ctx) {
       return
     }
 
-    ctx.strokeStyle = `rgb(
-        ${line.color[0]},
+    ctx.strokeStyle = `rgba(
         ${line.color[1]},
-        ${line.color[2]})`;
+        ${line.color[2]},
+        ${line.color[3]},
+        ${line.color[0]/100})`;
 
     ctx.lineWidth = 1;
 

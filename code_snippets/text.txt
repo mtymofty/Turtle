@@ -1,170 +1,25 @@
 func main(){
-    ops(5, 6, 7, 8);
+    zolw = Turtle();
+	# rysuj_kwadrat(zolw, 10);
 
-    cond();
-
-    color = Color();
-    pen = Pen(true, color);
-    pos = TurtlePosition();
-    turt = Turtle(pen, pos, 100);
-
-    id = loop();
-    print(id);
-
-    print(turt);
-    turt.rotate(100);
-    print(turt);
-    b = turt.pen.color;
-    print(b);
-
-    turt2 = turt;
-    print(turt2);
-
-    print(turt);
-    change_turt(turt);
-    turt.pen.color.a = 66;
-    print(turt);
-    print(turt2);
-    print(color);
+    zolw.forward(100);
+    zolw.right();
+    zolw.pen.color.a = 70;
+    zolw.forward(100);
+    zolw.right();
+    zolw.pen.color.a = 50;
+    zolw.forward(100);
+    zolw.right();
+    zolw.pen.color.a = 20;
+    zolw.forward(100);
+    zolw.right();
 
 }
-
-
-func change_turt(turt){
-    turt.angle = 60;
-}
-
-func change_i(i){
-    i = 69;
-}
-
-func ops(a, b, c, d){
-    ident = 5 + 10 + 15;
-    ident = 5 - 10 - 15;
-    ident = 5 * 10 * 10;
-    ident = 5 / 10 / 10;
-    ident = 10 ^ 2 ^ 2;
-    ident = 100 // 11;
-    ident = 100 % 11;
-    ident = -5;
-    ident = !true;
-    ident = 5 && 0;
-    ident = 5 || 0;
-    ident = 5 == null;
-    ident = 5 != null;
-    ident = 5 > 0;
-    ident = 5 > 0;
-    ident = 5 >= 0;
-    ident = 5 < 0;
-    ident = 5 <= 0;
-
-    return "abc";
-}
-
-func cond(){
-    if (true) {
-        print("true is true");
-    } else {
-        print("true is false");
+func rysuj_kwadrat(zolw, bok) {
+    i = 0;
+    while (i<=3) {
+        zolw.forward(bok);
+        zolw.right();
+        i = i + 1;
     }
-
-    unless (true) {
-        print("not true is true");
-    } else {
-        print("not true is false");
-    }
-
-    if (1) {
-        print("1 is true");
-    } else {
-        print("1 is false");
-    }
-
-    unless (1) {
-        print("not 1 is true");
-    } else {
-        print("not 1 is false");
-    }
-
-    if (0) {
-        print("0 is true");
-    } else {
-        print("0 is false");
-    }
-
-    unless (0) {
-        print("not 0 is true");
-    } else {
-        print("not 0 is false");
-    }
-
-    if ("abc") {
-        print("abc is true");
-    } else {
-        print("abc is false");
-    }
-
-    unless ("abc") {
-        print("not abc is true");
-    } else {
-        print("not abc is false");
-    }
-
-    if (1.1) {
-        print("1.1 is true");
-    } else {
-        print("1.1 is false");
-    }
-
-    unless (1.1) {
-        print("not 1.1 is true");
-    } else {
-        print("not 1.1 is false");
-    }
-
-    if (false) {
-        print("false is true");
-    } else {
-        print("false is false");
-    }
-
-    unless (false) {
-        print("not false is true");
-    } else {
-        print("not false is false");
-    }
-
-    if (Color()) {
-        print("Color() is true");
-    } else {
-        print("Color() is false");
-    }
-
-    unless (Color()) {
-        print("not Color() is true");
-    } else {
-        print("not Color() is false");
-    }
-}
-
-
-
-func loop(){
-    i = 1;
-    while(i < 10) {
-        if(i==3){
-            i = i+1;
-            continue;
-        }
-
-        if(i==6){
-            i = i+1;
-            break;
-        }
-
-        print(i);
-        i = i+1;
-
-    }
-    return 10;
 }
