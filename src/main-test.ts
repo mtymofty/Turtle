@@ -7,6 +7,8 @@ import { Program } from './parser/syntax/Program';
 import { PrinterVisitor } from './visitor/PrinterVisitor';
 import { Parser } from './parser/Parser';
 import { InterpreterVisitor } from './interpreter/InterpreterVisitor';
+import { writeFileSync } from 'fs';
+import { Lines } from './interpreter/semantics/lines/Lines';
 
 
 var file_path: string = process.argv.slice(2)[0];
@@ -19,7 +21,9 @@ var program: Program = parser.parse()
 var printer: PrinterVisitor = new PrinterVisitor();
 program.accept(printer)
 
-console.log("\nEXECUTING PROGRAM...\n")
+console.log("\n>>EXECUTING PROGRAM<<\n")
 var interpreter = new InterpreterVisitor();
 program.accept(interpreter)
 file_reader.abort()
+
+writeFileSync('canvas/src/lines.json', JSON.stringify(Lines.lines));

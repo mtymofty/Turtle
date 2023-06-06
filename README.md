@@ -588,10 +588,10 @@ Program uruchamiany jest przy użyciu specjalnego skryptu przyjmującego jako ar
 
 Możliwe jest włączenie programu przy użytciu dwóch skryptów:
 
-- ***turtle.sh*** - wykonywany jest jedynie kod napisanego programu. Przykładowe uruchomienie:
+- ***turtle.sh*** - podany kod jest interpetowany, po czym, jeśli w wykonanym programie użyto tworzenia linii wyświetlany jest stworzony obraz. Przykładowe uruchomienie:
 
     ./turtle.sh code_snippets/text.txt
-- ***turtle-test.sh*** - dodatkowo wypisywane na ekran jest drzewo obiektów programu. Przykładowe uruchomienie:
+- ***turtle-test.sh*** - kod jest interpretowany oraz na ekran wypisana zostaje struktura wygenerowanego programu. Nie dochodzi do rysowania obrazu. Przykładowe uruchomienie:
 
     ./turtle-test.sh code_snippets/text.txt
 

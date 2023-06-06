@@ -1,3 +1,4 @@
+import { Lines } from "../../semantics/lines/Lines";
 import { Position } from "../../../source/Position";
 import { ObjectInstance } from "./ObjectInstance";
 import { Pen } from "./Pen";
@@ -46,8 +47,7 @@ export class Turtle implements ObjectInstance {
         let y = Math.floor(this.position.y + (length * Math.sin(angle)))
 
         if (this.pen.enabled) {
-
-            globalThis.lines.push({
+            Lines.lines.push({
                 from: [this.position.x, this.position.y],
                 to: [x, y],
                 color:[this.pen.color.a, this.pen.color.r, this.pen.color.g, this.pen.color.b]

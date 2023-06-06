@@ -1,34 +1,19 @@
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useRef} from "react";
 import '../styles/App.css';
-import { Requests } from "../requests/Requests";
 import { Line } from "../types/Line";
+import lines from "../lines.json"
 
 export function App() {
   const ref = useRef<HTMLCanvasElement>(null)
-  const [lines, setLines] = useState<any>(null);
-  const [received, setReceived] = useState<boolean>(false);
 
   useEffect(() => {
-   Requests.lines().then(res => {
-      if (res.err) {
-         setLines([]);
-      }
-      else if (res.res) {
-         setLines(res.res);
-         setReceived(true)
-      }
-   });
-
-
-    if (ref.current && received) {
+    if (ref.current) {
       var ctx = ref.current.getContext('2d')
-
       lines.forEach( (line: Line) => {
         drawLine(ctx, line);
-    });
-
+      });
     }
-  }, [received])
+  })
 
   function drawLine(ctx: CanvasRenderingContext2D | null, line: Line) {
     if(!ctx) {
@@ -44,8 +29,8 @@ export function App() {
     ctx.lineWidth = 1;
 
     ctx.beginPath();
-    ctx.moveTo(...line.from);
-    ctx.lineTo(...line.to);
+    ctx.moveTo(line.from[0], line.from[1]);
+    ctx.lineTo(line.to[0], line.to[1]);
     ctx.stroke();
 }
 
