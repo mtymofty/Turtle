@@ -406,7 +406,7 @@ describe('Type matching tests:', () => {
     };
 
   expect(match).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('59. Is object instance - primitives - should me false', () => {

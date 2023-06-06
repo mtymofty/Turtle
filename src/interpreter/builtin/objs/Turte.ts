@@ -42,20 +42,22 @@ export class Turtle implements ObjectInstance {
     }
 
     forward(length: number) {
+        let x = this.position.x
+        let y = this.position.y
+
         let angle = this.angle * Math.PI / 180
-        let x = Math.round(this.position.x + (length * Math.cos(angle)))
-        let y = Math.round(this.position.y + (length * Math.sin(angle)))
+        this.position.x = Math.round(this.position.x + (length * Math.cos(angle)))
+        this.position.y = Math.round(this.position.y + (length * Math.sin(angle)))
+
+        this.position.validateAttr(null)
 
         if (this.pen.enabled) {
             Lines.lines.push({
-                from: [this.position.x, this.position.y],
-                to: [x, y],
+                from: [x, y],
+                to: [this.position.x, this.position.y],
                 color:[this.pen.color.a, this.pen.color.r, this.pen.color.g, this.pen.color.b]
             })
         }
-
-        this.position.x = x;
-        this.position.y = y;
     }
 
     right() {

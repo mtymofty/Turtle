@@ -81,7 +81,9 @@ export enum ErrorType {
     OBJ_METH_CALL_ERR,
     OBJ_ASSIGN_ERR,
     BUILDIN_FUN_REDEF_ERR,
-    BUILDIN_CONST_REDEF_ERR
+    BUILDIN_CONST_REDEF_ERR,
+    RECUR_CONTEXT_ERR,
+    RECUR_SCOPE_ERR
 }
 
 export enum WarningType {
@@ -89,5 +91,6 @@ export enum WarningType {
     COLOR_OPACITY_WARN,
     COLOR_COL_WARN,
     INT_OVERFLOW_WARN,
-    DOUBLE_OVERFLOW_WARN
+    DOUBLE_OVERFLOW_WARN,
+    POS_WARN
 }

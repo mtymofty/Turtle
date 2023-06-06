@@ -1269,4 +1269,74 @@ test('79. Non-Short circuit AND operation sideeffects', () => {
     expect(res.a).toBe(100);
     expect(res.r).toBe(100);
   });
+
+  test('80. Passing illigal values of args to POSITION constructor', () => {
+    var lexer = new LexerImp(new StringReader("func main() { return TurtlePosition(0, 1000).y}"));
+    var parser = new ParserImp(lexer);
+    let program = parser.parse();
+    var interpreter = new TestInterpreter();
+    program.accept(interpreter);
+    // y component set to 1000 is being changed to 500 (upper lmiit)
+    expect(interpreter.result()).toBe(500);
+  });
+
+  test('81. Assigning illigal values to object property', () => {
+    var lexer = new LexerImp(new StringReader("func main() { pos = TurtlePosition(0, 0); pos.x = 1000; return pos.x;}"));
+    var parser = new ParserImp(lexer);
+    let program = parser.parse();
+    var interpreter = new TestInterpreter();
+    program.accept(interpreter);
+    // x component set to 1000 is being changed to 500 (upper lmiit)
+    expect(interpreter.result()).toBe(500);
+  });
+
+  test('82. ERROR - Scope nesting limit', () => {
+    var lexer = new LexerImp(new StringReader(`
+    func main() {
+      scope();
+    }
+
+    func scope() {
+      if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {
+          if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {
+              if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {
+                  if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {
+                      if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {
+                          if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {
+                              if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {
+                                  if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {
+                                      if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {
+                                          if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {if (true) {
+                                          }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+    }
+    `));
+    var parser = new ParserImp(lexer);
+    let program = parser.parse();
+    var interpreter = new TestInterpreter();
+    const exec = () => {
+      program.accept(interpreter);
+    };
+
+    expect(exec).toThrow();
+  });
+
+  test('83. ERROR - Recursion limit', () => {
+    var lexer = new LexerImp(new StringReader(`
+    func main() {
+      recur();
+    }
+
+    func recur() {
+      recur();
+    }
+    `));
+    var parser = new ParserImp(lexer);
+    let program = parser.parse();
+    var interpreter = new TestInterpreter();
+    const exec = () => {
+      program.accept(interpreter);
+    };
+
+    expect(exec).toThrow();
+  });
 });

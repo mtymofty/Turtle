@@ -2,6 +2,16 @@ func main(){
     zolw = Turtle();
 	rysuj_kwadrat(zolw, 100);
 
+    zolw3 = Turtle();
+    zolw3.forward(10000);
+    zolw3.rotate(-225);
+    zolw3.pen.color.a = 10;
+    zolw3.pen.color.b = 0;
+    zolw3.pen.color.r = 255;
+    zolw3.pen.color.g = 0;
+    zolw3.forward(10000);
+
+
     zolw.position.x = 250;
     zolw.position.y = 250;
 	zolw.pen.color = Color(100,0,255,0);

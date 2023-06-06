@@ -81,18 +81,17 @@ export class InterpreterVisitor implements Visitor {
             ErrorHandler.raise_crit_err_mess(ErrorType.MAIN_PARAM_ERR)
         }
 
-        this.env.createFunCallContext()
+        this.env.createFunCallContext(null)
         this.callables["main"].accept(this)
-
     }
 
-    private addFunctions(prog: Program) {
+    private addFunctions(prog: Program): void {
         for (const fun_name in prog.functions) {
             this.callables[fun_name] = prog.functions[fun_name];
         }
     }
 
-    private addBuiltinFunctions() {
+    private addBuiltinFunctions(): void {
         var defin = null;
         if(defin = this.callables["print"]){
             ErrorHandler.raise_crit_err(ErrorType.BUILDIN_FUN_REDEF_ERR, [defin.name], defin.position)
@@ -100,7 +99,7 @@ export class InterpreterVisitor implements Visitor {
         this.callables["print"] = new PrintFunction();
     }
 
-    private addBuiltinObjects() {
+    private addBuiltinObjects(): void {
         var defin = null;
         if((defin = this.callables["Color"] ) ||
             (defin = this.callables["Pen"]) ||
@@ -143,21 +142,20 @@ export class InterpreterVisitor implements Visitor {
                 break
             }
 
-
             this.last_result = undefined
         }
     }
 
     visitIfStatement(stmnt: IfStatement): void {
         stmnt.condition.accept(this)
-        this.env.createScope()
+        this.env.createScope(stmnt.position)
         this.visitCondStatement(stmnt, this.last_result)
         this.env.deleteScope()
     }
 
     visitUnlessStatement(stmnt: UnlessStatement): void {
         stmnt.condition.accept(this)
-        this.env.createScope()
+        this.env.createScope(stmnt.position)
         this.visitCondStatement(stmnt, !this.last_result)
         this.env.deleteScope()
     }
@@ -176,7 +174,7 @@ export class InterpreterVisitor implements Visitor {
     visitWhileStatement(stmnt: WhileStatement): void {
         stmnt.condition.accept(this)
 
-        this.env.createScope()
+        this.env.createScope(stmnt.position)
         this.in_loop = true
         while(this.last_result) {
             this.last_result = undefined
@@ -283,9 +281,6 @@ export class InterpreterVisitor implements Visitor {
             obj.validateAttr(stmnt.right.position)
         }
 
-
-
-
         if(stmnt.left instanceof Identifier) {
             this.env.store(var_name, new Value(val))
         }
@@ -295,8 +290,8 @@ export class InterpreterVisitor implements Visitor {
         let callable = this.callables[fun_call.fun_name]
         if (callable === null || callable === undefined) {
             ErrorHandler.raise_crit_err(ErrorType.FUN_UNDEF_ERR, [fun_call.fun_name], fun_call.position)
-
         }
+
         let args = this.getArgsAsValue(fun_call.args)
 
         if (callable instanceof Constructor){
@@ -310,7 +305,7 @@ export class InterpreterVisitor implements Visitor {
             }
         }
 
-        this.env.createFunCallContext()
+        this.env.createFunCallContext(fun_call.position)
         for (let i = 0; i < args.length; i++) {
             this.env.store(callable.parameters[i].name, args[i])
         }
@@ -370,7 +365,7 @@ export class InterpreterVisitor implements Visitor {
         this.last_result = method_attr[0](...arg_values)
     }
 
-    private visitTwoArgOp(op, match_type, eval_type, err_type) {
+    private visitTwoArgOp(op, match_type, eval_type, err_type): void {
         op.left.accept(this);
         let left = this.last_result;
 
@@ -384,7 +379,7 @@ export class InterpreterVisitor implements Visitor {
         }
     }
 
-    private visitNegs(neg, match_type, eval_type, err_type) {
+    private visitNegs(neg, match_type, eval_type, err_type): void {
         neg.expr.accept(this)
         let expr = this.last_result
 

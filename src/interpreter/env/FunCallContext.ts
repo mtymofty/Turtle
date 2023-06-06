@@ -1,9 +1,16 @@
+import { ErrorHandler } from "../../error/ErrorHandler";
+import { ErrorType } from "../../error/ErrorType";
+import { Position } from "../../source/Position";
 import { Value } from "../semantics/Value";
 
 export class FunCallContext {
     scopes: Array<Record<string, Value>> = []
+    max_scope: number = 100;
 
-    addScope() {
+    addScope(pos: Position) {
+        if (this.scopes.length >= this.max_scope) {
+            ErrorHandler.raise_crit_err(ErrorType.RECUR_SCOPE_ERR, [], pos)
+        }
         this.scopes.push({})
     }
 

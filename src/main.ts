@@ -23,8 +23,12 @@ program.accept(interpreter)
 file_reader.abort()
 
 if (Lines.lines.length == 0) {
-  // nie będzie otwierane okno z płótnem, jeśli nie wykonano żadnego rysunku
   process.exit(1)
 }
 
 writeFileSync('canvas/src/lines.json', JSON.stringify(Lines.lines));
+
+console.log('Press any key to proceed...');
+process.stdin.setRawMode(true);
+process.stdin.resume();
+process.stdin.on('data', process.exit.bind(process, 0));

@@ -55,7 +55,7 @@ describe('Parser class integration tests:', () => {
     };
 
     expect(parse).toThrow();
-    expect(mock_exit).toHaveBeenCalledWith(0);
+    expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('3. String with function definition should return program with 1 function', () => {
@@ -96,7 +96,7 @@ describe('Parser class integration tests:', () => {
     };
 
     expect(parse).toThrow();
-    expect(mock_exit).toHaveBeenCalledWith(0);
+    expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('8. Missing left bracket in params list should raise non-crit error', () => {
@@ -269,7 +269,7 @@ describe('Parser class integration tests:', () => {
   };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('25. Lacking true block while parsing if/unless statement should raise crit error', () => {
@@ -281,7 +281,7 @@ describe('Parser class integration tests:', () => {
   };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('26. Lacking false block while parsing if/unless statement should raise crit error', () => {
@@ -293,7 +293,7 @@ describe('Parser class integration tests:', () => {
   };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('27. Parser should succesfully parse simple while statement', () => {
@@ -341,7 +341,7 @@ describe('Parser class integration tests:', () => {
   };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('31. Lacking loop block while parsing while statement should raise crit error', () => {
@@ -353,7 +353,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('32. Parser should succesfully parse simple while statement with "continue"', () => {
@@ -401,7 +401,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('36. Standalone identifier should raise crit-error', () => {
@@ -413,7 +413,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('37. Standalone member access should raise crit-error', () => {
@@ -425,7 +425,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('38. MethodCall=X assignment should raise crit-error', () => {
@@ -437,7 +437,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('39. Lacking expression in assignment should raise crit-error', () => {
@@ -449,7 +449,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('40. Parser should succesfully parse member access', () => {
@@ -902,7 +902,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('67. Parser should succesfully parse simple subtraction', () => {
@@ -953,7 +953,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('70. Parser should succesfully parse simple multiplication', () => {
@@ -1004,7 +1004,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('73. Parser should succesfully parse simple division', () => {
@@ -1055,7 +1055,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('76. Parser should succesfully parse simple integer division', () => {
@@ -1106,7 +1106,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('79. Parser should succesfully parse simple disjunction', () => {
@@ -1157,7 +1157,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('82. Parser should succesfully parse simple conjunction', () => {
@@ -1208,7 +1208,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('85. Parser should succesfully parse simple conjunction', () => {
@@ -1259,7 +1259,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('88. Parser should succesfully parse simple exponentiation', () => {
@@ -1310,7 +1310,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('91. Parser should succesfully parse simple greater comparison', () => {
@@ -1342,7 +1342,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('93. Missing expression after greater comparison should raise crit-error', () => {
@@ -1354,7 +1354,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('94. Parser should succesfully parse simple greater equal comparison', () => {
@@ -1386,7 +1386,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('96. Missing expression after greater equal comparison should raise crit-error', () => {
@@ -1398,7 +1398,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('97. Parser should succesfully parse simple lesser comparison', () => {
@@ -1430,7 +1430,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('99. Missing expression after lesser comparison should raise crit-error', () => {
@@ -1442,7 +1442,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('100. Parser should succesfully parse simple lesser equal comparison', () => {
@@ -1474,7 +1474,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('102. Missing lesser equal comparison after exponentiation should raise crit-error', () => {
@@ -1486,7 +1486,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('103. Parser should succesfully parse simple equal comparison', () => {
@@ -1518,7 +1518,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('105. Missing expression after equal comparison should raise crit-error', () => {
@@ -1530,7 +1530,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('106. Parser should succesfully parse simple not equal comparison', () => {
@@ -1562,7 +1562,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('108. Missing not equal comparison after exponentiation should raise crit-error', () => {
@@ -1574,7 +1574,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('109. Parser should raise crit-error while encountering too many comparisons', () => {
@@ -1586,7 +1586,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('110. Parser should succesfully parse simple negation', () => {
@@ -1625,7 +1625,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('113. Missing expression after logical negation should raise crit-error', () => {
@@ -1637,7 +1637,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('114. Parser should succesfully parse simple parenthesis expression', () => {
@@ -1749,7 +1749,7 @@ describe('Parser class integration tests:', () => {
     };
 
   expect(parse).toThrow();
-  expect(mock_exit).toHaveBeenCalledWith(0);
+  expect(mock_exit).toHaveBeenCalledWith(1);
   });
 
   test('120. Parser should succesfully parse simple ReturnStatement inside a function block', () => {

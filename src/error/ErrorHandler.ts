@@ -45,7 +45,7 @@ export abstract class ErrorHandler {
     }
 
     static print_warn_mess(mess: string): void{
-        console.log(this.warning_color + mess);
+        console.log(this.warning_color + mess + this.white_color);
     }
 
     static print_code(code: string, pos: Position, line_beg: number):void {
@@ -83,7 +83,9 @@ export abstract class ErrorHandler {
     }
 
     static print_pos(pos: Position):void {
+        if (pos) {
         console.log(`line: ${pos.line} col: ${pos.col} ${this.white_color}`);
+        }
     }
 
     static insert_args(mess: string, args: string[], occurs: number[]): string {
@@ -131,6 +133,6 @@ export abstract class ErrorHandler {
         if (reader) {
             reader.abort();
         }
-        process.exit(0);
+        process.exit(1);
     }
 }
