@@ -588,7 +588,7 @@ Program uruchamiany jest przy użyciu specjalnego skryptu przyjmującego jako ar
 
 Możliwe jest włączenie programu przy użytciu dwóch skryptów:
 
-- ***turtle.sh*** - podany kod jest interpetowany, po czym, jeśli w wykonanym programie użyto tworzenia linii wyświetlany jest stworzony obraz. Przykładowe uruchomienie:
+- ***turtle.sh*** - podany kod jest interpetowany, po czym, jeśli w wykonanym programie użyto tworzenia linii, wyświetlany jest stworzony obraz. Przykładowe uruchomienie:
 
     ./turtle.sh code_snippets/text.txt
 - ***turtle-test.sh*** - kod jest interpretowany oraz na ekran wypisana zostaje struktura wygenerowanego programu. Nie dochodzi do rysowania obrazu. Przykładowe uruchomienie:
@@ -644,13 +644,15 @@ Możliwe jest włączenie programu przy użytciu dwóch skryptów:
 
 
 ## Sposób realizacji
+Aplikacja napisana została języku **typescript** z wykorzystaniem biblioteki **React** w celu rysowania obrazów.
+
 Poniżej znajduje się graf zależności najważniejszych modułów systemu.
 
-<img title="Graf" alt="Graf modułów" src="assets/diagram.png">
+<img title="Graf" alt="Graf modułów" src="assets/diagram.jpg">
 
 Do **leksera** trafiają szeregowo znaki z kodu źródłowego, które są analizowane leksykalnie i tokenizowane.
 Wyprodukowane tokeny trafiają następnie do **parsera**, który dokonuje analizy składniowej i buduje na ich podstawie drzewo obiektów programu.
-Ostatecznie **interpreter** wykonuje program sprawdzając przy okazji poprawność semantyczną.
+Ostatecznie **interpreter** wykonuje program sprawdzając przy okazji poprawność semantyczną. Otrzymane w interpretacji dane o rysowanych liniach trafiają następnie do aplikacji odpowiedzialnej za rysowanie, a użytkownikowi ukazuje się wygenerowany obraz.
 Dodatkowo moduł **obsługi błędów**, komunikujący się z każdym z wymienionych komponentów, będzie odpowiedzialny za informowanie użytkownika o występujących w kodzie błędach i w przypadku, gdy zajdzie taka potrzeba - przerwanie wykonania programu.
 
 ### Lekser
@@ -759,8 +761,11 @@ Po pełnej analizie składniowej kodu, interpreter zaczyna wykonywać kod, przy 
 
 Interpreter komunikuje się z modułem **Environment** w celu zarządzania zasięgiem oraz kontekstem, **TypeMatching** do sprawdzania poprawności typów, **Evaluator** żeby obliczać wartości operacji.
 
+### Canvas
+Aplikacja React otrzymuje z interpretera dane o rysowanych liniach w formacie JSON. Na podstawie tych informacji na płótno (500px x 500px) nanoszone są linie w kolejności ich tworzenia w kodzie. W procesie rysowania respektowane są przezroczystości linii oraz mieszanie barw.
+
 ## Testowanie
-Program testowany jest przy użyciu biblioteki JEST.
+Program testowany jest przy użyciu biblioteki JEST, komendą **npm test** lub **jest**
 Powstały łącznie **483** testy działania poszczególnych modułów aplikacji.
 
 Uruchomienie komendą **jest**

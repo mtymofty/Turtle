@@ -43,8 +43,8 @@ export class Turtle implements ObjectInstance {
 
     forward(length: number) {
         let angle = this.angle * Math.PI / 180
-        let x = Math.floor(this.position.x + (length * Math.cos(angle)))
-        let y = Math.floor(this.position.y + (length * Math.sin(angle)))
+        let x = Math.round(this.position.x + (length * Math.cos(angle)))
+        let y = Math.round(this.position.y + (length * Math.sin(angle)))
 
         if (this.pen.enabled) {
             Lines.lines.push({

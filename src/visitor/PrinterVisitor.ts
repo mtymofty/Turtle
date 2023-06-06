@@ -193,9 +193,7 @@ export class PrinterVisitor implements Visitor {
     visitMemberAccess(acc: MemberAccess): void {
         this.print(`MemberAccess [line: ${acc.position.line} col: ${acc.position.col}]: \n`)
         this.indent += this.indent_inc
-        this.print(`--left-- `)
         acc.left.accept(this)
-        this.print(`--right-- `)
         acc.right.accept(this)
         this.indent -= this.indent_inc
     }

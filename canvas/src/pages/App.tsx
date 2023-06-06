@@ -9,9 +9,13 @@ export function App() {
   useEffect(() => {
     if (ref.current) {
       var ctx = ref.current.getContext('2d')
-      lines.forEach( (line: Line) => {
-        drawLine(ctx, line);
-      });
+      if (ctx instanceof CanvasRenderingContext2D){
+        ctx.globalCompositeOperation = "lighter"
+        lines.forEach( (line: Line) => {
+          drawLine(ctx, line);
+        });
+      }
+
     }
   })
 

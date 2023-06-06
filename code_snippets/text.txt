@@ -1,18 +1,39 @@
 func main(){
     zolw = Turtle();
-	# rysuj_kwadrat(zolw, 10);
+	rysuj_kwadrat(zolw, 100);
 
-    zolw.forward(100);
-    zolw.right();
-    zolw.pen.color.a = 70;
-    zolw.forward(100);
-    zolw.right();
-    zolw.pen.color.a = 50;
-    zolw.forward(100);
-    zolw.right();
-    zolw.pen.color.a = 20;
-    zolw.forward(100);
-    zolw.right();
+    zolw.position.x = 250;
+    zolw.position.y = 250;
+	zolw.pen.color = Color(100,0,255,0);
+	zolw.forward(50);
+
+	zolw.pen.enabled = false;
+	zolw.pen.color.r = 255;
+	zolw.forward(50);
+
+	zolw.pen.enabled = true;
+	zolw.pen.color.g = 0;
+	zolw.forward(50);
+
+	zolw.pen.color.b = 255;
+	zolw.forward(50);
+
+    zolw2 = Turtle();
+    zolw2.position.x = 300;
+    zolw2.position.y = 300;
+
+    zolw2.rotate(-60);
+    zolw2.forward(50);
+    zolw2.rotate(-60);
+    zolw2.forward(50);
+    zolw2.rotate(-60);
+    zolw2.forward(50);
+    zolw2.rotate(-60);
+    zolw2.forward(50);
+    zolw2.rotate(-60);
+    zolw2.forward(50);
+    zolw2.rotate(-60);
+    zolw2.forward(50);
 
 }
 func rysuj_kwadrat(zolw, bok) {
