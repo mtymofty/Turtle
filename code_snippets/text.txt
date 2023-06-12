@@ -1,3 +1,28 @@
-func fun(abc, def){
-    ident = 5 + 10;
+func main(){
+    żółw = Turtle(Pen(true, Color(100, 255, 0, 0)), TurtlePosition(200, 200), 0);
+    trojkat_sierpinskiego(żółw, 160, 3);
+
+}
+
+func trojkat_sierpinskiego(zolw, bok, n){
+    if(n==0){
+        i = 0;
+        while(i<3) {
+            zolw.forward(bok);
+            zolw.rotate(-120);
+            i = i+1;
+        }
+    } else {
+        trojkat_sierpinskiego(zolw, bok/2, n-1);
+        zolw.forward(bok/2);
+        trojkat_sierpinskiego(zolw, bok/2, n-1);
+        zolw.forward(-bok/2);
+        zolw.rotate(-60);
+        zolw.forward(bok/2);
+        zolw.rotate(60);
+        trojkat_sierpinskiego(zolw, bok/2, n-1);
+        zolw.rotate(-60);
+        zolw.forward(-bok/2);
+        zolw.rotate(60);
+    }
 }

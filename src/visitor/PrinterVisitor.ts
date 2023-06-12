@@ -1,38 +1,41 @@
-import { Block } from "../syntax/Block";
-import { FunctionDef } from "../syntax/FunctionDef";
-import { Identifier } from "../syntax/expression/primary/object_access/Identifier";
-import { IfStatement } from "../syntax/statement/IfStatement";
-import { Program } from "../syntax/Program";
-import { UnlessStatement } from "../syntax/statement/UnlessStatement";
-import { WhileStatement } from "../syntax/statement/WhileStatement";
+import { Block } from "../parser/syntax/Block";
+import { FunctionDef } from "../parser/syntax/FunctionDef";
+import { Identifier } from "../parser/syntax/expression/primary/object_access/Identifier";
+import { IfStatement } from "../parser/syntax/statement/IfStatement";
+import { Program } from "../parser/syntax/Program";
+import { UnlessStatement } from "../parser/syntax/statement/UnlessStatement";
+import { WhileStatement } from "../parser/syntax/statement/WhileStatement";
 import { Visitor } from "./Visitor";
-import { AssignStatement } from "../syntax/statement/AssignStatement";
-import { MemberAccess } from "../syntax/expression/primary/object_access/MemberAccess";
-import { FunCall } from "../syntax/expression/primary/object_access/FunCall";
-import { Addition } from "../syntax/expression/additive/Addition";
-import { Negation } from "../syntax/expression/negation/Negation";
-import { Division } from "../syntax/expression/multiplicative/Division";
-import { AndExpression } from "../syntax/expression/AndExpression";
-import { Multiplication } from "../syntax/expression/multiplicative/Multiplication";
-import { Subtraction } from "../syntax/expression/additive/Subtraction";
-import { Exponentiation } from "../syntax/expression/Exponentiation";
-import { LogicalNegation } from "../syntax/expression/negation/LogicalNegation";
-import { OrExpression } from "../syntax/expression/OrExpression";
-import { NotEqualComparison } from "../syntax/expression/comparison/NotEqualComparison";
-import { EqualComparison } from "../syntax/expression/comparison/EqualComparison";
-import { LesserEqualComparison } from "../syntax/expression/comparison/LesserEqualComparison";
-import { LesserComparison } from "../syntax/expression/comparison/LesserComparison";
-import { GreaterComparison } from "../syntax/expression/comparison/GreaterComparison";
-import { Modulo } from "../syntax/expression/multiplicative/Modulo";
-import { IntDivision } from "../syntax/expression/multiplicative/IntDivision";
-import { BooleanConstant } from "../syntax/expression/primary/constant/BooleanConstant";
-import { DoubleConstant } from "../syntax/expression/primary/constant/DoubleConstant";
-import { IntConstant } from "../syntax/expression/primary/constant/IntConstant";
-import { StringConstant } from "../syntax/expression/primary/constant/StringConstant";
-import { NullConstant } from "../syntax/expression/primary/constant/NullConstant";
-import { ReturnStatement } from "../syntax/statement/ReturnStatement";
-import { BreakStatement } from "../syntax/statement/BreakStatement";
-import { ContinueStatement } from "../syntax/statement/ContinueStatement";
+import { AssignStatement } from "../parser/syntax/statement/AssignStatement";
+import { MemberAccess } from "../parser/syntax/expression/primary/object_access/MemberAccess";
+import { FunCall } from "../parser/syntax/expression/primary/object_access/FunCall";
+import { Addition } from "../parser/syntax/expression/additive/Addition";
+import { Negation } from "../parser/syntax/expression/negation/Negation";
+import { Division } from "../parser/syntax/expression/multiplicative/Division";
+import { AndExpression } from "../parser/syntax/expression/logical/AndExpression";
+import { Multiplication } from "../parser/syntax/expression/multiplicative/Multiplication";
+import { Subtraction } from "../parser/syntax/expression/additive/Subtraction";
+import { Exponentiation } from "../parser/syntax/expression/Exponentiation";
+import { LogicalNegation } from "../parser/syntax/expression/negation/LogicalNegation";
+import { OrExpression } from "../parser/syntax/expression/logical/OrExpression";
+import { NotEqualComparison } from "../parser/syntax/expression/comparison/NotEqualComparison";
+import { EqualComparison } from "../parser/syntax/expression/comparison/EqualComparison";
+import { LesserEqualComparison } from "../parser/syntax/expression/comparison/LesserEqualComparison";
+import { LesserComparison } from "../parser/syntax/expression/comparison/LesserComparison";
+import { GreaterComparison } from "../parser/syntax/expression/comparison/GreaterComparison";
+import { Modulo } from "../parser/syntax/expression/multiplicative/Modulo";
+import { IntDivision } from "../parser/syntax/expression/multiplicative/IntDivision";
+import { BooleanConstant } from "../parser/syntax/expression/primary/constant/BooleanConstant";
+import { DoubleConstant } from "../parser/syntax/expression/primary/constant/DoubleConstant";
+import { IntConstant } from "../parser/syntax/expression/primary/constant/IntConstant";
+import { StringConstant } from "../parser/syntax/expression/primary/constant/StringConstant";
+import { NullConstant } from "../parser/syntax/expression/primary/constant/NullConstant";
+import { ReturnStatement } from "../parser/syntax/statement/ReturnStatement";
+import { BreakStatement } from "../parser/syntax/statement/BreakStatement";
+import { ContinueStatement } from "../parser/syntax/statement/ContinueStatement";
+import { PrintFunction } from "../interpreter/builtin/funs/PrintFunction";
+import { GreaterEqualComparison } from "../parser/syntax/expression/comparison/GreaterEqualComparison";
+import { Constructor } from "../interpreter/builtin/objs/Constructor";
 
 export class PrinterVisitor implements Visitor {
     indent: number
@@ -129,7 +132,13 @@ export class PrinterVisitor implements Visitor {
     }
 
     visitReturn(ret: ReturnStatement): void {
-        this.print(`Return [line: ${ret.position.line} col: ${ret.position.col}]\n`)
+        this.print(`Return [line: ${ret.position.line} col: ${ret.position.col}]: \n`)
+        if (ret.expression !== null) {
+            this.indent += this.indent_inc
+            ret.expression.accept(this)
+            this.indent -= this.indent_inc
+        }
+
     }
 
     visitBreak(br: BreakStatement): void {
@@ -160,7 +169,7 @@ export class PrinterVisitor implements Visitor {
         this.print(`Null Constant [line: ${null_.position.line} col: ${null_.position.col}]: null\n`)
     }
 
-    visitTrueConstant(constant: BooleanConstant): void {
+    visitBooleanConstant(constant: BooleanConstant): void {
         this.print(`Boolean Constant [line: ${constant.position.line} col: ${constant.position.col}]: ${constant.value}\n`)
     }
 
@@ -275,7 +284,7 @@ export class PrinterVisitor implements Visitor {
         this.indent -= this.indent_inc
     }
 
-    visitGreaterComparison(comp: OrExpression): void{
+    visitGreaterComparison(comp: GreaterComparison): void{
         this.print(`Greater Comparison [line: ${comp.position.line} col: ${comp.position.col}]: \n`)
         this.indent += this.indent_inc
         comp.left.accept(this)
@@ -283,7 +292,7 @@ export class PrinterVisitor implements Visitor {
         this.indent -= this.indent_inc
     }
 
-    visitGreaterEqualComparison(comp: GreaterComparison): void{
+    visitGreaterEqualComparison(comp: GreaterEqualComparison): void{
         this.print(`Greater or Equal Comparison [line: ${comp.position.line} col: ${comp.position.col}]: \n`)
         this.indent += this.indent_inc
         comp.left.accept(this)
@@ -321,6 +330,12 @@ export class PrinterVisitor implements Visitor {
         comp.left.accept(this)
         comp.right.accept(this)
         this.indent -= this.indent_inc
+    }
+
+    visitPrintFunction(_: PrintFunction): void{
+    }
+
+    visitConstr(_: Constructor): void{
     }
 
 

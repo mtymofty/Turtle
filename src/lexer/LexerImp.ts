@@ -17,7 +17,6 @@ export class LexerImp implements Lexer {
     token: Token | null = null;
     private curr_token_pos: Position | null = null;
 
-    private error_handler: ErrorHandler;
     private raised_error_now: boolean = false;
     private raised_error: boolean = false;
 
@@ -26,11 +25,10 @@ export class LexerImp implements Lexer {
     private max_ident_len: number = 50;
     private max_str_len: number = 200;
 
-    constructor(reader: Reader, error_handler: ErrorHandler, max_ident_len?, max_str_len?) {
+    constructor(reader: Reader, max_ident_len?, max_str_len?) {
         this.max_ident_len = max_ident_len ? max_ident_len: 50
         this.max_str_len = max_str_len ?  max_str_len: 200
         this.reader = reader;
-        this.error_handler = error_handler;
         this.curr_char = this.reader.get_char()
         this.handle_eol()
     }
@@ -74,24 +72,24 @@ export class LexerImp implements Lexer {
     }
 
     print_error_pos(err_type: ErrorType, args: string[]): void {
-        this.error_handler.print_error(this.reader, this.curr_pos(), err_type, args)
+        ErrorHandler.print_error(this.curr_pos(), err_type, args, this.reader)
         this.raised_error_now = true;
         this.raised_error = true;
     }
 
     print_warning_pos(warn_type: WarningType, args: string[]): void {
-        this.error_handler.print_warning(this.reader, this.curr_pos(), warn_type, args)
+        ErrorHandler.print_warning(this.curr_pos(), warn_type, args, this.reader)
     }
 
     print_error_token(err_type: ErrorType, args: string[]): void {
-        this.error_handler.print_error(this.reader, this.curr_token_pos, err_type, args)
+        ErrorHandler.print_error(this.curr_token_pos, err_type, args, this.reader)
         this.raised_error_now = true;
         this.raised_error = true;
     }
 
     raise_critical_error(err_type: ErrorType, args: string[]): void {
         this.print_error_pos(err_type, args);
-        this.error_handler.abort(this.reader);
+        ErrorHandler.abort(this.reader);
     }
 
     is_char_white(): boolean {
@@ -233,7 +231,7 @@ export class LexerImp implements Lexer {
                         this.next_char();
                     }
                     this.print_error_token(ErrorType.DOUBLE_EXC_VAL_ERR, []);
-                    this.token = new Token(TokenType.DOUBLE, value=(value + fraction/Math.pow(10, num_of_decimals)), this.curr_token_pos);
+                    this.token = new Token(TokenType.DOUBLE, value=(value + 0.0), this.curr_token_pos);
                     return true;
                 }
                 this.next_char();

@@ -1,57 +1,54 @@
 import { ErrorHandler } from "../error/ErrorHandler";
 import { Lexer } from "../lexer/Lexer";
-import { Block } from "../syntax/Block";
-import { FunctionDef } from "../syntax/FunctionDef";
-import { Program } from "../syntax/Program";
+import { Block } from "./syntax/Block";
+import { FunctionDef } from "./syntax/FunctionDef";
+import { Program } from "./syntax/Program";
 import { TokenType } from "../token/TokenType";
-import { Statement } from "../syntax/statement/Statement";
-import { ReturnStatement } from "../syntax/statement/ReturnStatement";
-import { BreakStatement } from "../syntax/statement/BreakStatement";
-import { ContinueStatement } from "../syntax/statement/ContinueStatement";
+import { Statement } from "./syntax/statement/Statement";
+import { ReturnStatement } from "./syntax/statement/ReturnStatement";
+import { BreakStatement } from "./syntax/statement/BreakStatement";
+import { ContinueStatement } from "./syntax/statement/ContinueStatement";
 import { ErrorType, WarningType } from "../error/ErrorType";
-import { IfStatement } from "../syntax/statement/IfStatement";
-import { Identifier } from "../syntax/expression/primary/object_access/Identifier";
-import { UnlessStatement } from "../syntax/statement/UnlessStatement";
-import { WhileStatement } from "../syntax/statement/WhileStatement";
-import { Expression } from "../syntax/expression/Expression";
+import { IfStatement } from "./syntax/statement/IfStatement";
+import { Identifier } from "./syntax/expression/primary/object_access/Identifier";
+import { UnlessStatement } from "./syntax/statement/UnlessStatement";
+import { WhileStatement } from "./syntax/statement/WhileStatement";
+import { Expression } from "./syntax/expression/Expression";
 import { Parser } from "./Parser";
-import { AssignStatement } from "../syntax/statement/AssignStatement";
-import { ObjectAccess } from "../syntax/expression/primary/object_access/ObjectAccess";
-import { MemberAccess } from "../syntax/expression/primary/object_access/MemberAccess";
-import { FunCall } from "../syntax/expression/primary/object_access/FunCall";
-import { OrExpression } from "../syntax/expression/OrExpression";
-import { Negation } from "../syntax/expression/negation/Negation";
-import { LogicalNegation } from "../syntax/expression/negation/LogicalNegation";
-import { Exponentiation } from "../syntax/expression/Exponentiation";
-import { Multiplication } from "../syntax/expression/multiplicative/Multiplication";
-import { IntDivision } from "../syntax/expression/multiplicative/IntDivision";
-import { Division } from "../syntax/expression/multiplicative/Division";
-import { Modulo } from "../syntax/expression/multiplicative/Modulo";
-import { Addition } from "../syntax/expression/additive/Addition";
-import { Subtraction } from "../syntax/expression/additive/Subtraction";
-import { EqualComparison } from "../syntax/expression/comparison/EqualComparison";
-import { NotEqualComparison } from "../syntax/expression/comparison/NotEqualComparison";
-import { GreaterComparison } from "../syntax/expression/comparison/GreaterComparison";
-import { GreaterEqualComparison } from "../syntax/expression/comparison/GreaterEqualComparison";
-import { LesserComparison } from "../syntax/expression/comparison/LesserComparison";
-import { LesserEqualComparison } from "../syntax/expression/comparison/LesserEqualComparison";
-import { AndExpression } from "../syntax/expression/AndExpression";
-import { BooleanConstant } from "../syntax/expression/primary/constant/BooleanConstant";
-import { NullConstant } from "../syntax/expression/primary/constant/NullConstant";
-import { IntConstant } from "../syntax/expression/primary/constant/IntConstant";
-import { DoubleConstant } from "../syntax/expression/primary/constant/DoubleConstant";
-import { StringConstant } from "../syntax/expression/primary/constant/StringConstant";
-import { Position } from "../source/Position";
+import { AssignStatement } from "./syntax/statement/AssignStatement";
+import { ObjectAccess } from "./syntax/expression/primary/object_access/ObjectAccess";
+import { MemberAccess } from "./syntax/expression/primary/object_access/MemberAccess";
+import { FunCall } from "./syntax/expression/primary/object_access/FunCall";
+import { OrExpression } from "./syntax/expression/logical/OrExpression";
+import { Negation } from "./syntax/expression/negation/Negation";
+import { LogicalNegation } from "./syntax/expression/negation/LogicalNegation";
+import { Exponentiation } from "./syntax/expression/Exponentiation";
+import { Multiplication } from "./syntax/expression/multiplicative/Multiplication";
+import { IntDivision } from "./syntax/expression/multiplicative/IntDivision";
+import { Division } from "./syntax/expression/multiplicative/Division";
+import { Modulo } from "./syntax/expression/multiplicative/Modulo";
+import { Addition } from "./syntax/expression/additive/Addition";
+import { Subtraction } from "./syntax/expression/additive/Subtraction";
+import { EqualComparison } from "./syntax/expression/comparison/EqualComparison";
+import { NotEqualComparison } from "./syntax/expression/comparison/NotEqualComparison";
+import { GreaterComparison } from "./syntax/expression/comparison/GreaterComparison";
+import { GreaterEqualComparison } from "./syntax/expression/comparison/GreaterEqualComparison";
+import { LesserComparison } from "./syntax/expression/comparison/LesserComparison";
+import { LesserEqualComparison } from "./syntax/expression/comparison/LesserEqualComparison";
+import { AndExpression } from "./syntax/expression/logical/AndExpression";
+import { BooleanConstant } from "./syntax/expression/primary/constant/BooleanConstant";
+import { NullConstant } from "./syntax/expression/primary/constant/NullConstant";
+import { IntConstant } from "./syntax/expression/primary/constant/IntConstant";
+import { DoubleConstant } from "./syntax/expression/primary/constant/DoubleConstant";
+import { StringConstant } from "./syntax/expression/primary/constant/StringConstant";
 
 export class ParserImp implements Parser {
     lexer: Lexer
-    error_handler: ErrorHandler
 
     private raised_error: boolean = false;
 
-    constructor(lexer: Lexer, error_handler: ErrorHandler) {
+    constructor(lexer: Lexer) {
         this.lexer = lexer;
-        this.error_handler = error_handler;
         this.lexer.next_token();
     }
 
@@ -161,7 +158,7 @@ export class ParserImp implements Parser {
     //             | compound_statement
     parseStatement(): Statement {
         return this.parseIfStatement() || this.parseWhileStatement()
-               || this.parseSimpleStatement()
+               || this.parseSimpleStatement() || this.parseSimpleInLoopStatement()
     }
 
     parseInsideLoopStatement(): Statement {
@@ -216,6 +213,9 @@ export class ParserImp implements Parser {
         this.critErrorIfNull(if_block, ErrorType.IF_BLOCK_ERR, [])
 
         if(!this.consumeIf(TokenType.ELSE_KW)) {
+            if (is_unless) {
+                return new UnlessStatement(condition, if_block, null, pos)
+            }
             return new IfStatement(condition, if_block, null, pos)
         }
 
@@ -349,7 +349,9 @@ export class ParserImp implements Parser {
         }
         this.lexer.next_token()
 
-        return new ReturnStatement(pos);
+        var expr: Expression = this.parseExpression()
+
+        return new ReturnStatement(pos, expr);
     }
 
     // 'break'
@@ -673,17 +675,17 @@ export class ParserImp implements Parser {
     }
 
     print_warning(warn_type: WarningType, args: string[]): void {
-        this.error_handler.print_warning(this.lexer.get_reader(), this.lexer.token.pos, warn_type, args)
+        ErrorHandler.print_warning(this.lexer.token.pos, warn_type, args, this.lexer.get_reader())
     }
 
     print_error(err_type: ErrorType, args: string[]): void {
-        this.error_handler.print_error(this.lexer.get_reader(), this.lexer.token.pos, err_type, args)
+        ErrorHandler.print_error(this.lexer.token.pos, err_type, args, this.lexer.get_reader())
         this.raised_error = true;
     }
 
     raise_critical_error(err_type: ErrorType, args: string[]): void {
         this.print_error(err_type, args);
-        this.error_handler.abort(this.lexer.get_reader());
+        ErrorHandler.abort(this.lexer.get_reader());
     }
 
     did_raise_error(): boolean {
