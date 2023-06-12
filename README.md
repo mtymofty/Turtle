@@ -28,7 +28,7 @@ W języku występują także typy złożone, obiekty wbudowane *Turtle*, *Color*
 
 ### Operator przypisania
 
-    a = b;                  <- Inicjalizacja zmiennej
+    a = b;                  <- Inicjalizacja zmiennej lub przypisanie wartości
 
 #### Przykłady:
 
@@ -164,7 +164,7 @@ W języku występują także typy złożone, obiekty wbudowane *Turtle*, *Color*
 
 ### Obiekty wbudowane
 
-***Turtle*** - obiekt żółwia, jest używany do rysowania kształtów.
+***Turtle*** - obiekt żółwia, używany do rysowania kształtów.
 
 Metody:
 - *forward(length)* - rysuje prostą linię o długości length
@@ -179,7 +179,7 @@ Atrybuty:
 
 Konstruktory:
 
-    Turtle() - tworzy obiekt żółwia z domyślnymi atrybutami (czarnym długopisem, pozycją (x=0, y=0) i zwrotem w kierunku pionowym (angle=0))
+    Turtle() - tworzy obiekt żółwia z domyślnymi atrybutami (czarnym długopisem, pozycją (x=0, y=0) i zwrotem w kierunku prawym (angle=0))
     Turtle(pen, position, angle) - tworzy obiekt żółwia z podanymi przez użytkownika atrybutami
 
 ***Pen*** - obiekt długopisu, umożliwia modyfikowanie cech linii rysowanych przez żółwia.
@@ -229,9 +229,6 @@ Konstruktory:
 	    	i = i + 1;
 	    }
 	}
-
-	zolw = Turtle();
-	rysuj_kwadrat(zolw, 10);
 
 #### Rysowanie kolorowej linii
 
@@ -759,22 +756,25 @@ Analizator składniowy wykorzystując **Lekser** dostaje po kolei kolejne tokeny
 ### Interpreter
 Po pełnej analizie składniowej kodu, interpreter zaczyna wykonywać kod, przy czym sprawdza również poprawność semantyczną wygenerowanych struktur składniowych. Dokonuje niejawnych konwersji typów, sprawdza poprawności typów, legalność operacji oraz korekty wartości zmiennych. Błędy zgłaszane przez interpreter w trakcie wykonania są krytyczne i przerywają wykonanie programu.
 
-Interpreter komunikuje się z modułem **Environment** w celu zarządzania zasięgiem oraz kontekstem, **TypeMatching** do sprawdzania poprawności typów, **Evaluator** żeby obliczać wartości operacji.
+Interpreter komunikuje się z modułem **Environment** w celu zarządzania zasięgiem oraz kontekstem, **TypeMatching** do sprawdzania poprawności typów, **Evaluator** żeby obliczać wartości operacji. Program po interpretacji zapisuje dane o rysowanych liniach (jeśli takie występują) do pliku JSON, który następnie przekazywany jest do aplikacji **Canvas**
 
 ### Canvas
 Aplikacja React otrzymuje z interpretera dane o rysowanych liniach w formacie JSON. Na podstawie tych informacji na płótno (500px x 500px) nanoszone są linie w kolejności ich tworzenia w kodzie. W procesie rysowania respektowane są przezroczystości linii oraz mieszanie barw.
 
 ## Testowanie
-Program testowany jest przy użyciu biblioteki JEST, komendą **npm test** lub **jest**
+Program testowany jest przy użyciu biblioteki JEST.  
 Powstały łącznie **483** testy działania poszczególnych modułów aplikacji.
 
-Uruchomienie komendą **jest**
+Uruchomienie komendą **jest** lub **npm test**
 
 ### Lekser
 Poprawne działanie **leksera** sprawdzanie jest przy użyciu testów jednostkowych weryfikujących wykrywanie pojedynczych tokenów (zarówno poprawnych jak i niepoprawnych). Testy niepoprawne są przeprowadzane między innymi korzystając z typowych błędów, które mogą przydarzyć się podczas pisaniu kodu, np. literówka, lub brak domknięcia cudzysłowia.
 
+### Parser
 Dla każdej produkcji **parsera** powstał test sprawdzający jej poprawność.  Dodatkowo przeprowadzone zostały testy dla scenariuszy nieprawidłowych sekwencji tokenów.
 
+### Interpreter
 **Interpreter** sprawdzany jest poprzez testowanie pełnego potoku przetwarzania na podstawie łańcucha znaków. Sprawdzone zostały wszystkie legalne konstrukcje językowe, typowe sytuacje błędne, sposoby wykonywania kodu i dostępu do zmiennych itd.
 
+### Inne
 Inne moduły aplikacji, takie jak: **Reader**, **TypeMatching**, **Evaluator** oraz **Misc** testowane były przy użyciu testów jednostkowych.
