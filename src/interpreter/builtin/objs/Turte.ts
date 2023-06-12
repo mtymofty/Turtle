@@ -31,7 +31,7 @@ export class Turtle implements ObjectInstance {
         ["forward"]: [this.forward.bind(this), ["integer"]],
         ["left"]: [this.left.bind(this), []],
         ["right"]: [this.right.bind(this), []],
-        ["rotate"]: [this.rotate.bind(this), ["integer"]]
+        ["rotate"]: [this.rotate.bind(this), ["number"]]
     }
 
 
